@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pilot Logbook</title>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Courier Prime', 'Courier New', monospace;
+      background: #d4c4a8;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .logbook-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #f8f4e8;
+      border: 3px solid #5a4a3a;
+      box-shadow: 4px 4px 15px rgba(0,0,0,0.3);
+    }
+
+    /* Header */
+    .logbook-header {
+      background: linear-gradient(to bottom, #2c4a1e 0%, #1a3010 100%);
+      color: #f5f0e1;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid #5a4a3a;
+    }
+
+    .logbook-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    .header-actions { display: flex; gap: 10px; }
+
+    /* Buttons */
+    .btn {
+      padding: 8px 16px;
+      border: 2px solid;
+      border-radius: 3px;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary { background: #2c4a1e; color: #f5f0e1; border-color: #1a3010; }
+    .btn-primary:hover { background: #3d6428; }
+    .btn-secondary { background: #f5f0e1; color: #5a4a3a; border-color: #8b7355; }
+    .btn-secondary:hover { background: #e8e0cc; }
+    .btn-danger { background: #8b3a3a; color: #f5f0e1; border-color: #6a2a2a; }
+    .btn-danger:hover { background: #a04545; }
+    .btn-sm { padding: 5px 10px; font-size: 0.7rem; }
+
+    /* Summary Stats */
+    .summary-bar {
+      background: #e8e0cc;
+      padding: 12px 25px;
+      border-bottom: 2px solid #c9b896;
+      display: flex;
+      gap: 30px;
+      font-size: 0.85rem;
+    }
+
+    .stat { display: flex; gap: 8px; }
+    .stat-label { color: #8b7355; }
+    .stat-value { font-weight: 700; color: #2c4a1e; }
+
+    /* Batch Actions Bar */
+    .batch-actions-bar {
+      background: #3a2a1a;
+      padding: 12px 25px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #5a4a3a;
+    }
+
+    .batch-actions-bar.show {
+      display: flex;
+    }
+
+    .batch-info {
+      color: #f5f0e1;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .batch-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* Flight List */
+    .flight-list {
+      padding: 0;
+    }
+
+    .flight-entry {
+      display: grid;
+      grid-template-columns: 35px 100px 70px 90px 70px 70px 70px auto;
+      gap: 12px;
+      padding: 15px 25px;
+      border-bottom: 1px solid #d4c4a8;
+      transition: background 0.15s;
+      align-items: center;
+    }
+
+    .flight-entry:hover {
+      background: #f0ebe0;
+    }
+
+    .flight-entry:last-child {
+      border-bottom: none;
+    }
+
+    .flight-entry.selected {
+      background: #e8f0e4;
+    }
+
+    .flight-checkbox {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #2c4a1e;
+    }
+
+    .flight-content {
+      display: contents;
+      cursor: pointer;
+    }
+
+    .flight-date {
+      font-weight: 700;
+      color: #3a2a1a;
+    }
+
+    .flight-aircraft {
+      color: #5a4a3a;
+    }
+
+    .flight-ident {
+      font-weight: 700;
+      color: #2c4a1e;
+    }
+
+    .flight-from,
+    .flight-to {
+      color: #5a4a3a;
+    }
+
+    .flight-duration {
+      font-weight: 700;
+      color: #2c4a1e;
+      text-align: right;
+    }
+
+    .flight-arrow {
+      color: #c9b896;
+      text-align: right;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #8b7355;
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      color: #c9b896;
+    }
+
+    .empty-state p {
+      font-size: 1rem;
+      margin-bottom: 20px;
+    }
+
+    /* Dropdown */
+    .dropdown { position: relative; }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%; right: 0;
+      background: #f5f0e1;
+      border: 2px solid #8b7355;
+      min-width: 140px;
+      z-index: 100;
+      margin-top: 5px;
+    }
+    .dropdown-menu.show { display: block; }
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      color: #3a2a1a;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.75rem;
+    }
+    .dropdown-item:hover { background: #e8e0cc; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px; right: 20px;
+      padding: 12px 20px;
+      background: #2c4a1e;
+      color: #f5f0e1;
+      border: 2px solid #1a3010;
+      font-family: 'Courier Prime', monospace;
+      font-weight: 700;
+      font-size: 0.85rem;
+      z-index: 2000;
+      display: none;
+    }
+    .toast.error { background: #8b3a3a; border-color: #6a2a2a; }
+    .toast.show { display: block; }
+
+    /* Column Headers */
+    .list-header {
+      display: grid;
+      grid-template-columns: 35px 100px 70px 90px 70px 70px 70px auto;
+      gap: 12px;
+      padding: 10px 25px;
+      background: #d4c4a8;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #5a4a3a;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .list-header span:nth-child(7) {
+      text-align: right;
+    }
+
+    .select-all-checkbox {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #2c4a1e;
+    }
+  </style>
+</head>
+<body>
+  <div class="logbook-container">
+    <header class="logbook-header">
+      <h1 class="logbook-title">✈ PILOT LOGBOOK</h1>
+      <div class="header-actions">
+        <a href="/entry/new" class="btn btn-primary"><i class="fas fa-plus"></i> New Flight</a>
+        <a href="/import" class="btn btn-secondary"><i class="fas fa-plane-arrival"></i> Import</a>
+        <div class="dropdown">
+          <button class="btn btn-secondary" onclick="toggleDropdown(this)"><i class="fas fa-ellipsis-v"></i></button>
+          <div class="dropdown-menu">
+            <button class="dropdown-item" onclick="exportToSheets()"><i class="fab fa-google-drive"></i> Export to Sheets</button>
+            <a href="/api/export/csv" class="dropdown-item"><i class="fas fa-file-csv"></i> Download CSV</a>
+            <a href="/api/export/json" class="dropdown-item"><i class="fas fa-download"></i> Download JSON</a>
+            <button class="dropdown-item" onclick="document.getElementById('importInput').click()"><i class="fas fa-upload"></i> Import JSON</button>
+            <input type="file" id="importInput" accept=".json" style="display:none" onchange="importJSON(this)">
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="summary-bar">
+      <div class="stat">
+        <span class="stat-label">Total Flights:</span>
+        <span class="stat-value">{{ totals.flights }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Total Time:</span>
+        <span class="stat-value">{{ "%.1f"|format(totals.total_duration) }} hrs</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">PIC:</span>
+        <span class="stat-value">{{ "%.1f"|format(totals.pic) }} hrs</span>
+      </div>
+      {% if totals.cross_country %}
+      <div class="stat">
+        <span class="stat-label">X-C:</span>
+        <span class="stat-value">{{ "%.1f"|format(totals.cross_country) }} hrs</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Batch Actions Bar -->
+    <div class="batch-actions-bar" id="batchActionsBar">
+      <span class="batch-info"><span id="selectedCount">0</span> flight(s) selected</span>
+      <div class="batch-buttons">
+        <button class="btn btn-secondary btn-sm" onclick="clearSelection()"><i class="fas fa-times"></i> Clear</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteSelected()"><i class="fas fa-trash"></i> Delete Selected</button>
+      </div>
+    </div>
+
+    {% if entries %}
+    <div class="list-header">
+      <input type="checkbox" class="select-all-checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)">
+      <span>Date</span>
+      <span>Type</span>
+      <span>Tail #</span>
+      <span>From</span>
+      <span>To</span>
+      <span>Duration</span>
+      <span></span>
+    </div>
+    <div class="flight-list">
+      {% for entry in entries %}
+      <div class="flight-entry" data-id="{{ entry.id }}">
+        <input type="checkbox" class="flight-checkbox" data-id="{{ entry.id }}" onclick="onCheckboxChange(event)">
+        <div class="flight-content" onclick="window.location='/entry/{{ entry.id }}'">
+          <span class="flight-date">{{ entry.date }}</span>
+          <span class="flight-aircraft">{{ entry.aircraft_model }}</span>
+          <span class="flight-ident">{{ entry.aircraft_ident }}</span>
+          <span class="flight-from">{{ entry.route_from }}</span>
+          <span class="flight-to">{{ entry.route_to }}</span>
+          <span class="flight-duration">{% if entry.total_duration %}{% if entry.total_duration is string %}{{ entry.total_duration }}{% elif entry.duration_estimated %}{{ "%.1f"|format(entry.total_duration) }}h*{% else %}{{ "%.1f"|format(entry.total_duration) }}h{% endif %}{% else %}—{% endif %}</span>
+          <span class="flight-arrow"><i class="fas fa-chevron-right"></i></span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="fas fa-plane"></i>
+      <p>No flights recorded yet</p>
+      <a href="/entry/new" class="btn btn-primary"><i class="fas fa-plus"></i> Add Your First Flight</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    function showToast(msg, isError = false) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show' + (isError ? ' error' : '');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function toggleDropdown(btn) {
+      const menu = btn.nextElementSibling;
+      menu.classList.toggle('show');
+      setTimeout(() => document.addEventListener('click', function close(e) {
+        if (!btn.contains(e.target) && !menu.contains(e.target)) {
+          menu.classList.remove('show');
+          document.removeEventListener('click', close);
+        }
+      }), 0);
+    }
+
+    // Selection management
+    function getSelectedIds() {
+      const checkboxes = document.querySelectorAll('.flight-checkbox:checked');
+      return Array.from(checkboxes).map(cb => cb.dataset.id);
+    }
+
+    function updateBatchBar() {
+      const selectedIds = getSelectedIds();
+      const count = selectedIds.length;
+      const bar = document.getElementById('batchActionsBar');
+      const countSpan = document.getElementById('selectedCount');
+
+      countSpan.textContent = count;
+
+      if (count > 0) {
+        bar.classList.add('show');
+      } else {
+        bar.classList.remove('show');
+      }
+
+      // Update entry highlighting
+      document.querySelectorAll('.flight-entry').forEach(entry => {
+        const checkbox = entry.querySelector('.flight-checkbox');
+        entry.classList.toggle('selected', checkbox && checkbox.checked);
+      });
+
+      // Update select all checkbox state
+      const allCheckboxes = document.querySelectorAll('.flight-checkbox');
+      const selectAllCb = document.getElementById('selectAllCheckbox');
+      if (selectAllCb) {
+        selectAllCb.checked = allCheckboxes.length > 0 && count === allCheckboxes.length;
+        selectAllCb.indeterminate = count > 0 && count < allCheckboxes.length;
+      }
+    }
+
+    function onCheckboxChange(event) {
+      event.stopPropagation();
+      updateBatchBar();
+    }
+
+    function toggleSelectAll(checkbox) {
+      const allCheckboxes = document.querySelectorAll('.flight-checkbox');
+      allCheckboxes.forEach(cb => cb.checked = checkbox.checked);
+      updateBatchBar();
+    }
+
+    function clearSelection() {
+      document.querySelectorAll('.flight-checkbox').forEach(cb => cb.checked = false);
+      document.getElementById('selectAllCheckbox').checked = false;
+      updateBatchBar();
+    }
+
+    async function deleteSelected() {
+      const selectedIds = getSelectedIds();
+      if (selectedIds.length === 0) return;
+
+      const confirmMsg = selectedIds.length === 1
+        ? 'Are you sure you want to delete this flight?'
+        : `Are you sure you want to delete ${selectedIds.length} flights?`;
+
+      if (!confirm(confirmMsg)) return;
+
+      let deleted = 0;
+      let errors = 0;
+
+      for (const id of selectedIds) {
+        try {
+          const res = await fetch(`/api/entries/${id}`, { method: 'DELETE' });
+          if (res.ok) {
+            deleted++;
+            // Remove the entry from DOM
+            const entry = document.querySelector(`.flight-entry[data-id="${id}"]`);
+            if (entry) entry.remove();
+          } else {
+            errors++;
+          }
+        } catch (e) {
+          errors++;
+        }
+      }
+
+      if (deleted > 0) {
+        showToast(`Deleted ${deleted} flight(s)`);
+      }
+      if (errors > 0) {
+        showToast(`Failed to delete ${errors} flight(s)`, true);
+      }
+
+      updateBatchBar();
+
+      // Reload page to update totals
+      if (deleted > 0) {
+        setTimeout(() => location.reload(), 1000);
+      }
+    }
+
+    async function importJSON(input) {
+      if (!input.files.length) return;
+      const fd = new FormData();
+      fd.append('file', input.files[0]);
+      try {
+        const res = await fetch('/api/import/json', { method: 'POST', body: fd });
+        const r = await res.json();
+        if (r.success) { showToast(r.message); location.reload(); }
+        else showToast(r.error || 'Import failed', true);
+      } catch (e) { showToast('Error importing', true); }
+      input.value = '';
+    }
+
+    async function exportToSheets() {
+      showToast('Exporting to Google Sheets...');
+      try {
+        const res = await fetch('/api/export/sheets', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        const r = await res.json();
+        if (r.success) {
+          showToast('Exported to Sheets!');
+          if (r.spreadsheet_url) window.open(r.spreadsheet_url, '_blank');
+        } else showToast(r.error || 'Export failed', true);
+      } catch (e) { showToast('Error exporting', true); }
+    }
+  </script>
+</body>
+</html>

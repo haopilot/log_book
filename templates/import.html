@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Import from FlightAware - Pilot Logbook</title>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Courier Prime', 'Courier New', monospace;
+      background: #d4c4a8;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .page-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #f8f4e8;
+      border: 3px solid #5a4a3a;
+      box-shadow: 4px 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .page-header {
+      background: linear-gradient(to bottom, #2c4a1e 0%, #1a3010 100%);
+      color: #f5f0e1;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid #5a4a3a;
+    }
+
+    .page-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .back-link {
+      color: #f5f0e1;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    .back-link:hover { opacity: 1; }
+
+    .btn {
+      padding: 10px 20px;
+      border: 2px solid;
+      border-radius: 3px;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary { background: #2c4a1e; color: #f5f0e1; border-color: #1a3010; }
+    .btn-primary:hover:not(:disabled) { background: #3d6428; }
+    .btn-secondary { background: #f5f0e1; color: #5a4a3a; border-color: #8b7355; }
+    .btn-secondary:hover:not(:disabled) { background: #e8e0cc; }
+    .btn-lg { padding: 15px 30px; font-size: 1rem; }
+
+    /* Search Section */
+    .search-section {
+      padding: 25px;
+      border-bottom: 2px solid #d4c4a8;
+      background: #e8e0cc;
+      text-align: center;
+    }
+
+    .search-form {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .form-group label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #5a4a3a;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .form-group input {
+      padding: 12px 15px;
+      background: #fff;
+      border: 2px solid #c9b896;
+      font-family: 'Courier Prime', monospace;
+      font-size: 1rem;
+      color: #3a2a1a;
+      border-radius: 2px;
+      width: 150px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #2c4a1e;
+    }
+
+    /* Results Section */
+    .results-section {
+      padding: 20px 25px;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .results-count {
+      font-size: 0.9rem;
+      color: #5a4a3a;
+    }
+
+    .select-all-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: #5a4a3a;
+      cursor: pointer;
+    }
+
+    .select-all-group input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    /* Flight List */
+    .flight-list {
+      border: 2px solid #d4c4a8;
+      border-radius: 3px;
+      max-height: 450px;
+      overflow-y: auto;
+    }
+
+    .flight-item {
+      display: grid;
+      grid-template-columns: 30px 100px 70px 80px 80px 70px;
+      gap: 12px;
+      padding: 12px 15px;
+      border-bottom: 1px solid #e8e0cc;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
+    .flight-item:last-child {
+      border-bottom: none;
+    }
+
+    .flight-item:hover {
+      background: #f0ebe0;
+    }
+
+    .flight-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .flight-date { font-weight: 700; color: #3a2a1a; }
+    .flight-aircraft { color: #5a4a3a; }
+    .flight-route { color: #2c4a1e; font-weight: 700; }
+    .flight-duration { text-align: right; font-weight: 700; color: #2c4a1e; }
+
+    .list-header {
+      display: grid;
+      grid-template-columns: 30px 100px 70px 80px 80px 70px;
+      gap: 12px;
+      padding: 10px 15px;
+      background: #d4c4a8;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #5a4a3a;
+      text-transform: uppercase;
+      position: sticky;
+      top: 0;
+    }
+
+    /* Footer */
+    .import-footer {
+      padding: 20px 25px;
+      border-top: 2px solid #d4c4a8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #e8e0cc;
+    }
+
+    .selected-count {
+      font-size: 0.9rem;
+      color: #5a4a3a;
+      font-weight: 700;
+    }
+
+    /* States */
+    .loading, .empty-state, .error-state {
+      text-align: center;
+      padding: 50px 20px;
+      color: #8b7355;
+    }
+
+    .loading i {
+      font-size: 2.5rem;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .error-state {
+      color: #8b3a3a;
+    }
+
+    .empty-state i, .error-state i {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    .empty-state.success {
+      color: #2c4a1e;
+    }
+
+    .empty-state.success i {
+      color: #2c4a1e;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      background: #2c4a1e;
+      color: #f5f0e1;
+      border: 2px solid #1a3010;
+      font-family: 'Courier Prime', monospace;
+      font-weight: 700;
+      font-size: 0.85rem;
+      z-index: 2000;
+      display: none;
+    }
+    .toast.error { background: #8b3a3a; border-color: #6a2a2a; }
+    .toast.show { display: block; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="page-container">
+    <header class="page-header">
+      <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to Logbook</a>
+      <h1 class="page-title"><i class="fas fa-plane-arrival"></i> IMPORT FROM FLIGHTAWARE</h1>
+    </header>
+
+    <div class="search-section">
+      <form class="search-form" id="searchForm">
+        <div class="form-group">
+          <label>Tail Number</label>
+          <input type="text" id="tailNumber" value="{{ tail_number }}" placeholder="N790TB">
+        </div>
+        <div class="form-group">
+          <label>History</label>
+          <select id="monthsBack" style="padding: 12px 15px; background: #fff; border: 2px solid #c9b896; font-family: 'Courier Prime', monospace; font-size: 1rem; color: #3a2a1a; border-radius: 2px; font-weight: 700;">
+            <option value="3">3 months</option>
+            <option value="6">6 months</option>
+            <option value="12" selected>1 year</option>
+            <option value="24">2 years</option>
+            <option value="36">3 years</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" id="searchBtn">
+          <i class="fas fa-search"></i> Scan for New Flights
+        </button>
+      </form>
+      <p style="font-size: 0.75rem; color: #8b7355; margin-top: 15px;">
+        <i class="fas fa-info-circle"></i> Historical data is fetched in 7-day chunks. Longer periods may take a moment.
+      </p>
+    </div>
+
+    <div class="results-section">
+      <div id="loadingState" class="loading hidden">
+        <i class="fas fa-spinner"></i>
+        <p id="loadingMessage">Scanning FlightAware for flights...</p>
+        <p style="font-size: 0.75rem; color: #8b7355; margin-top: 10px;">Fetching historical data in 7-day chunks. This may take a moment...</p>
+      </div>
+
+      <div id="initialState" class="empty-state">
+        <i class="fas fa-radar"></i>
+        <p>Click "Scan for New Flights" to find flights not yet in your logbook</p>
+      </div>
+
+      <div id="emptyState" class="empty-state success hidden">
+        <i class="fas fa-check-circle"></i>
+        <p>All caught up! No new flights to import.</p>
+      </div>
+
+      <div id="errorState" class="error-state hidden">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p id="errorMessage">Error message here</p>
+      </div>
+
+      <div id="resultsContainer" class="hidden">
+        <div class="results-header">
+          <span class="results-count" id="resultsCount">0 new flights found</span>
+          <label class="select-all-group">
+            <input type="checkbox" id="selectAll" checked> Select all
+          </label>
+        </div>
+
+        <div class="flight-list">
+          <div class="list-header">
+            <span></span>
+            <span>Date</span>
+            <span>Type</span>
+            <span>From</span>
+            <span>To</span>
+            <span>Duration</span>
+          </div>
+          <div id="flightsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="import-footer" id="importFooter">
+      <span class="selected-count" id="selectedCount">0 flights selected</span>
+      <button class="btn btn-primary" id="importBtn" disabled>
+        <i class="fas fa-download"></i> Import Selected
+      </button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let flights = [];
+
+    function showToast(msg, isError = false) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show' + (isError ? ' error' : '');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function showState(state) {
+      document.getElementById('loadingState').classList.add('hidden');
+      document.getElementById('initialState').classList.add('hidden');
+      document.getElementById('emptyState').classList.add('hidden');
+      document.getElementById('errorState').classList.add('hidden');
+      document.getElementById('resultsContainer').classList.add('hidden');
+
+      if (state === 'loading') {
+        document.getElementById('loadingState').classList.remove('hidden');
+      } else if (state === 'initial') {
+        document.getElementById('initialState').classList.remove('hidden');
+      } else if (state === 'empty') {
+        document.getElementById('emptyState').classList.remove('hidden');
+      } else if (state === 'error') {
+        document.getElementById('errorState').classList.remove('hidden');
+      } else if (state === 'results') {
+        document.getElementById('resultsContainer').classList.remove('hidden');
+      } else if (state === 'streaming') {
+        // Show results container for incremental display
+        document.getElementById('resultsContainer').classList.remove('hidden');
+      }
+    }
+
+    function updateSelectedCount() {
+      const checked = document.querySelectorAll('.flight-checkbox:checked').length;
+      document.getElementById('selectedCount').textContent = `${checked} flight(s) selected`;
+      document.getElementById('importBtn').disabled = checked === 0;
+    }
+
+    function addFlightToList(flight, index) {
+      const container = document.getElementById('flightsList');
+      const div = document.createElement('div');
+      div.className = 'flight-item';
+      const durationDisplay = flight.total_duration
+        ? (flight.duration_estimated ? flight.total_duration.toFixed(1) + 'h*' : flight.total_duration.toFixed(1) + 'h')
+        : '—';
+      div.innerHTML = `
+        <input type="checkbox" class="flight-checkbox" data-index="${index}" checked>
+        <span class="flight-date">${flight.date}</span>
+        <span class="flight-aircraft">${flight.aircraft_model || '—'}</span>
+        <span class="flight-route">${flight.route_from}</span>
+        <span class="flight-route">${flight.route_to}</span>
+        <span class="flight-duration">${durationDisplay}</span>
+      `;
+
+      // Insert in sorted position (newest first)
+      container.appendChild(div);
+
+      // Add event listener
+      div.querySelector('.flight-checkbox').addEventListener('change', updateSelectedCount);
+
+      // Update count
+      document.getElementById('resultsCount').textContent = `${flights.length} new flight(s) found`;
+      updateSelectedCount();
+
+      // Auto-scroll to show the new flight
+      const flightList = document.querySelector('.flight-list');
+      flightList.scrollTop = flightList.scrollHeight;
+    }
+
+    function renderFlights() {
+      const container = document.getElementById('flightsList');
+      container.innerHTML = '';
+
+      // Sort by date descending
+      flights.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateB - dateA;
+      });
+
+      flights.forEach((flight, index) => {
+        const div = document.createElement('div');
+        div.className = 'flight-item';
+        const durationDisplay = flight.total_duration
+          ? (flight.duration_estimated ? flight.total_duration.toFixed(1) + 'h*' : flight.total_duration.toFixed(1) + 'h')
+          : '—';
+        div.innerHTML = `
+          <input type="checkbox" class="flight-checkbox" data-index="${index}" checked>
+          <span class="flight-date">${flight.date}</span>
+          <span class="flight-aircraft">${flight.aircraft_model || '—'}</span>
+          <span class="flight-route">${flight.route_from}</span>
+          <span class="flight-route">${flight.route_to}</span>
+          <span class="flight-duration">${durationDisplay}</span>
+        `;
+        container.appendChild(div);
+      });
+
+      document.querySelectorAll('.flight-checkbox').forEach(cb => {
+        cb.addEventListener('change', updateSelectedCount);
+      });
+
+      document.getElementById('resultsCount').textContent = `${flights.length} new flight(s) found`;
+      updateSelectedCount();
+    }
+
+    // Search form - now uses streaming
+    document.getElementById('searchForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const tailNumber = document.getElementById('tailNumber').value.trim();
+      const monthsBack = document.getElementById('monthsBack').value;
+
+      if (!tailNumber) {
+        showToast('Please enter a tail number', true);
+        return;
+      }
+
+      // Reset state
+      flights = [];
+      document.getElementById('flightsList').innerHTML = '';
+      showState('streaming');
+      document.getElementById('searchBtn').disabled = true;
+      document.getElementById('resultsCount').textContent = 'Scanning for flights...';
+
+      // Use Server-Sent Events for streaming
+      const eventSource = new EventSource(
+        `/api/flightaware/search/stream?tail_number=${encodeURIComponent(tailNumber)}&months_back=${monthsBack}`
+      );
+
+      eventSource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+
+        if (data.error) {
+          eventSource.close();
+          document.getElementById('errorMessage').textContent = data.error;
+          showState('error');
+          document.getElementById('searchBtn').disabled = false;
+          return;
+        }
+
+        if (data.done) {
+          eventSource.close();
+          document.getElementById('searchBtn').disabled = false;
+
+          // Filter to only show new flights
+          flights = flights.filter(f => !f.already_imported);
+
+          if (flights.length === 0) {
+            showState('empty');
+          } else {
+            // Re-render sorted
+            renderFlights();
+            document.getElementById('selectAll').checked = true;
+          }
+          return;
+        }
+
+        if (data.flight) {
+          // Only add if not already imported
+          if (!data.flight.already_imported) {
+            flights.push(data.flight);
+            addFlightToList(data.flight, flights.length - 1);
+          }
+        }
+      };
+
+      eventSource.onerror = function(event) {
+        eventSource.close();
+        document.getElementById('errorMessage').textContent = 'Connection lost. Please try again.';
+        showState('error');
+        document.getElementById('searchBtn').disabled = false;
+      };
+    });
+
+    // Select all
+    document.getElementById('selectAll').addEventListener('change', function() {
+      document.querySelectorAll('.flight-checkbox').forEach(cb => cb.checked = this.checked);
+      updateSelectedCount();
+    });
+
+    // Import button
+    document.getElementById('importBtn').addEventListener('click', async function() {
+      const selectedIndices = [];
+      document.querySelectorAll('.flight-checkbox:checked').forEach(cb => {
+        selectedIndices.push(parseInt(cb.dataset.index));
+      });
+
+      if (selectedIndices.length === 0) return;
+
+      const selectedFlights = selectedIndices.map(i => flights[i]);
+
+      this.disabled = true;
+      this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
+
+      try {
+        const res = await fetch('/api/flightaware/import', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ flights: selectedFlights })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          showToast(`Imported ${data.imported} flight(s)!`);
+          // Remove imported flights from list
+          flights = flights.filter((_, i) => !selectedIndices.includes(i));
+
+          if (flights.length === 0) {
+            showState('empty');
+          } else {
+            renderFlights();
+          }
+        } else {
+          showToast(data.error || 'Import failed', true);
+        }
+      } catch (e) {
+        showToast('Failed to import flights', true);
+      }
+
+      this.disabled = false;
+      this.innerHTML = '<i class="fas fa-download"></i> Import Selected';
+      updateSelectedCount();
+    });
+  </script>
+</body>
+</html>

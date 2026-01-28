@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if is_new %}New Flight{% else %}Flight Details{% endif %} - Pilot Logbook</title>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Courier Prime', 'Courier New', monospace;
+      background: #d4c4a8;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .page-container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #f8f4e8;
+      border: 3px solid #5a4a3a;
+      box-shadow: 4px 4px 15px rgba(0,0,0,0.3);
+    }
+
+    /* Header */
+    .page-header {
+      background: linear-gradient(to bottom, #2c4a1e 0%, #1a3010 100%);
+      color: #f5f0e1;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid #5a4a3a;
+    }
+
+    .page-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .back-link {
+      color: #f5f0e1;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    .back-link:hover { opacity: 1; }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border: 2px solid;
+      border-radius: 3px;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary { background: #2c4a1e; color: #f5f0e1; border-color: #1a3010; }
+    .btn-primary:hover { background: #3d6428; }
+    .btn-secondary { background: #f5f0e1; color: #5a4a3a; border-color: #8b7355; }
+    .btn-secondary:hover { background: #e8e0cc; }
+    .btn-danger { background: #8b3a3a; color: #f5f0e1; border-color: #6a2a2a; }
+    .btn-danger:hover { background: #a04545; }
+
+    /* Form */
+    .form-body {
+      padding: 25px;
+    }
+
+    .form-section {
+      margin-bottom: 25px;
+    }
+
+    .form-section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #2c4a1e;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #c9b896;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+
+    .form-row-wide {
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #5a4a3a;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      padding: 10px 12px;
+      background: #fff;
+      border: 2px solid #c9b896;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.95rem;
+      color: #3a2a1a;
+      border-radius: 2px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #2c4a1e;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-group input[type="number"] {
+      text-align: right;
+    }
+
+    /* Footer */
+    .form-footer {
+      padding: 20px 25px;
+      border-top: 2px solid #d4c4a8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #e8e0cc;
+    }
+
+    .form-footer-left {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      background: #2c4a1e;
+      color: #f5f0e1;
+      border: 2px solid #1a3010;
+      font-family: 'Courier Prime', monospace;
+      font-weight: 700;
+      font-size: 0.85rem;
+      z-index: 2000;
+      display: none;
+    }
+    .toast.error { background: #8b3a3a; border-color: #6a2a2a; }
+    .toast.show { display: block; }
+
+    /* Approach selector grid */
+    .approach-checkbox-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px;
+      background: #fff;
+      border: 2px solid #c9b896;
+      border-radius: 2px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .approach-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      background: #f5f0e1;
+      border: 1px solid #c9b896;
+      border-radius: 3px;
+      font-size: 0.75rem;
+    }
+
+    .approach-item.has-count {
+      background: #2c4a1e;
+      color: #f5f0e1;
+      border-color: #1a3010;
+    }
+
+    .approach-name {
+      margin: 0 4px;
+      min-width: 100px;
+    }
+
+    .approach-count {
+      font-weight: 700;
+      min-width: 20px;
+      text-align: center;
+      background: rgba(255,255,255,0.2);
+      padding: 2px 6px;
+      border-radius: 2px;
+    }
+
+    .approach-btn {
+      width: 22px;
+      height: 22px;
+      border: none;
+      border-radius: 2px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.1s ease;
+    }
+
+    .approach-btn-minus {
+      background: #c9b896;
+      color: #5a4a3a;
+    }
+
+    .approach-btn-minus:hover {
+      background: #8b3a3a;
+      color: #fff;
+    }
+
+    .approach-btn-plus {
+      background: #c9b896;
+      color: #5a4a3a;
+    }
+
+    .approach-btn-plus:hover {
+      background: #2c4a1e;
+      color: #fff;
+    }
+
+    .approach-item.has-count .approach-btn-minus {
+      background: rgba(255,255,255,0.3);
+      color: #f5f0e1;
+    }
+
+    .approach-item.has-count .approach-btn-plus {
+      background: rgba(255,255,255,0.3);
+      color: #f5f0e1;
+    }
+
+    #approach-airport-label {
+      font-weight: normal;
+      color: #8b7355;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-container">
+    <header class="page-header">
+      <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to Logbook</a>
+      <h1 class="page-title">{% if is_new %}NEW FLIGHT ENTRY{% else %}{{ entry.date }} — {{ entry.route_from }}{% if entry.route_to %} → {{ entry.route_to }}{% endif %}{% endif %}</h1>
+    </header>
+
+    <form id="entryForm">
+      <input type="hidden" id="entryId" value="{{ entry.id }}">
+
+      <div class="form-body">
+        <div class="form-section">
+          <div class="form-section-title">Flight Information</div>
+          <div class="form-row form-row-wide">
+            <div class="form-group">
+              <label>Date</label>
+              <input type="text" id="date" value="{{ entry.date }}" placeholder="MM/DD/YYYY" required>
+            </div>
+            <div class="form-group">
+              <label>Aircraft Type</label>
+              <input type="text" id="aircraft_model" value="{{ entry.aircraft_model }}" placeholder="TBM7">
+            </div>
+            <div class="form-group">
+              <label>Tail Number</label>
+              <input type="text" id="aircraft_ident" value="{{ entry.aircraft_ident }}" placeholder="N12345">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>From</label>
+              <input type="text" id="route_from" value="{{ entry.route_from }}" placeholder="KPAE">
+            </div>
+            <div class="form-group">
+              <label>To</label>
+              <input type="text" id="route_to" value="{{ entry.route_to }}" placeholder="KSEA">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Aircraft Category & Conditions</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Single Engine Land (SEL)</label>
+              <input type="number" id="sel" value="{{ entry.sel }}" step="0.1" min="0" placeholder="0.0">
+            </div>
+            <div class="form-group">
+              <label>Multi Engine Land (MEL)</label>
+              <input type="number" id="mel" value="{{ entry.mel }}" step="0.1" min="0" placeholder="0.0">
+            </div>
+            <div class="form-group">
+              <label>Day</label>
+              <input type="number" id="day" value="{{ entry.day }}" step="0.1" min="0" placeholder="0.0">
+            </div>
+            <div class="form-group">
+              <label>Night</label>
+              <input type="number" id="night" value="{{ entry.night }}" step="0.1" min="0" placeholder="0.0">
+            </div>
+            <div class="form-group">
+              <label>Cross Country</label>
+              <input type="number" id="cross_country" value="{{ entry.cross_country }}" step="0.1" min="0" placeholder="0.0">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Instrument</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Actual Instrument</label>
+              <input type="number" id="actual_inst" value="{{ entry.actual_inst }}" step="0.1" min="0" placeholder="0.0">
+            </div>
+            <div class="form-group">
+              <label>Simulated Instrument</label>
+              <input type="number" id="simulated_inst" value="{{ entry.simulated_inst }}" step="0.1" min="0" placeholder="0.0">
+            </div>
+            <div class="form-group">
+              <label># of Approaches</label>
+              <input type="number" id="num_inst_app" value="{{ entry.num_inst_app }}" min="0" placeholder="0">
+            </div>
+          </div>
+          <div class="form-row" id="approach-selector-row" style="display: none;">
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label>Approach Type(s) <span id="approach-airport-label"></span></label>
+              <div id="approach-checkboxes" class="approach-checkbox-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Landings</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Day Landings</label>
+              <input type="number" id="landings_day" value="{{ entry.landings_day }}" min="0" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label>Night Landings</label>
+              <input type="number" id="landings_night" value="{{ entry.landings_night }}" min="0" placeholder="0">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Pilot Time</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Pilot in Command (PIC)</label>
+              <input type="number" id="pic" value="{{ entry.pic }}" step="0.1" min="0" placeholder="0.0">
+            </div>
+            <div class="form-group">
+              <label>Second in Command (SIC)</label>
+              <input type="number" id="sic" value="{{ entry.sic }}" step="0.1" min="0" placeholder="0.0">
+            </div>
+            <div class="form-group">
+              <label>Dual Received</label>
+              <input type="number" id="dual_recd" value="{{ entry.dual_recd }}" step="0.1" min="0" placeholder="0.0">
+            </div>
+            <div class="form-group">
+              <label>Dual Given (CFI)</label>
+              <input type="number" id="dual_given" value="{{ entry.dual_given }}" step="0.1" min="0" placeholder="0.0">
+            </div>
+            <div class="form-group">
+              <label>Solo</label>
+              <input type="number" id="solo" value="{{ entry.solo }}" step="0.1" min="0" placeholder="0.0">
+            </div>
+            <div class="form-group">
+              <label>Total Flight Time{% if entry.duration_estimated %} *{% endif %}</label>
+              <input type="number" id="total_duration" value="{{ entry.total_duration }}" step="0.1" min="0" placeholder="0.0">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Remarks & Endorsements</div>
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label>Remarks</label>
+              <textarea id="remarks" placeholder="Instructor, route details, maneuvers, weather conditions...">{{ entry.remarks }}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <div class="form-footer-left">
+          {% if not is_new %}
+          <button type="button" class="btn btn-danger" onclick="deleteEntry()"><i class="fas fa-trash"></i> Delete</button>
+          {% endif %}
+        </div>
+        <div>
+          <a href="/" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Flight</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const fields = [
+      'date', 'aircraft_model', 'aircraft_ident', 'route_from', 'route_to',
+      'sel', 'mel', 'day', 'night', 'cross_country',
+      'actual_inst', 'simulated_inst', 'num_inst_app',
+      'landings_day', 'landings_night',
+      'pic', 'sic', 'dual_recd', 'dual_given', 'solo', 'total_duration',
+      'remarks'
+    ];
+
+    // Default values for auto-fill on tab
+    const defaults = {
+      date: '{{ entry.date }}',
+      aircraft_model: 'TBM7',
+      aircraft_ident: 'N790TB',
+      route_from: 'KPAE',
+      route_to: '',
+      sel: '0',
+      mel: '0',
+      day: '',
+      night: '',
+      cross_country: '',
+      actual_inst: '',
+      simulated_inst: '',
+      num_inst_app: '0',
+      landings_day: '1',
+      landings_night: '0',
+      pic: '',
+      sic: '',
+      dual_recd: '',
+      dual_given: '',
+      solo: '',
+      total_duration: '',
+      remarks: ''
+    };
+
+    // Approach counts: { "ILS RWY 16R": 2, "RNAV (GPS) RWY 34L": 1 }
+    let approachCounts = {};
+    // User's custom remarks (anything not auto-generated from approaches)
+    let userRemarks = '';
+
+    // Auto-fill defaults on focus (tab into field)
+    fields.forEach(f => {
+      const el = document.getElementById(f);
+      if (el && defaults[f]) {
+        el.addEventListener('focus', function() {
+          if (!this.value || this.value.trim() === '') {
+            this.value = defaults[f];
+            this.select();
+          }
+        });
+      }
+    });
+
+    // Auto-copy total_duration to pic when tabbing out of total_duration
+    document.getElementById('total_duration').addEventListener('blur', function() {
+      const picField = document.getElementById('pic');
+      const dayField = document.getElementById('day');
+      if (this.value && (!picField.value || picField.value === '0')) {
+        picField.value = this.value;
+      }
+      if (this.value && (!dayField.value || dayField.value === '0')) {
+        dayField.value = this.value;
+      }
+    });
+
+    // Load approaches when destination is set
+    async function loadApproaches(airportCode) {
+      if (!airportCode || airportCode.trim() === '') {
+        document.getElementById('approach-selector-row').style.display = 'none';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/approaches/${airportCode}`);
+        const data = await res.json();
+
+        if (data.success && data.approaches && data.approaches.length > 0) {
+          renderApproachSelector(data.approaches, data.airport);
+        }
+      } catch (e) {
+        console.error('Error loading approaches:', e);
+      }
+    }
+
+    function renderApproachSelector(approaches, airport) {
+      const container = document.getElementById('approach-checkboxes');
+      const label = document.getElementById('approach-airport-label');
+      const row = document.getElementById('approach-selector-row');
+
+      label.textContent = `(${airport})`;
+      container.innerHTML = '';
+
+      approaches.forEach(approach => {
+        const item = document.createElement('div');
+        item.className = 'approach-item';
+        item.dataset.name = approach.name;
+
+        const count = approachCounts[approach.name] || 0;
+        if (count > 0) {
+          item.classList.add('has-count');
+        }
+
+        // Minus button
+        const minusBtn = document.createElement('button');
+        minusBtn.type = 'button';
+        minusBtn.className = 'approach-btn approach-btn-minus';
+        minusBtn.textContent = '−';
+        minusBtn.onclick = () => adjustApproachCount(approach.name, -1);
+
+        // Approach name
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'approach-name';
+        nameSpan.textContent = approach.name;
+
+        // Count display
+        const countSpan = document.createElement('span');
+        countSpan.className = 'approach-count';
+        countSpan.id = `count-${approach.id}`;
+        countSpan.textContent = count;
+
+        // Plus button
+        const plusBtn = document.createElement('button');
+        plusBtn.type = 'button';
+        plusBtn.className = 'approach-btn approach-btn-plus';
+        plusBtn.textContent = '+';
+        plusBtn.onclick = () => adjustApproachCount(approach.name, 1);
+
+        item.appendChild(minusBtn);
+        item.appendChild(nameSpan);
+        item.appendChild(countSpan);
+        item.appendChild(plusBtn);
+        container.appendChild(item);
+      });
+
+      row.style.display = 'flex';
+    }
+
+    function adjustApproachCount(approachName, delta) {
+      const current = approachCounts[approachName] || 0;
+      const newCount = Math.max(0, current + delta);
+
+      if (newCount === 0) {
+        delete approachCounts[approachName];
+      } else {
+        approachCounts[approachName] = newCount;
+      }
+
+      // Update UI
+      const items = document.querySelectorAll('.approach-item');
+      items.forEach(item => {
+        if (item.dataset.name === approachName) {
+          const countSpan = item.querySelector('.approach-count');
+          countSpan.textContent = newCount;
+          item.classList.toggle('has-count', newCount > 0);
+        }
+      });
+
+      updateTotalApproaches();
+      updateRemarksWithApproaches();
+    }
+
+    function updateTotalApproaches() {
+      const total = Object.values(approachCounts).reduce((sum, c) => sum + c, 0);
+      document.getElementById('num_inst_app').value = total;
+    }
+
+    function updateRemarksWithApproaches() {
+      const remarksField = document.getElementById('remarks');
+
+      // Build approach text
+      let approachText = '';
+      const approachList = [];
+      for (const [name, count] of Object.entries(approachCounts)) {
+        if (count > 0) {
+          if (count === 1) {
+            approachList.push(name);
+          } else {
+            approachList.push(`${name} x${count}`);
+          }
+        }
+      }
+
+      if (approachList.length > 0) {
+        approachText = approachList.join(', ');
+      }
+
+      // Combine with user remarks (if any)
+      if (userRemarks && approachText) {
+        remarksField.value = `${approachText}; ${userRemarks}`;
+      } else if (approachText) {
+        remarksField.value = approachText;
+      } else {
+        remarksField.value = userRemarks;
+      }
+    }
+
+    // Track user edits to remarks field
+    document.getElementById('remarks').addEventListener('input', function() {
+      // Parse out the approach portion and keep only user content
+      const value = this.value;
+
+      // If user clears field, clear user remarks
+      if (!value.trim()) {
+        userRemarks = '';
+        return;
+      }
+
+      // Check if there's a semicolon separator (approach; user remarks format)
+      const semicolonIndex = value.indexOf(';');
+      if (semicolonIndex !== -1) {
+        // Everything after the first semicolon is user remarks
+        userRemarks = value.substring(semicolonIndex + 1).trim();
+      } else {
+        // Check if the current text matches our approach format
+        const hasApproachPattern = Object.keys(approachCounts).length > 0 &&
+          Object.keys(approachCounts).some(name => value.includes(name));
+
+        if (!hasApproachPattern) {
+          // No approaches selected, this is all user remarks
+          userRemarks = value;
+        }
+      }
+    });
+
+    // Show approach selector when num_inst_app field is focused
+    document.getElementById('num_inst_app').addEventListener('focus', function() {
+      const destAirport = document.getElementById('route_to').value;
+      if (destAirport && destAirport.trim() !== '') {
+        loadApproaches(destAirport);
+      }
+    });
+
+    document.getElementById('num_inst_app').addEventListener('change', function() {
+      const destAirport = document.getElementById('route_to').value;
+      if (this.value > 0 && destAirport) {
+        loadApproaches(destAirport);
+      } else if (this.value == 0) {
+        document.getElementById('approach-selector-row').style.display = 'none';
+        approachCounts = {};
+        updateRemarksWithApproaches();
+      }
+    });
+
+    // Load approaches when destination airport changes
+    document.getElementById('route_to').addEventListener('blur', function() {
+      const numApp = document.getElementById('num_inst_app').value;
+      if (numApp > 0 || document.getElementById('approach-selector-row').style.display !== 'none') {
+        loadApproaches(this.value);
+      }
+    });
+
+    // Parse existing remarks for approaches on page load
+    function parseExistingApproaches() {
+      const remarks = document.getElementById('remarks').value;
+      if (!remarks) return;
+
+      // Try to parse approach format: "ILS RWY 16R x2, RNAV (GPS) RWY 34L; user notes"
+      const semicolonIndex = remarks.indexOf(';');
+      let approachPart = remarks;
+
+      if (semicolonIndex !== -1) {
+        approachPart = remarks.substring(0, semicolonIndex);
+        userRemarks = remarks.substring(semicolonIndex + 1).trim();
+      }
+
+      // Parse approach entries (name x2, name, etc.)
+      const approachPattern = /([A-Z]+[^,;]*?)(?:\s*x(\d+))?(?:,|$)/gi;
+      let match;
+      while ((match = approachPattern.exec(approachPart)) !== null) {
+        const name = match[1].trim();
+        const count = match[2] ? parseInt(match[2]) : 1;
+        if (name && (name.includes('ILS') || name.includes('RNAV') || name.includes('VOR') ||
+            name.includes('LOC') || name.includes('NDB') || name.includes('Visual') || name.includes('RWY'))) {
+          approachCounts[name] = count;
+        } else if (!semicolonIndex) {
+          // If no semicolon and doesn't look like approach, it's user remarks
+          userRemarks = remarks;
+          approachCounts = {};
+          break;
+        }
+      }
+    }
+
+    // On page load, check if we should show approach selector
+    document.addEventListener('DOMContentLoaded', function() {
+      parseExistingApproaches();
+      const numApp = document.getElementById('num_inst_app').value;
+      const destAirport = document.getElementById('route_to').value;
+      if ((numApp > 0 || Object.keys(approachCounts).length > 0) && destAirport) {
+        loadApproaches(destAirport);
+      }
+    });
+
+    function showToast(msg, isError = false) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show' + (isError ? ' error' : '');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    document.getElementById('entryForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const entryId = document.getElementById('entryId').value;
+      const isEdit = Boolean(entryId);
+      const data = {};
+
+      fields.forEach(f => {
+        const el = document.getElementById(f);
+        if (el) data[f] = el.value;
+      });
+
+      try {
+        const url = isEdit ? `/api/entries/${entryId}` : '/api/entries';
+        const res = await fetch(url, {
+          method: isEdit ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (res.ok) {
+          showToast(isEdit ? 'Flight updated!' : 'Flight saved!');
+          setTimeout(() => window.location = '/', 1000);
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Error saving', true);
+        }
+      } catch (e) {
+        showToast('Error saving flight', true);
+      }
+    });
+
+    async function deleteEntry() {
+      if (!confirm('Are you sure you want to delete this flight entry?')) return;
+
+      const entryId = document.getElementById('entryId').value;
+      try {
+        const res = await fetch(`/api/entries/${entryId}`, { method: 'DELETE' });
+        if (res.ok) {
+          showToast('Flight deleted');
+          setTimeout(() => window.location = '/', 1000);
+        } else {
+          showToast('Error deleting', true);
+        }
+      } catch (e) {
+        showToast('Error deleting flight', true);
+      }
+    }
+  </script>
+</body>
+</html>
