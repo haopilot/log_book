@@ -271,7 +271,8 @@ class FlightAwareService:
         Returns:
             Dictionary suitable for creating a LogbookEntry
         """
-        from services.airport_lookup import find_closest_airport, estimate_flight_duration
+        from services.airport_lookup import find_closest_airport, estimate_flight_duration, get_airport_coordinates
+        from services.sun_calculator import estimate_night_hours, is_night_landing
 
         # Parse times
         departure_time = flight.get("actual_off") or flight.get("scheduled_off") or ""
@@ -280,6 +281,8 @@ class FlightAwareService:
         # Calculate duration in hours
         duration = 0.0
         duration_estimated = False
+        dep_dt = None
+        arr_dt = None
 
         if departure_time and arrival_time:
             try:
@@ -306,10 +309,10 @@ class FlightAwareService:
         origin = flight.get("origin", {}) or {}
         destination = flight.get("destination", {}) or {}
 
-        def resolve_airport(location: dict) -> tuple[str, bool]:
+        def resolve_airport(location: dict) -> tuple[str, bool, float, float]:
             """
             Resolve airport from FlightAware location data.
-            Returns (airport_code, is_estimated).
+            Returns (airport_code, is_estimated, lat, lon).
 
             Logic:
             - If valid ICAO code (4 letters), use it
@@ -322,7 +325,11 @@ class FlightAwareService:
 
             # Check for valid ICAO code (4 letters, all alphabetic)
             if icao and len(icao) == 4 and icao.isalpha():
-                return (icao, False)
+                # Get coordinates for this airport
+                coords = get_airport_coordinates(icao)
+                if coords:
+                    return (icao, False, coords[0], coords[1])
+                return (icao, False, lat or 0, lon or 0)
 
             # If no direct lat/lon, try to parse from 'code' field
             # FlightAware sometimes returns: "L 22.20140 113.60428"
@@ -341,12 +348,12 @@ class FlightAwareService:
             if lat is not None and lon is not None:
                 airport = find_closest_airport(lat, lon, max_distance_nm=150, pure_distance=True, icao_only=True)
                 if airport:
-                    return (f"{airport['icao']}*", True)
+                    return (f"{airport['icao']}*", True, airport['lat'], airport['lon'])
 
-            return ("-", False)
+            return ("-", False, 0, 0)
 
-        route_from, from_estimated = resolve_airport(origin)
-        route_to, to_estimated = resolve_airport(destination)
+        route_from, from_estimated, _, _ = resolve_airport(origin)
+        route_to, to_estimated, dest_lat, dest_lon = resolve_airport(destination)
 
         # If still no duration, try to estimate based on distance between airports
         if duration == 0.0:
@@ -365,7 +372,8 @@ class FlightAwareService:
         flight_date = ""
         if departure_time:
             try:
-                dep_dt = datetime.fromisoformat(departure_time.replace("Z", "+00:00"))
+                if dep_dt is None:
+                    dep_dt = datetime.fromisoformat(departure_time.replace("Z", "+00:00"))
                 flight_date = dep_dt.strftime("%m/%d/%Y")
             except Exception:
                 pass
@@ -379,23 +387,25 @@ class FlightAwareService:
         sel_time = duration if is_sel else 0.0
         mel_time = 0.0 if is_sel else duration  # If not SEL, assume MEL
 
-        # Build remarks with flight details
-        remarks_parts = []
-        if flight.get("ident"):
-            remarks_parts.append(f"Flight: {flight['ident']}")
-        if flight.get("route"):
-            remarks_parts.append(f"Route: {flight['route']}")
+        # Calculate night hours and determine landing type based on sunset
+        night_hours = 0.0
+        landings_day = 1
+        landings_night = 0
 
-        # Add notes about estimated values
-        notes = []
-        if from_estimated:
-            notes.append("origin estimated")
-        if to_estimated:
-            notes.append("dest estimated")
-        if duration_estimated:
-            notes.append("duration estimated")
-        if notes:
-            remarks_parts.append(f"Note: {', '.join(notes)}")
+        if dep_dt and arr_dt and dest_lat != 0 and dest_lon != 0:
+            # Calculate night hours based on sunset at destination
+            night_hours = estimate_night_hours(dep_dt, arr_dt, dest_lat, dest_lon)
+            
+            # Determine if landing was at night
+            if is_night_landing(arr_dt, dest_lat, dest_lon):
+                landings_night = 1
+                landings_day = 0
+
+        # Day hours is total minus night
+        day_hours = round(max(0, duration - night_hours), 1)
+
+        # Remarks will only contain approach info (set by UI when user selects approach)
+        remarks = ""
 
         return {
             "date": flight_date,
@@ -406,23 +416,26 @@ class FlightAwareService:
             "total_duration": duration,
             "duration_estimated": duration_estimated,
             "pic": duration,  # Assume PIC time = total time
-            "day": duration,  # Assume day flight (can be adjusted)
+            "day": day_hours,
             "sel": sel_time,  # Single engine land time
             "mel": mel_time,  # Multi engine land time
-            "night": 0.0,
+            "night": night_hours,
             "cross_country": duration if route_from != route_to else 0.0,
             "actual_inst": 0.0,
             "simulated_inst": 0.0,
             "num_inst_app": 0,
-            "landings_day": 1,
-            "landings_night": 0,
+            "landings_day": landings_day,
+            "landings_night": landings_night,
             "sic": 0.0,
             "dual_recd": 0.0,
             "dual_given": 0.0,
             "solo": 0.0,
-            "remarks": "; ".join(remarks_parts),
+            "remarks": remarks,
             # Store FlightAware ID to prevent duplicates
             "fa_flight_id": flight.get("fa_flight_id", ""),
+            # Store destination coordinates for approach lookup
+            "dest_lat": dest_lat,
+            "dest_lon": dest_lon,
         }
 
     def get_flights_as_logbook_entries(
