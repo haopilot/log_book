@@ -18,16 +18,22 @@ def calculate_sunset(lat: float, lon: float, date: datetime) -> Optional[datetim
     Args:
         lat: Latitude in degrees (positive = North)
         lon: Longitude in degrees (positive = East)
-        date: Date for which to calculate sunset
+        date: Date for which to calculate sunset (in UTC)
 
     Returns:
         Sunset time as datetime in UTC, or None if calculation fails
     """
     try:
-        # Julian Day calculation
-        year = date.year
-        month = date.month
-        day = date.day
+        # Estimate local date at the destination based on longitude
+        # Longitude of -166.5 means roughly UTC-11 hours
+        # We need to find sunset for the LOCAL date, not the UTC date
+        timezone_offset_hours = lon / 15.0  # Rough estimate: 15 degrees = 1 hour
+        local_time = date + timedelta(hours=timezone_offset_hours)
+        
+        # Use the local date for the calculation
+        year = local_time.year
+        month = local_time.month
+        day = local_time.day
 
         if month <= 2:
             year -= 1

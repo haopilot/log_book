@@ -5,7 +5,6 @@ Provides approach information for US airports.
 Uses a static database with actual FAA approach names.
 """
 
-
 # Static database for airports with actual FAA approach names
 AIRPORT_APPROACHES = {
     # Alaska airports
@@ -207,5 +206,7 @@ def search_airports(query: str) -> list[dict]:
     matches = []
     for icao in AIRPORT_APPROACHES.keys():
         if query in icao:
-            matches.append({"icao": icao, "approach_count": len(AIRPORT_APPROACHES[icao])})
+            matches.append(
+                {"icao": icao, "approach_count": len(AIRPORT_APPROACHES[icao])}
+            )
     return matches
