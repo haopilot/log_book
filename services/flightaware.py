@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 import requests
-
 from config import Config
 
 
@@ -23,7 +22,9 @@ class FlightAwareService:
     def _make_request(self, endpoint: str, params: Optional[dict] = None) -> dict:
         """Make authenticated request to FlightAware API."""
         if not self.api_key:
-            raise ValueError("FlightAware API key not configured. Set FLIGHTAWARE_API_KEY in .env")
+            raise ValueError(
+                "FlightAware API key not configured. Set FLIGHTAWARE_API_KEY in .env"
+            )
 
         headers = {
             "x-apikey": self.api_key,
@@ -38,7 +39,9 @@ class FlightAwareService:
         elif response.status_code == 404:
             return {"flights": [], "positions": []}
         elif response.status_code != 200:
-            raise Exception(f"FlightAware API error: {response.status_code} - {response.text}")
+            raise Exception(
+                f"FlightAware API error: {response.status_code} - {response.text}"
+            )
 
         return response.json()
 
@@ -76,7 +79,9 @@ class FlightAwareService:
             print(f"Warning: Could not fetch historical track for {fa_flight_id}: {e}")
             return None
 
-    def get_last_track_position(self, fa_flight_id: str) -> Optional[tuple[float, float]]:
+    def get_last_track_position(
+        self, fa_flight_id: str
+    ) -> Optional[tuple[float, float]]:
         """
         Get the last position from a flight's track (landing location).
 
@@ -172,7 +177,9 @@ class FlightAwareService:
                 all_flights.extend(flights)
             except Exception as e:
                 # Log but continue fetching other windows
-                print(f"Warning: Failed to fetch history for {current_start.strftime('%Y-%m-%d')} to {current_end.strftime('%Y-%m-%d')}: {e}")
+                print(
+                    f"Warning: Failed to fetch history for {current_start.strftime('%Y-%m-%d')} to {current_end.strftime('%Y-%m-%d')}: {e}"
+                )
 
             # Move to the previous window (no gap, no overlap)
             current_end = current_start
@@ -257,7 +264,9 @@ class FlightAwareService:
                     elif not flight_id:
                         yield flight
             except Exception as e:
-                print(f"Warning: Failed to fetch history for {current_start.strftime('%Y-%m-%d')} to {current_end.strftime('%Y-%m-%d')}: {e}")
+                print(
+                    f"Warning: Failed to fetch history for {current_start.strftime('%Y-%m-%d')} to {current_end.strftime('%Y-%m-%d')}: {e}"
+                )
 
             current_end = current_start
 
@@ -271,7 +280,11 @@ class FlightAwareService:
         Returns:
             Dictionary suitable for creating a LogbookEntry
         """
-        from services.airport_lookup import find_closest_airport, estimate_flight_duration, get_airport_coordinates
+        from services.airport_lookup import (
+            estimate_flight_duration,
+            find_closest_airport,
+            get_airport_coordinates,
+        )
         from services.sun_calculator import estimate_night_hours, is_night_landing
 
         # Parse times
@@ -346,9 +359,11 @@ class FlightAwareService:
 
             # If lat/long available, find closest airport with valid ICAO code
             if lat is not None and lon is not None:
-                airport = find_closest_airport(lat, lon, max_distance_nm=150, pure_distance=True, icao_only=True)
+                airport = find_closest_airport(
+                    lat, lon, max_distance_nm=150, pure_distance=True, icao_only=True
+                )
                 if airport:
-                    return (f"{airport['icao']}*", True, airport['lat'], airport['lon'])
+                    return (f"{airport['icao']}*", True, airport["lat"], airport["lon"])
 
             return ("-", False, 0, 0)
 
@@ -358,12 +373,14 @@ class FlightAwareService:
         # If still no duration, try to estimate based on distance between airports
         if duration == 0.0:
             # Extract clean ICAO codes (remove asterisks)
-            from_icao = route_from.rstrip('*') if route_from != '-' else None
-            to_icao = route_to.rstrip('*') if route_to != '-' else None
+            from_icao = route_from.rstrip("*") if route_from != "-" else None
+            to_icao = route_to.rstrip("*") if route_to != "-" else None
 
             if from_icao and to_icao:
                 # Use distance-based estimation (assume ~250 kts average speed for TBM)
-                estimated_duration = estimate_flight_duration(from_icao, to_icao, cruise_speed_kts=250)
+                estimated_duration = estimate_flight_duration(
+                    from_icao, to_icao, cruise_speed_kts=250
+                )
                 if estimated_duration:
                     duration = round(estimated_duration, 1)
                     duration_estimated = True
@@ -373,7 +390,9 @@ class FlightAwareService:
         if departure_time:
             try:
                 if dep_dt is None:
-                    dep_dt = datetime.fromisoformat(departure_time.replace("Z", "+00:00"))
+                    dep_dt = datetime.fromisoformat(
+                        departure_time.replace("Z", "+00:00")
+                    )
                 flight_date = dep_dt.strftime("%m/%d/%Y")
             except Exception:
                 pass
@@ -383,7 +402,21 @@ class FlightAwareService:
         tail_number = flight.get("registration") or ""
 
         # Determine if single engine land (SEL) - TBM7 is single engine turboprop
-        is_sel = aircraft.upper() in ["TBM7", "TBM8", "TBM9", "TBM", "PC12", "C208", "C172", "C182", "C206", "PA28", "PA32", "SR22", "SR20"]
+        is_sel = aircraft.upper() in [
+            "TBM7",
+            "TBM8",
+            "TBM9",
+            "TBM",
+            "PC12",
+            "C208",
+            "C172",
+            "C182",
+            "C206",
+            "PA28",
+            "PA32",
+            "SR22",
+            "SR20",
+        ]
         sel_time = duration if is_sel else 0.0
         mel_time = 0.0 if is_sel else duration  # If not SEL, assume MEL
 
@@ -395,7 +428,7 @@ class FlightAwareService:
         if dep_dt and arr_dt and dest_lat != 0 and dest_lon != 0:
             # Calculate night hours based on sunset at destination
             night_hours = estimate_night_hours(dep_dt, arr_dt, dest_lat, dest_lon)
-            
+
             # Determine if landing was at night
             if is_night_landing(arr_dt, dest_lat, dest_lon):
                 landings_night = 1
@@ -457,7 +490,9 @@ class FlightAwareService:
         Returns:
             List of logbook entry dictionaries
         """
-        flights = self.get_flights_by_tail(tail_number, start_date, end_date, months_back)
+        flights = self.get_flights_by_tail(
+            tail_number, start_date, end_date, months_back
+        )
 
         entries = []
         for flight in flights:
@@ -467,9 +502,9 @@ class FlightAwareService:
                 continue
 
             has_times = (
-                (flight.get("actual_off") and flight.get("actual_on")) or
-                (flight.get("scheduled_off") and flight.get("scheduled_on")) or
-                flight.get("filed_ete")
+                (flight.get("actual_off") and flight.get("actual_on"))
+                or (flight.get("scheduled_off") and flight.get("scheduled_on"))
+                or flight.get("filed_ete")
             )
 
             if has_times:
@@ -504,9 +539,9 @@ class FlightAwareService:
                 continue
 
             has_times = (
-                (flight.get("actual_off") and flight.get("actual_on")) or
-                (flight.get("scheduled_off") and flight.get("scheduled_on")) or
-                flight.get("filed_ete")
+                (flight.get("actual_off") and flight.get("actual_on"))
+                or (flight.get("scheduled_off") and flight.get("scheduled_on"))
+                or flight.get("filed_ete")
             )
 
             if has_times:

@@ -1,6 +1,6 @@
 {
-  "7fce0b39-2171-4cdd-ad61-cde526580a02": {
-    "id": "7fce0b39-2171-4cdd-ad61-cde526580a02",
+  "9b62f512-ce54-448f-9878-472ad298ef53": {
+    "id": "9b62f512-ce54-448f-9878-472ad298ef53",
     "date": "01/26/2026",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -23,12 +23,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KLSHN2 KLSHN CVV",
-    "created_at": "2026-01-27T02:47:59.737209",
-    "updated_at": "2026-01-27T02:47:59.737285"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.985698",
+    "updated_at": "2026-01-28T18:56:09.985712"
   },
-  "ca42411d-0024-4b2c-81b2-4927b55aaa72": {
-    "id": "ca42411d-0024-4b2c-81b2-4927b55aaa72",
+  "96376ef1-8600-412a-94ab-c63b155ad94f": {
+    "id": "96376ef1-8600-412a-94ab-c63b155ad94f",
     "date": "01/26/2026",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -51,12 +51,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KEPVI TECUV SQURL",
-    "created_at": "2026-01-27T02:47:59.737310",
-    "updated_at": "2026-01-27T02:47:59.737312"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.985752",
+    "updated_at": "2026-01-28T18:56:09.985756"
   },
-  "98180f02-3af5-4806-824a-6aed895e9972": {
-    "id": "98180f02-3af5-4806-824a-6aed895e9972",
+  "b1499cd0-0473-497a-8fbc-0bd504316d74": {
+    "id": "b1499cd0-0473-497a-8fbc-0bd504316d74",
     "date": "01/25/2026",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -79,12 +79,12 @@
     "solo": 0.0,
     "total_duration": 0.6,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CVV",
-    "created_at": "2026-01-27T02:47:59.737324",
-    "updated_at": "2026-01-27T02:47:59.737325"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.985780",
+    "updated_at": "2026-01-28T18:56:09.985783"
   },
-  "e5dd353a-7321-4919-a07f-97fa2369746d": {
-    "id": "e5dd353a-7321-4919-a07f-97fa2369746d",
+  "1f96c4f9-a8c4-4db3-9c5f-32c5ccedc05d": {
+    "id": "1f96c4f9-a8c4-4db3-9c5f-32c5ccedc05d",
     "date": "01/19/2026",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -107,12 +107,12 @@
     "solo": 0.0,
     "total_duration": 1.2,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: AST OLM",
-    "created_at": "2026-01-27T02:47:59.737334",
-    "updated_at": "2026-01-27T02:47:59.737335"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.985801",
+    "updated_at": "2026-01-28T18:56:09.985804"
   },
-  "35d37292-2bc6-4448-b93f-214b91381dbd": {
-    "id": "35d37292-2bc6-4448-b93f-214b91381dbd",
+  "4a0b2fc8-987e-49e0-94bd-a3b4b9e37678": {
+    "id": "4a0b2fc8-987e-49e0-94bd-a3b4b9e37678",
     "date": "01/18/2026",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -135,12 +135,12 @@
     "solo": 0.0,
     "total_duration": 0.9,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA J70 ELMAA AST",
-    "created_at": "2026-01-27T02:47:59.737343",
-    "updated_at": "2026-01-27T02:47:59.737345"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.985821",
+    "updated_at": "2026-01-28T18:56:09.985824"
   },
-  "32490c69-fcde-40aa-afd6-231c3c143a0a": {
-    "id": "32490c69-fcde-40aa-afd6-231c3c143a0a",
+  "9720995a-8b0d-44b5-8914-88820c711cc1": {
+    "id": "9720995a-8b0d-44b5-8914-88820c711cc1",
     "date": "01/01/2026",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -163,12 +163,12 @@
     "solo": 0.0,
     "total_duration": 3.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: OYODA2 KENNO YKM CHINS5",
-    "created_at": "2026-01-27T02:47:59.737352",
-    "updated_at": "2026-01-27T02:47:59.737353"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.985839",
+    "updated_at": "2026-01-28T18:56:09.985842"
   },
-  "9ba0ba5a-63be-4527-a7cf-884135b4090e": {
-    "id": "9ba0ba5a-63be-4527-a7cf-884135b4090e",
+  "f5198563-1439-496e-bb5b-c96528f270d5": {
+    "id": "f5198563-1439-496e-bb5b-c96528f270d5",
     "date": "12/31/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -191,12 +191,12 @@
     "solo": 0.0,
     "total_duration": 3.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA J5 FMG FUULL GAMES2",
-    "created_at": "2026-01-27T02:47:59.737361",
-    "updated_at": "2026-01-27T02:47:59.737362"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.985858",
+    "updated_at": "2026-01-28T18:56:09.985861"
   },
-  "ba479d7c-9f73-4746-90d8-c3e4782fa310": {
-    "id": "ba479d7c-9f73-4746-90d8-c3e4782fa310",
+  "c7304a72-eb1c-4a4e-9ec6-dec84af87b99": {
+    "id": "c7304a72-eb1c-4a4e-9ec6-dec84af87b99",
     "date": "12/30/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -219,12 +219,12 @@
     "solo": 0.0,
     "total_duration": 0.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KLSHN2 KLSHN CVV",
-    "created_at": "2026-01-27T02:47:59.737370",
-    "updated_at": "2026-01-27T02:47:59.737371"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.985876",
+    "updated_at": "2026-01-28T18:56:09.985878"
   },
-  "dbd16090-222d-44b2-9f43-760438205480": {
-    "id": "dbd16090-222d-44b2-9f43-760438205480",
+  "46252297-5b81-4f38-a5e8-37e53e0436a8": {
+    "id": "46252297-5b81-4f38-a5e8-37e53e0436a8",
     "date": "12/30/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -247,12 +247,12 @@
     "solo": 0.0,
     "total_duration": 0.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.737378",
-    "updated_at": "2026-01-27T02:47:59.737379"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.985892",
+    "updated_at": "2026-01-28T18:56:09.985895"
   },
-  "458b0e60-8840-4f61-923a-b1c6e3f21a2f": {
-    "id": "458b0e60-8840-4f61-923a-b1c6e3f21a2f",
+  "0d986d2e-f313-4206-8d41-a2e7a3636ab8": {
+    "id": "0d986d2e-f313-4206-8d41-a2e7a3636ab8",
     "date": "12/28/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -275,12 +275,12 @@
     "solo": 0.0,
     "total_duration": 0.6,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CVV",
-    "created_at": "2026-01-27T02:47:59.737387",
-    "updated_at": "2026-01-27T02:47:59.737388"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.985910",
+    "updated_at": "2026-01-28T18:56:09.985913"
   },
-  "ded6f4ec-f9bd-40fb-9acc-369f9c7688e0": {
-    "id": "ded6f4ec-f9bd-40fb-9acc-369f9c7688e0",
+  "2bd9767e-3f2b-4707-867b-87c6ae1db7b0": {
+    "id": "2bd9767e-3f2b-4707-867b-87c6ae1db7b0",
     "date": "12/28/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -303,12 +303,12 @@
     "solo": 0.0,
     "total_duration": 1.8,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: OLAAH PREIS PDT CHINS5",
-    "created_at": "2026-01-27T02:47:59.737394",
-    "updated_at": "2026-01-27T02:47:59.737395"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.985936",
+    "updated_at": "2026-01-28T18:56:09.985939"
   },
-  "91eb0729-dd18-4539-82c6-83f9a46c85a7": {
-    "id": "91eb0729-dd18-4539-82c6-83f9a46c85a7",
+  "a1b4f8db-9c24-4e25-8626-c2135966d198": {
+    "id": "a1b4f8db-9c24-4e25-8626-c2135966d198",
     "date": "12/27/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -331,12 +331,12 @@
     "solo": 0.0,
     "total_duration": 3.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: RUTER TCS TCH",
-    "created_at": "2026-01-27T02:47:59.737403",
-    "updated_at": "2026-01-27T02:47:59.737404"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.985955",
+    "updated_at": "2026-01-28T18:56:09.985958"
   },
-  "4a014a27-2b17-4c1e-a32f-d9f7fa395ca9": {
-    "id": "4a014a27-2b17-4c1e-a32f-d9f7fa395ca9",
+  "c302387a-07da-4841-abfd-3ac42688f66a": {
+    "id": "c302387a-07da-4841-abfd-3ac42688f66a",
     "date": "12/27/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -359,12 +359,12 @@
     "solo": 0.0,
     "total_duration": 3.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB",
-    "created_at": "2026-01-27T02:47:59.737412",
-    "updated_at": "2026-01-27T02:47:59.737413"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.985972",
+    "updated_at": "2026-01-28T18:56:09.985975"
   },
-  "eb9d761f-b4bf-4616-9766-41f1a06bcb57": {
-    "id": "eb9d761f-b4bf-4616-9766-41f1a06bcb57",
+  "c69db7ce-9f59-4f2e-bc59-c55d1d44000a": {
+    "id": "c69db7ce-9f59-4f2e-bc59-c55d1d44000a",
     "date": "12/24/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -387,12 +387,12 @@
     "solo": 0.0,
     "total_duration": 1.2,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Note: origin estimated",
-    "created_at": "2026-01-27T02:47:59.737420",
-    "updated_at": "2026-01-27T02:47:59.737421"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.985989",
+    "updated_at": "2026-01-28T18:56:09.985992"
   },
-  "9780bab6-7e20-4311-b0d3-22114b010a9e": {
-    "id": "9780bab6-7e20-4311-b0d3-22114b010a9e",
+  "513bd956-e4d3-4eb0-a72c-dcdda7532f6a": {
+    "id": "513bd956-e4d3-4eb0-a72c-dcdda7532f6a",
     "date": "12/21/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -415,12 +415,12 @@
     "solo": 0.0,
     "total_duration": 4.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KEYLO CUU",
-    "created_at": "2026-01-27T02:47:59.737429",
-    "updated_at": "2026-01-27T02:47:59.737430"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986006",
+    "updated_at": "2026-01-28T18:56:09.986008"
   },
-  "18a3ab7c-982c-4ad9-af5a-42ae916415d6": {
-    "id": "18a3ab7c-982c-4ad9-af5a-42ae916415d6",
+  "0c470428-3ca3-4f8c-aaac-8aeb08aee03a": {
+    "id": "0c470428-3ca3-4f8c-aaac-8aeb08aee03a",
     "date": "12/21/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -443,40 +443,12 @@
     "solo": 0.0,
     "total_duration": 0.1,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB",
-    "created_at": "2026-01-27T02:47:59.737437",
-    "updated_at": "2026-01-27T02:47:59.737438"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986023",
+    "updated_at": "2026-01-28T18:56:09.986025"
   },
-  "03b30d37-0ae7-479d-98dd-d255c448aa18": {
-    "id": "03b30d37-0ae7-479d-98dd-d255c448aa18",
-    "date": "12/20/2025",
-    "aircraft_model": "TBM7",
-    "aircraft_ident": "N790TB",
-    "route_from": "KELP",
-    "route_to": "KELP",
-    "sel": 0.6,
-    "mel": 0.0,
-    "day": 0.6,
-    "night": 0.0,
-    "cross_country": 0.0,
-    "actual_inst": 0.0,
-    "simulated_inst": 0.0,
-    "num_inst_app": 0,
-    "landings_day": 1,
-    "landings_night": 0,
-    "pic": 0.6,
-    "sic": 0.0,
-    "dual_recd": 0.0,
-    "dual_given": 0.0,
-    "solo": 0.0,
-    "total_duration": 0.6,
-    "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KEYLO CUU",
-    "created_at": "2026-01-27T02:47:59.737446",
-    "updated_at": "2026-01-27T02:47:59.737447"
-  },
-  "15bf1ffa-eb2b-4ce2-9a0f-5e45f4946b63": {
-    "id": "15bf1ffa-eb2b-4ce2-9a0f-5e45f4946b63",
+  "ab990175-9539-4534-9dcb-4ec28264581f": {
+    "id": "ab990175-9539-4534-9dcb-4ec28264581f",
     "date": "12/20/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -499,12 +471,12 @@
     "solo": 0.0,
     "total_duration": 4.0,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA J5 SUMMA J54 BKE",
-    "created_at": "2026-01-27T02:47:59.737455",
-    "updated_at": "2026-01-27T02:47:59.737456"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986040",
+    "updated_at": "2026-01-28T18:56:09.986043"
   },
-  "76f6c241-383b-409c-b23c-f42cfe08f8ed": {
-    "id": "76f6c241-383b-409c-b23c-f42cfe08f8ed",
+  "394ad042-dbd2-4c6b-96a4-fc88e24f55ee": {
+    "id": "394ad042-dbd2-4c6b-96a4-fc88e24f55ee",
     "date": "12/07/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -527,12 +499,12 @@
     "solo": 0.0,
     "total_duration": 2.8,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: RBL BTG OLM2",
-    "created_at": "2026-01-27T02:47:59.737464",
-    "updated_at": "2026-01-27T02:47:59.737465"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986057",
+    "updated_at": "2026-01-28T18:56:09.986059"
   },
-  "58555018-5714-44aa-ac99-0ca49e1e31eb": {
-    "id": "58555018-5714-44aa-ac99-0ca49e1e31eb",
+  "0948e0dc-1e63-426c-8587-2f4294623a20": {
+    "id": "0948e0dc-1e63-426c-8587-2f4294623a20",
     "date": "12/06/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -555,12 +527,12 @@
     "solo": 0.0,
     "total_duration": 2.6,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: JJAMM ELMAA OED PYE PYE3",
-    "created_at": "2026-01-27T02:47:59.737472",
-    "updated_at": "2026-01-27T02:47:59.737473"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986073",
+    "updated_at": "2026-01-28T18:56:09.986076"
   },
-  "5637b5b9-8e33-4cb2-a8b9-d186a987cb80": {
-    "id": "5637b5b9-8e33-4cb2-a8b9-d186a987cb80",
+  "10c75c67-f141-4e3d-8e4b-2f6af1ddce33": {
+    "id": "10c75c67-f141-4e3d-8e4b-2f6af1ddce33",
     "date": "11/30/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -583,12 +555,12 @@
     "solo": 0.0,
     "total_duration": 0.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KLSHN2 KLSHN CVV",
-    "created_at": "2026-01-27T02:47:59.737480",
-    "updated_at": "2026-01-27T02:47:59.737481"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986090",
+    "updated_at": "2026-01-28T18:56:09.986092"
   },
-  "f12112b8-2777-4465-abd7-b8497aab8dbf": {
-    "id": "f12112b8-2777-4465-abd7-b8497aab8dbf",
+  "3382a1ab-251c-4fc2-9ba6-379c9df3abce": {
+    "id": "3382a1ab-251c-4fc2-9ba6-379c9df3abce",
     "date": "11/29/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -611,12 +583,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KEPVI",
-    "created_at": "2026-01-27T02:47:59.737489",
-    "updated_at": "2026-01-27T02:47:59.737490"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986106",
+    "updated_at": "2026-01-28T18:56:09.986109"
   },
-  "30e601b2-59ba-46fc-a144-d4fa5dabf0f0": {
-    "id": "30e601b2-59ba-46fc-a144-d4fa5dabf0f0",
+  "1cb3c688-3790-45d2-9488-c993f575182b": {
+    "id": "1cb3c688-3790-45d2-9488-c993f575182b",
     "date": "11/23/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -639,12 +611,12 @@
     "solo": 0.0,
     "total_duration": 2.0,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: FLIYN1 JETZZ PDT CHINS5",
-    "created_at": "2026-01-27T02:47:59.737497",
-    "updated_at": "2026-01-27T02:47:59.737499"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986124",
+    "updated_at": "2026-01-28T18:56:09.986127"
   },
-  "eb3a0768-d773-4da6-b6f2-df09ae17f768": {
-    "id": "eb3a0768-d773-4da6-b6f2-df09ae17f768",
+  "b2a60779-bbcf-4824-92b9-416b1e5f07d2": {
+    "id": "b2a60779-bbcf-4824-92b9-416b1e5f07d2",
     "date": "11/22/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -667,12 +639,12 @@
     "solo": 0.0,
     "total_duration": 1.8,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA NORMY J90 MWH",
-    "created_at": "2026-01-27T02:47:59.737506",
-    "updated_at": "2026-01-27T02:47:59.737507"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986141",
+    "updated_at": "2026-01-28T18:56:09.986143"
   },
-  "3616d701-b65c-4fc1-8883-6783d2a4b178": {
-    "id": "3616d701-b65c-4fc1-8883-6783d2a4b178",
+  "d2770f7f-9971-495d-89e6-aa0fc4b08512": {
+    "id": "d2770f7f-9971-495d-89e6-aa0fc4b08512",
     "date": "11/17/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -695,12 +667,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KLSHN2 KLSHN CVV",
-    "created_at": "2026-01-27T02:47:59.737513",
-    "updated_at": "2026-01-27T02:47:59.737514"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986157",
+    "updated_at": "2026-01-28T18:56:09.986160"
   },
-  "c57cd1c9-8ccf-48b8-bf66-ca6ffcf16e43": {
-    "id": "c57cd1c9-8ccf-48b8-bf66-ca6ffcf16e43",
+  "97e2a8d9-834d-4c75-992a-18f7f240587b": {
+    "id": "97e2a8d9-834d-4c75-992a-18f7f240587b",
     "date": "11/16/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -723,12 +695,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.737520",
-    "updated_at": "2026-01-27T02:47:59.737521"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986174",
+    "updated_at": "2026-01-28T18:56:09.986176"
   },
-  "c48d8b33-e7bd-4a48-b409-134b260c8641": {
-    "id": "c48d8b33-e7bd-4a48-b409-134b260c8641",
+  "07d67917-0136-46bc-ba98-0ad543bff5d3": {
+    "id": "07d67917-0136-46bc-ba98-0ad543bff5d3",
     "date": "11/15/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -751,12 +723,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: OMVEX ILAND7",
-    "created_at": "2026-01-27T02:47:59.737528",
-    "updated_at": "2026-01-27T02:47:59.737529"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986191",
+    "updated_at": "2026-01-28T18:56:09.986193"
   },
-  "70ef5c7f-a84f-483e-98aa-547954bfae79": {
-    "id": "70ef5c7f-a84f-483e-98aa-547954bfae79",
+  "a0f689e1-5bbd-467f-9e70-59b7c58e868a": {
+    "id": "a0f689e1-5bbd-467f-9e70-59b7c58e868a",
     "date": "11/15/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -779,12 +751,12 @@
     "solo": 0.0,
     "total_duration": 0.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CVV",
-    "created_at": "2026-01-27T02:47:59.737536",
-    "updated_at": "2026-01-27T02:47:59.737537"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986208",
+    "updated_at": "2026-01-28T18:56:09.986211"
   },
-  "09e42c1b-192f-41f0-8b03-d40058254ce3": {
-    "id": "09e42c1b-192f-41f0-8b03-d40058254ce3",
+  "524dec46-2174-4751-8313-0aac96f83f87": {
+    "id": "524dec46-2174-4751-8313-0aac96f83f87",
     "date": "11/09/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -807,12 +779,12 @@
     "solo": 0.0,
     "total_duration": 0.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KLSHN2 KLSHN CVV",
-    "created_at": "2026-01-27T02:47:59.737545",
-    "updated_at": "2026-01-27T02:47:59.737546"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986225",
+    "updated_at": "2026-01-28T18:56:09.986227"
   },
-  "2b3c8e9c-d83a-438e-8090-c55a46492f8c": {
-    "id": "2b3c8e9c-d83a-438e-8090-c55a46492f8c",
+  "c2eae16d-f0df-497a-821a-fca9bc92cc47": {
+    "id": "c2eae16d-f0df-497a-821a-fca9bc92cc47",
     "date": "11/09/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -835,12 +807,12 @@
     "solo": 0.0,
     "total_duration": 0.2,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.737552",
-    "updated_at": "2026-01-27T02:47:59.737553"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986241",
+    "updated_at": "2026-01-28T18:56:09.986244"
   },
-  "c11af853-04e6-49c9-8abf-e67259ac66db": {
-    "id": "c11af853-04e6-49c9-8abf-e67259ac66db",
+  "968cbe95-1f92-4250-9a12-cc9f84b410cf": {
+    "id": "968cbe95-1f92-4250-9a12-cc9f84b410cf",
     "date": "11/08/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -863,12 +835,12 @@
     "solo": 0.0,
     "total_duration": 0.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CVV",
-    "created_at": "2026-01-27T02:47:59.737560",
-    "updated_at": "2026-01-27T02:47:59.737561"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986258",
+    "updated_at": "2026-01-28T18:56:09.986260"
   },
-  "116511ff-d8b8-41e5-bc75-534f4ad69cb2": {
-    "id": "116511ff-d8b8-41e5-bc75-534f4ad69cb2",
+  "f53085d6-5a95-4d9b-8048-3524a597c49b": {
+    "id": "f53085d6-5a95-4d9b-8048-3524a597c49b",
     "date": "10/19/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -891,12 +863,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KLSHN2 KLSHN CVV",
-    "created_at": "2026-01-27T02:47:59.737568",
-    "updated_at": "2026-01-27T02:47:59.737569"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986274",
+    "updated_at": "2026-01-28T18:56:09.986276"
   },
-  "972c1b2c-95a6-4fae-9617-b6f5196ffd12": {
-    "id": "972c1b2c-95a6-4fae-9617-b6f5196ffd12",
+  "b96c4f4f-e95a-4058-8e72-787ec00489ab": {
+    "id": "b96c4f4f-e95a-4058-8e72-787ec00489ab",
     "date": "10/19/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -919,12 +891,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.737575",
-    "updated_at": "2026-01-27T02:47:59.737576"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986291",
+    "updated_at": "2026-01-28T18:56:09.986293"
   },
-  "b3ace063-3cdc-4882-8900-8af32a23b11a": {
-    "id": "b3ace063-3cdc-4882-8900-8af32a23b11a",
+  "826f8319-5b3a-4b99-a238-6ced3603ff71": {
+    "id": "826f8319-5b3a-4b99-a238-6ced3603ff71",
     "date": "10/18/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -947,12 +919,12 @@
     "solo": 0.0,
     "total_duration": 0.6,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CVV",
-    "created_at": "2026-01-27T02:47:59.737582",
-    "updated_at": "2026-01-27T02:47:59.737583"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986309",
+    "updated_at": "2026-01-28T18:56:09.986311"
   },
-  "631cda1e-7407-44f9-bfa2-0aa588a351d0": {
-    "id": "631cda1e-7407-44f9-bfa2-0aa588a351d0",
+  "23027f09-28cb-46ef-8009-5fd1bffc4a80": {
+    "id": "23027f09-28cb-46ef-8009-5fd1bffc4a80",
     "date": "10/12/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -975,12 +947,12 @@
     "solo": 0.0,
     "total_duration": 3.2,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: NOTWN5 LAS JOHKR DEDPL BIKKR CAGEE KENNO OAL RAJKO NEERO EVANT BREED YKM CHINS CHINS5",
-    "created_at": "2026-01-27T02:47:59.737589",
-    "updated_at": "2026-01-27T02:47:59.737590"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986326",
+    "updated_at": "2026-01-28T18:56:09.986328"
   },
-  "c92d323c-7380-4b8f-868e-96998a77b5bd": {
-    "id": "c92d323c-7380-4b8f-868e-96998a77b5bd",
+  "65afc4d2-bf8b-4cc3-99cc-149b3f51492e": {
+    "id": "65afc4d2-bf8b-4cc3-99cc-149b3f51492e",
     "date": "10/10/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1003,12 +975,12 @@
     "solo": 0.0,
     "total_duration": 4.7,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA J5 FMG FUULL",
-    "created_at": "2026-01-27T02:47:59.737596",
-    "updated_at": "2026-01-27T02:47:59.737597"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986342",
+    "updated_at": "2026-01-28T18:56:09.986345"
   },
-  "d9975729-56fd-4d9e-9221-a8a9d5f33d52": {
-    "id": "d9975729-56fd-4d9e-9221-a8a9d5f33d52",
+  "46e8f508-e85e-4fc9-97b0-1caaeb558691": {
+    "id": "46e8f508-e85e-4fc9-97b0-1caaeb558691",
     "date": "10/06/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1031,12 +1003,12 @@
     "solo": 0.0,
     "total_duration": 2.1,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KTN CETK6 ANN VIXOR DISCO",
-    "created_at": "2026-01-27T02:47:59.737603",
-    "updated_at": "2026-01-27T02:47:59.737604"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986359",
+    "updated_at": "2026-01-28T18:56:09.986361"
   },
-  "232a7e98-95be-4018-9ae9-e78a7e7f977f": {
-    "id": "232a7e98-95be-4018-9ae9-e78a7e7f977f",
+  "22d56387-2562-4284-9735-3660f9230756": {
+    "id": "22d56387-2562-4284-9735-3660f9230756",
     "date": "10/05/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1059,12 +1031,12 @@
     "solo": 0.0,
     "total_duration": 3.1,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: FAI YAK DOOZI KTN",
-    "created_at": "2026-01-27T02:47:59.737610",
-    "updated_at": "2026-01-27T02:47:59.737611"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986375",
+    "updated_at": "2026-01-28T18:56:09.986377"
   },
-  "68dc21dd-a885-459f-8ebc-a36b2e5b9b84": {
-    "id": "68dc21dd-a885-459f-8ebc-a36b2e5b9b84",
+  "c37f886d-017d-42ed-870e-fdbd8f5c385c": {
+    "id": "c37f886d-017d-42ed-870e-fdbd8f5c385c",
     "date": "10/04/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1087,12 +1059,12 @@
     "solo": 0.0,
     "total_duration": 2.6,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: JNU ASORT2 ASORT FAI",
-    "created_at": "2026-01-27T02:47:59.737617",
-    "updated_at": "2026-01-27T02:47:59.737618"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986391",
+    "updated_at": "2026-01-28T18:56:09.986394"
   },
-  "4158f88d-950c-416e-9340-8e16a0e92240": {
-    "id": "4158f88d-950c-416e-9340-8e16a0e92240",
+  "5410b776-7aa2-472d-91e1-358aec23a95d": {
+    "id": "5410b776-7aa2-472d-91e1-358aec23a95d",
     "date": "10/04/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1115,12 +1087,12 @@
     "solo": 0.0,
     "total_duration": 4.2,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: PERLL ARRIE SSR",
-    "created_at": "2026-01-27T02:47:59.737624",
-    "updated_at": "2026-01-27T02:47:59.737625"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986407",
+    "updated_at": "2026-01-28T18:56:09.986410"
   },
-  "fcfa6e50-a603-4f04-8989-5710970f3012": {
-    "id": "fcfa6e50-a603-4f04-8989-5710970f3012",
+  "e4d473a7-214f-4ea7-9e50-ceeaf6e95b71": {
+    "id": "e4d473a7-214f-4ea7-9e50-ceeaf6e95b71",
     "date": "09/21/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1143,12 +1115,12 @@
     "solo": 0.0,
     "total_duration": 0.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KLSHN2 KLSHN CVV",
-    "created_at": "2026-01-27T02:47:59.737631",
-    "updated_at": "2026-01-27T02:47:59.737632"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986424",
+    "updated_at": "2026-01-28T18:56:09.986426"
   },
-  "081353de-509f-4546-845e-9af775ba96a8": {
-    "id": "081353de-509f-4546-845e-9af775ba96a8",
+  "aadff7a6-29f1-416f-9876-5a77361f7f21": {
+    "id": "aadff7a6-29f1-416f-9876-5a77361f7f21",
     "date": "09/21/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1171,12 +1143,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.737638",
-    "updated_at": "2026-01-27T02:47:59.737639"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986440",
+    "updated_at": "2026-01-28T18:56:09.986442"
   },
-  "04b4b24b-9a01-46d3-ad23-99ef202f9fec": {
-    "id": "04b4b24b-9a01-46d3-ad23-99ef202f9fec",
+  "ea69bed5-9024-4a6e-a9fa-5866a80b1b0f": {
+    "id": "ea69bed5-9024-4a6e-a9fa-5866a80b1b0f",
     "date": "09/20/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1199,12 +1171,12 @@
     "solo": 0.0,
     "total_duration": 0.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CVV",
-    "created_at": "2026-01-27T02:47:59.737645",
-    "updated_at": "2026-01-27T02:47:59.737646"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986456",
+    "updated_at": "2026-01-28T18:56:09.986459"
   },
-  "467d6136-3ec0-4fa3-96af-e79543153842": {
-    "id": "467d6136-3ec0-4fa3-96af-e79543153842",
+  "e912eb68-6a7f-4edc-b015-765d2a3076ae": {
+    "id": "e912eb68-6a7f-4edc-b015-765d2a3076ae",
     "date": "09/20/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1227,12 +1199,12 @@
     "solo": 0.0,
     "total_duration": 0.7,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA V2 BEEZR CHINS",
-    "created_at": "2026-01-27T02:47:59.737659",
-    "updated_at": "2026-01-27T02:47:59.737661"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986472",
+    "updated_at": "2026-01-28T18:56:09.986475"
   },
-  "45e80c76-25c8-4b15-a58f-c43b274aa6b7": {
-    "id": "45e80c76-25c8-4b15-a58f-c43b274aa6b7",
+  "131475f1-9d73-433e-9aac-6f3b45c4ab3c": {
+    "id": "131475f1-9d73-433e-9aac-6f3b45c4ab3c",
     "date": "09/14/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1255,12 +1227,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KLSHN2 KLSHN CVV",
-    "created_at": "2026-01-27T02:47:59.737668",
-    "updated_at": "2026-01-27T02:47:59.737669"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986490",
+    "updated_at": "2026-01-28T18:56:09.986493"
   },
-  "22560ba6-a10a-4e86-8e22-fbb85879e78b": {
-    "id": "22560ba6-a10a-4e86-8e22-fbb85879e78b",
+  "df2db351-0047-42d5-84c2-1244512e00a9": {
+    "id": "df2db351-0047-42d5-84c2-1244512e00a9",
     "date": "09/14/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1283,12 +1255,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.737676",
-    "updated_at": "2026-01-27T02:47:59.737677"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986507",
+    "updated_at": "2026-01-28T18:56:09.986509"
   },
-  "4c61008d-d538-40cd-8ebd-a3d741c2636c": {
-    "id": "4c61008d-d538-40cd-8ebd-a3d741c2636c",
+  "ec5f7a32-6b55-4cd3-8a82-705382bc57b4": {
+    "id": "ec5f7a32-6b55-4cd3-8a82-705382bc57b4",
     "date": "09/13/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1311,12 +1283,12 @@
     "solo": 0.0,
     "total_duration": 0.6,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CVV",
-    "created_at": "2026-01-27T02:47:59.737683",
-    "updated_at": "2026-01-27T02:47:59.737684"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986523",
+    "updated_at": "2026-01-28T18:56:09.986525"
   },
-  "a3506c49-c42b-4e5e-9c24-fcbd21bb5920": {
-    "id": "a3506c49-c42b-4e5e-9c24-fcbd21bb5920",
+  "bc804d17-c86a-4d64-a173-006921224e2a": {
+    "id": "bc804d17-c86a-4d64-a173-006921224e2a",
     "date": "09/07/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1339,12 +1311,12 @@
     "solo": 0.0,
     "total_duration": 1.1,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: AST OLM",
-    "created_at": "2026-01-27T02:47:59.737690",
-    "updated_at": "2026-01-27T02:47:59.737691"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986539",
+    "updated_at": "2026-01-28T18:56:09.986542"
   },
-  "eedf8d29-442a-43ba-a1b2-db465be1cd37": {
-    "id": "eedf8d29-442a-43ba-a1b2-db465be1cd37",
+  "721517f0-77e9-4b31-bbb2-5f7bf7924520": {
+    "id": "721517f0-77e9-4b31-bbb2-5f7bf7924520",
     "date": "09/06/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1367,12 +1339,12 @@
     "solo": 0.0,
     "total_duration": 1.0,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA J70 ELMAA AST",
-    "created_at": "2026-01-27T02:47:59.737699",
-    "updated_at": "2026-01-27T02:47:59.737700"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986556",
+    "updated_at": "2026-01-28T18:56:09.986559"
   },
-  "8a174296-4a35-4ae2-b31f-1be1a3d08a18": {
-    "id": "8a174296-4a35-4ae2-b31f-1be1a3d08a18",
+  "2432f750-faf7-4b8a-a48d-f32022ca9cd7": {
+    "id": "2432f750-faf7-4b8a-a48d-f32022ca9cd7",
     "date": "08/31/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1395,12 +1367,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KLSHN2 KLSHN",
-    "created_at": "2026-01-27T02:47:59.737707",
-    "updated_at": "2026-01-27T02:47:59.737708"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986573",
+    "updated_at": "2026-01-28T18:56:09.986575"
   },
-  "5e3dc208-1886-4c0d-8871-82ddabc838ce": {
-    "id": "5e3dc208-1886-4c0d-8871-82ddabc838ce",
+  "1567dc20-9ab8-48a7-beed-f18b6a3216fa": {
+    "id": "1567dc20-9ab8-48a7-beed-f18b6a3216fa",
     "date": "08/31/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1423,12 +1395,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.737716",
-    "updated_at": "2026-01-27T02:47:59.737717"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986591",
+    "updated_at": "2026-01-28T18:56:09.986593"
   },
-  "c1eb5ca0-a482-43d9-a3dc-faa73f4a26a5": {
-    "id": "c1eb5ca0-a482-43d9-a3dc-faa73f4a26a5",
+  "9f16f143-0575-47f5-bdb5-e373966d2756": {
+    "id": "9f16f143-0575-47f5-bdb5-e373966d2756",
     "date": "08/31/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1451,12 +1423,12 @@
     "solo": 0.0,
     "total_duration": 0.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CVV",
-    "created_at": "2026-01-27T02:47:59.737724",
-    "updated_at": "2026-01-27T02:47:59.737725"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986607",
+    "updated_at": "2026-01-28T18:56:09.986610"
   },
-  "eadbf857-4a0e-4b77-b8f5-53393b3bc65f": {
-    "id": "eadbf857-4a0e-4b77-b8f5-53393b3bc65f",
+  "d9ef11d0-6f67-4d6a-9d37-696229c452ca": {
+    "id": "d9ef11d0-6f67-4d6a-9d37-696229c452ca",
     "date": "08/24/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1479,12 +1451,12 @@
     "solo": 0.0,
     "total_duration": 0.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KLSHN2 KLSHN CVV",
-    "created_at": "2026-01-27T02:47:59.737732",
-    "updated_at": "2026-01-27T02:47:59.737733"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986623",
+    "updated_at": "2026-01-28T18:56:09.986626"
   },
-  "6ddc587e-e14e-4a8c-b117-4e294ef6398e": {
-    "id": "6ddc587e-e14e-4a8c-b117-4e294ef6398e",
+  "0181e073-0d6a-4dc5-aaa7-019565c26ee9": {
+    "id": "0181e073-0d6a-4dc5-aaa7-019565c26ee9",
     "date": "08/24/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1507,12 +1479,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.737740",
-    "updated_at": "2026-01-27T02:47:59.737741"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986640",
+    "updated_at": "2026-01-28T18:56:09.986643"
   },
-  "71e0d252-33a0-4c58-bbf3-7d2f7eae9a7c": {
-    "id": "71e0d252-33a0-4c58-bbf3-7d2f7eae9a7c",
+  "8cf7fbce-7ede-425d-bb83-450165424cd9": {
+    "id": "8cf7fbce-7ede-425d-bb83-450165424cd9",
     "date": "08/23/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1535,12 +1507,12 @@
     "solo": 0.0,
     "total_duration": 0.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CVV",
-    "created_at": "2026-01-27T02:47:59.737749",
-    "updated_at": "2026-01-27T02:47:59.737750"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986657",
+    "updated_at": "2026-01-28T18:56:09.986659"
   },
-  "0b38bb8d-0bf7-4886-8034-1188a2dc40af": {
-    "id": "0b38bb8d-0bf7-4886-8034-1188a2dc40af",
+  "0a8d39c6-1321-4dec-b6b4-0b3888ee868a": {
+    "id": "0a8d39c6-1321-4dec-b6b4-0b3888ee868a",
     "date": "08/12/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1563,12 +1535,12 @@
     "solo": 0.0,
     "total_duration": 2.8,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: JNU JNU6 SSR AKTEX PR VETGI PAE",
-    "created_at": "2026-01-27T02:47:59.737756",
-    "updated_at": "2026-01-27T02:47:59.737757"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986673",
+    "updated_at": "2026-01-28T18:56:09.986676"
   },
-  "53630f9b-d2d8-4020-a82c-8545c1513c3f": {
-    "id": "53630f9b-d2d8-4020-a82c-8545c1513c3f",
+  "fc8ced09-028b-4f6e-a6c1-6fe6ac8256bb": {
+    "id": "fc8ced09-028b-4f6e-a6c1-6fe6ac8256bb",
     "date": "08/11/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1591,12 +1563,12 @@
     "solo": 0.0,
     "total_duration": 3.9,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: DUT DUT J115 CDB J623 PDN ARCAL MDO CSMOS Q801 LAIRE BERGS JNU",
-    "created_at": "2026-01-27T02:47:59.737763",
-    "updated_at": "2026-01-27T02:47:59.737764"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986690",
+    "updated_at": "2026-01-28T18:56:09.986692"
   },
-  "d5826814-bea1-441d-87b9-fa6f71255891": {
-    "id": "d5826814-bea1-441d-87b9-fa6f71255891",
+  "35983c67-d886-4e95-84cb-da3a4cc25fbd": {
+    "id": "35983c67-d886-4e95-84cb-da3a4cc25fbd",
     "date": "08/11/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1619,12 +1591,12 @@
     "solo": 0.0,
     "total_duration": 2.8,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SYA G215 DUT",
-    "created_at": "2026-01-27T02:47:59.737770",
-    "updated_at": "2026-01-27T02:47:59.737771"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986706",
+    "updated_at": "2026-01-28T18:56:09.986713"
   },
-  "7242d4b4-cd23-4d12-b352-11a439582e0a": {
-    "id": "7242d4b4-cd23-4d12-b352-11a439582e0a",
+  "ee3734db-107f-49b6-99b4-5d90dca84ed2": {
+    "id": "ee3734db-107f-49b6-99b4-5d90dca84ed2",
     "date": "08/10/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1638,8 +1610,8 @@
     "actual_inst": 0.0,
     "simulated_inst": 0.0,
     "num_inst_app": 0,
-    "landings_day": 1,
-    "landings_night": 0,
+    "landings_day": 0,
+    "landings_night": 1,
     "pic": 5.5,
     "sic": 0.0,
     "dual_recd": 0.0,
@@ -1647,12 +1619,12 @@
     "solo": 0.0,
     "total_duration": 5.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Note: dest estimated, duration estimated",
-    "created_at": "2026-01-27T02:47:59.737777",
-    "updated_at": "2026-01-27T02:47:59.737778"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986728",
+    "updated_at": "2026-01-28T18:56:09.986731"
   },
-  "8497246e-149b-48e1-a714-ee537a38c6a2": {
-    "id": "8497246e-149b-48e1-a714-ee537a38c6a2",
+  "e3489f13-fac3-4d74-bb2b-4080832386cb": {
+    "id": "e3489f13-fac3-4d74-bb2b-4080832386cb",
     "date": "08/06/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1675,12 +1647,12 @@
     "solo": 0.0,
     "total_duration": 0.6,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB",
-    "created_at": "2026-01-27T02:47:59.737787",
-    "updated_at": "2026-01-27T02:47:59.737788"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986750",
+    "updated_at": "2026-01-28T18:56:09.986752"
   },
-  "6bae0141-e319-4b12-a08a-456514ed6f20": {
-    "id": "6bae0141-e319-4b12-a08a-456514ed6f20",
+  "3ebe676d-ebb9-4db3-a514-1696eea9858f": {
+    "id": "3ebe676d-ebb9-4db3-a514-1696eea9858f",
     "date": "08/03/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1703,12 +1675,12 @@
     "solo": 0.0,
     "total_duration": 3.1,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB",
-    "created_at": "2026-01-27T02:47:59.737795",
-    "updated_at": "2026-01-27T02:47:59.737796"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986767",
+    "updated_at": "2026-01-28T18:56:09.986770"
   },
-  "5acb4ae8-8069-4658-936a-7e8cf69480ec": {
-    "id": "5acb4ae8-8069-4658-936a-7e8cf69480ec",
+  "baace61f-99da-4bdc-93f3-9872b8841ae8": {
+    "id": "baace61f-99da-4bdc-93f3-9872b8841ae8",
     "date": "08/03/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1731,12 +1703,12 @@
     "solo": 0.0,
     "total_duration": 1.7,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Note: origin estimated",
-    "created_at": "2026-01-27T02:47:59.737802",
-    "updated_at": "2026-01-27T02:47:59.737803"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986784",
+    "updated_at": "2026-01-28T18:56:09.986786"
   },
-  "2fd00d0a-e303-467f-a9eb-7341f7b914c4": {
-    "id": "2fd00d0a-e303-467f-a9eb-7341f7b914c4",
+  "4a3026ac-742f-4db0-9391-7ee04e0572a1": {
+    "id": "4a3026ac-742f-4db0-9391-7ee04e0572a1",
     "date": "07/30/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1759,12 +1731,12 @@
     "solo": 0.0,
     "total_duration": 0.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Note: origin estimated, dest estimated, duration estimated",
-    "created_at": "2026-01-27T02:47:59.737811",
-    "updated_at": "2026-01-27T02:47:59.737812"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986800",
+    "updated_at": "2026-01-28T18:56:09.986803"
   },
-  "ab19e31f-0f27-44d3-b69c-4668c5ad5e0a": {
-    "id": "ab19e31f-0f27-44d3-b69c-4668c5ad5e0a",
+  "cf8f6b45-0955-4775-ba1f-feb03e1cb9f3": {
+    "id": "cf8f6b45-0955-4775-ba1f-feb03e1cb9f3",
     "date": "07/28/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1787,12 +1759,12 @@
     "solo": 0.0,
     "total_duration": 3.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Note: dest estimated, duration estimated",
-    "created_at": "2026-01-27T02:47:59.737819",
-    "updated_at": "2026-01-27T02:47:59.737820"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986817",
+    "updated_at": "2026-01-28T18:56:09.986819"
   },
-  "dfd5f696-0b9d-4d33-83d2-f2991bc284de": {
-    "id": "dfd5f696-0b9d-4d33-83d2-f2991bc284de",
+  "d298bc18-5cc7-413b-b1a4-4877e364220f": {
+    "id": "d298bc18-5cc7-413b-b1a4-4877e364220f",
     "date": "07/26/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1815,12 +1787,12 @@
     "solo": 0.0,
     "total_duration": 2.8,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB",
-    "created_at": "2026-01-27T02:47:59.737827",
-    "updated_at": "2026-01-27T02:47:59.737828"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986833",
+    "updated_at": "2026-01-28T18:56:09.986835"
   },
-  "1c92bb48-4bdf-43bf-ba59-c6f5341deb71": {
-    "id": "1c92bb48-4bdf-43bf-ba59-c6f5341deb71",
+  "c9eca814-af9a-4799-9db0-b86b83e331b8": {
+    "id": "c9eca814-af9a-4799-9db0-b86b83e331b8",
     "date": "07/24/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1843,12 +1815,12 @@
     "solo": 0.0,
     "total_duration": 4.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB",
-    "created_at": "2026-01-27T02:47:59.737834",
-    "updated_at": "2026-01-27T02:47:59.737835"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986849",
+    "updated_at": "2026-01-28T18:56:09.986852"
   },
-  "a5846699-80a7-4aaf-b22c-9e66b2f07d84": {
-    "id": "a5846699-80a7-4aaf-b22c-9e66b2f07d84",
+  "24305ec8-176e-4dca-b5b7-90f9dd662e89": {
+    "id": "24305ec8-176e-4dca-b5b7-90f9dd662e89",
     "date": "07/23/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1871,12 +1843,12 @@
     "solo": 0.0,
     "total_duration": 0.2,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Note: origin estimated",
-    "created_at": "2026-01-27T02:47:59.737841",
-    "updated_at": "2026-01-27T02:47:59.737842"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986866",
+    "updated_at": "2026-01-28T18:56:09.986868"
   },
-  "bc123ead-6ec2-4ffe-be8c-fe9cba5a13c1": {
-    "id": "bc123ead-6ec2-4ffe-be8c-fe9cba5a13c1",
+  "f1c7b98c-588d-4ef4-9bc3-4cade62433e9": {
+    "id": "f1c7b98c-588d-4ef4-9bc3-4cade62433e9",
     "date": "07/23/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1899,12 +1871,12 @@
     "solo": 0.0,
     "total_duration": 0.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Note: dest estimated, duration estimated",
-    "created_at": "2026-01-27T02:47:59.737848",
-    "updated_at": "2026-01-27T02:47:59.737849"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986882",
+    "updated_at": "2026-01-28T18:56:09.986884"
   },
-  "aeb0b90c-eacd-42fb-b7c8-92fef07e8b73": {
-    "id": "aeb0b90c-eacd-42fb-b7c8-92fef07e8b73",
+  "3add5f3b-fb1a-4904-9f8c-9c5a95e94da9": {
+    "id": "3add5f3b-fb1a-4904-9f8c-9c5a95e94da9",
     "date": "07/22/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1918,8 +1890,8 @@
     "actual_inst": 0.0,
     "simulated_inst": 0.0,
     "num_inst_app": 0,
-    "landings_day": 1,
-    "landings_night": 0,
+    "landings_day": 0,
+    "landings_night": 1,
     "pic": 4.6,
     "sic": 0.0,
     "dual_recd": 0.0,
@@ -1927,12 +1899,12 @@
     "solo": 0.0,
     "total_duration": 4.6,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Note: duration estimated",
-    "created_at": "2026-01-27T02:47:59.737855",
-    "updated_at": "2026-01-27T02:47:59.737856"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986898",
+    "updated_at": "2026-01-28T18:56:09.986901"
   },
-  "02c92704-29d7-4c57-87c6-94d5ff848843": {
-    "id": "02c92704-29d7-4c57-87c6-94d5ff848843",
+  "ca38444c-661c-4d22-95b1-dac9ac5748a1": {
+    "id": "ca38444c-661c-4d22-95b1-dac9ac5748a1",
     "date": "07/21/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1955,12 +1927,12 @@
     "solo": 0.0,
     "total_duration": 3.7,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB",
-    "created_at": "2026-01-27T02:47:59.737862",
-    "updated_at": "2026-01-27T02:47:59.737863"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986915",
+    "updated_at": "2026-01-28T18:56:09.986917"
   },
-  "186f5c63-6b43-48b2-b345-a57b169ebb3b": {
-    "id": "186f5c63-6b43-48b2-b345-a57b169ebb3b",
+  "e97e010b-70f0-4ce9-ac77-ad756e678e05": {
+    "id": "e97e010b-70f0-4ce9-ac77-ad756e678e05",
     "date": "07/19/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -1983,12 +1955,12 @@
     "solo": 0.0,
     "total_duration": 2.8,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB",
-    "created_at": "2026-01-27T02:47:59.737871",
-    "updated_at": "2026-01-27T02:47:59.737872"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986931",
+    "updated_at": "2026-01-28T18:56:09.986933"
   },
-  "eb692766-09d1-48f2-b004-0ffc5ef60035": {
-    "id": "eb692766-09d1-48f2-b004-0ffc5ef60035",
+  "c4656464-24ab-4c88-b030-6601b1dd45bf": {
+    "id": "c4656464-24ab-4c88-b030-6601b1dd45bf",
     "date": "07/19/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2011,12 +1983,12 @@
     "solo": 0.0,
     "total_duration": 2.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Note: origin estimated, dest estimated, duration estimated",
-    "created_at": "2026-01-27T02:47:59.737879",
-    "updated_at": "2026-01-27T02:47:59.737880"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986947",
+    "updated_at": "2026-01-28T18:56:09.986950"
   },
-  "2c96ea38-c872-462c-a7d7-4ef9114a6ec7": {
-    "id": "2c96ea38-c872-462c-a7d7-4ef9114a6ec7",
+  "d8fe216b-30bc-4888-81de-006004b89676": {
+    "id": "d8fe216b-30bc-4888-81de-006004b89676",
     "date": "07/17/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2039,12 +2011,12 @@
     "solo": 0.0,
     "total_duration": 1.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Note: dest estimated, duration estimated",
-    "created_at": "2026-01-27T02:47:59.737888",
-    "updated_at": "2026-01-27T02:47:59.737889"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986964",
+    "updated_at": "2026-01-28T18:56:09.986966"
   },
-  "83c2b2c3-224d-4768-97ab-17c5477563c5": {
-    "id": "83c2b2c3-224d-4768-97ab-17c5477563c5",
+  "a9508173-b0fd-4bb8-8925-d9b4984b68c3": {
+    "id": "a9508173-b0fd-4bb8-8925-d9b4984b68c3",
     "date": "07/16/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2067,12 +2039,12 @@
     "solo": 0.0,
     "total_duration": 2.1,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Note: origin estimated",
-    "created_at": "2026-01-27T02:47:59.737895",
-    "updated_at": "2026-01-27T02:47:59.737896"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986980",
+    "updated_at": "2026-01-28T18:56:09.986982"
   },
-  "15343f3a-114e-4fb9-b814-9abb7a27f70e": {
-    "id": "15343f3a-114e-4fb9-b814-9abb7a27f70e",
+  "159f9289-31cd-465f-8201-fb8a9ec1f6d5": {
+    "id": "159f9289-31cd-465f-8201-fb8a9ec1f6d5",
     "date": "07/15/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2095,12 +2067,12 @@
     "solo": 0.0,
     "total_duration": 1.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Note: dest estimated, duration estimated",
-    "created_at": "2026-01-27T02:47:59.737903",
-    "updated_at": "2026-01-27T02:47:59.737904"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.986999",
+    "updated_at": "2026-01-28T18:56:09.987002"
   },
-  "97ff2f9f-64c5-48da-a400-9b372ab2bc6b": {
-    "id": "97ff2f9f-64c5-48da-a400-9b372ab2bc6b",
+  "d0039b7b-fbfe-4600-85e0-3723a040c6dd": {
+    "id": "d0039b7b-fbfe-4600-85e0-3723a040c6dd",
     "date": "07/13/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2123,12 +2095,12 @@
     "solo": 0.0,
     "total_duration": 1.9,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB",
-    "created_at": "2026-01-27T02:47:59.737911",
-    "updated_at": "2026-01-27T02:47:59.737912"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987016",
+    "updated_at": "2026-01-28T18:56:09.987018"
   },
-  "6919a6e6-4e20-4ab1-944b-89a4e8ea36e4": {
-    "id": "6919a6e6-4e20-4ab1-944b-89a4e8ea36e4",
+  "afe59526-b925-4c70-a2c8-a2f6c44850d0": {
+    "id": "afe59526-b925-4c70-a2c8-a2f6c44850d0",
     "date": "07/11/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2151,12 +2123,12 @@
     "solo": 0.0,
     "total_duration": 1.0,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB",
-    "created_at": "2026-01-27T02:47:59.737920",
-    "updated_at": "2026-01-27T02:47:59.737921"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987033",
+    "updated_at": "2026-01-28T18:56:09.987036"
   },
-  "fb01f6b2-a6f4-4ca6-a3b9-2e2156808287": {
-    "id": "fb01f6b2-a6f4-4ca6-a3b9-2e2156808287",
+  "10383cfb-f2e2-41a4-a7e9-08eefb6b245f": {
+    "id": "10383cfb-f2e2-41a4-a7e9-08eefb6b245f",
     "date": "07/10/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2179,12 +2151,12 @@
     "solo": 0.0,
     "total_duration": 2.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB",
-    "created_at": "2026-01-27T02:47:59.737929",
-    "updated_at": "2026-01-27T02:47:59.737930"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987050",
+    "updated_at": "2026-01-28T18:56:09.987052"
   },
-  "998f82f8-753e-413e-af5a-9cefa834fa71": {
-    "id": "998f82f8-753e-413e-af5a-9cefa834fa71",
+  "8ece01b6-ced6-420c-8dd2-3b273edffa2b": {
+    "id": "8ece01b6-ced6-420c-8dd2-3b273edffa2b",
     "date": "07/08/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2207,12 +2179,12 @@
     "solo": 0.0,
     "total_duration": 3.7,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB",
-    "created_at": "2026-01-27T02:47:59.737937",
-    "updated_at": "2026-01-27T02:47:59.737938"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987066",
+    "updated_at": "2026-01-28T18:56:09.987069"
   },
-  "d8282052-ee11-4d22-8a49-2e09a023918d": {
-    "id": "d8282052-ee11-4d22-8a49-2e09a023918d",
+  "ff2b6663-231e-420d-a86d-71bf4f02e81e": {
+    "id": "ff2b6663-231e-420d-a86d-71bf4f02e81e",
     "date": "07/06/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2235,12 +2207,12 @@
     "solo": 0.0,
     "total_duration": 2.8,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB",
-    "created_at": "2026-01-27T02:47:59.737946",
-    "updated_at": "2026-01-27T02:47:59.737947"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987083",
+    "updated_at": "2026-01-28T18:56:09.987085"
   },
-  "4cd1aa66-0b2d-4f8a-ac3f-758a807dc15f": {
-    "id": "4cd1aa66-0b2d-4f8a-ac3f-758a807dc15f",
+  "9adf8341-cc99-4643-8945-6a5adfdbca0e": {
+    "id": "9adf8341-cc99-4643-8945-6a5adfdbca0e",
     "date": "07/05/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2263,12 +2235,12 @@
     "solo": 0.0,
     "total_duration": 1.9,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: 6351N/06827W MUSVA 6400N/06000W GH",
-    "created_at": "2026-01-27T02:47:59.737954",
-    "updated_at": "2026-01-27T02:47:59.737955"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987099",
+    "updated_at": "2026-01-28T18:56:09.987101"
   },
-  "228d52ee-004b-4c80-aa55-acf1666814c7": {
-    "id": "228d52ee-004b-4c80-aa55-acf1666814c7",
+  "07ab9cbc-f1fd-41fb-bf9f-0e7893522c25": {
+    "id": "07ab9cbc-f1fd-41fb-bf9f-0e7893522c25",
     "date": "07/04/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2291,12 +2263,12 @@
     "solo": 0.0,
     "total_duration": 3.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: 5551N/09752W",
-    "created_at": "2026-01-27T02:47:59.737961",
-    "updated_at": "2026-01-27T02:47:59.737962"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987116",
+    "updated_at": "2026-01-28T18:56:09.987118"
   },
-  "f758db5f-4369-46d7-b3f1-fdb16aab550e": {
-    "id": "f758db5f-4369-46d7-b3f1-fdb16aab550e",
+  "077bbe5e-403b-472e-919f-a548babf4bfd": {
+    "id": "077bbe5e-403b-472e-919f-a548babf4bfd",
     "date": "07/04/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2319,12 +2291,12 @@
     "solo": 0.0,
     "total_duration": 3.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: DOLLR VIDRI WASEN WAINN POLLE",
-    "created_at": "2026-01-27T02:47:59.737968",
-    "updated_at": "2026-01-27T02:47:59.737969"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987132",
+    "updated_at": "2026-01-28T18:56:09.987135"
   },
-  "5fc15a3d-6a65-4326-8bd9-d51730d44850": {
-    "id": "5fc15a3d-6a65-4326-8bd9-d51730d44850",
+  "8f12e1a4-5ac9-40fd-8403-601f1a2e924c": {
+    "id": "8f12e1a4-5ac9-40fd-8403-601f1a2e924c",
     "date": "07/03/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2347,12 +2319,12 @@
     "solo": 0.0,
     "total_duration": 0.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CVV",
-    "created_at": "2026-01-27T02:47:59.737975",
-    "updated_at": "2026-01-27T02:47:59.737976"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987149",
+    "updated_at": "2026-01-28T18:56:09.987151"
   },
-  "ed9d3093-f0a3-42db-aed2-4de874910665": {
-    "id": "ed9d3093-f0a3-42db-aed2-4de874910665",
+  "9f43e88a-175f-46b9-a297-0291c72b5547": {
+    "id": "9f43e88a-175f-46b9-a297-0291c72b5547",
     "date": "07/02/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2375,12 +2347,12 @@
     "solo": 0.0,
     "total_duration": 0.2,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB",
-    "created_at": "2026-01-27T02:47:59.737982",
-    "updated_at": "2026-01-27T02:47:59.737983"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987165",
+    "updated_at": "2026-01-28T18:56:09.987167"
   },
-  "4c986c99-01c2-4702-9b23-3618c92b49a1": {
-    "id": "4c986c99-01c2-4702-9b23-3618c92b49a1",
+  "2818f79e-0def-430d-a644-136b4aeaa4dd": {
+    "id": "2818f79e-0def-430d-a644-136b4aeaa4dd",
     "date": "07/02/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2403,12 +2375,12 @@
     "solo": 0.0,
     "total_duration": 0.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB",
-    "created_at": "2026-01-27T02:47:59.737989",
-    "updated_at": "2026-01-27T02:47:59.737990"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987181",
+    "updated_at": "2026-01-28T18:56:09.987184"
   },
-  "b73c02f3-a5b3-4198-ab17-4ee44210abbf": {
-    "id": "b73c02f3-a5b3-4198-ab17-4ee44210abbf",
+  "ae1e857a-19b0-4688-9bdf-a799775435f9": {
+    "id": "ae1e857a-19b0-4688-9bdf-a799775435f9",
     "date": "06/30/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2431,12 +2403,12 @@
     "solo": 0.0,
     "total_duration": 1.0,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: ONP1 ONP OLM OLM2",
-    "created_at": "2026-01-27T02:47:59.738003",
-    "updated_at": "2026-01-27T02:47:59.738004"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987198",
+    "updated_at": "2026-01-28T18:56:09.987200"
   },
-  "4c14c40d-4d60-4dea-8e65-1a5c6d0a79fc": {
-    "id": "4c14c40d-4d60-4dea-8e65-1a5c6d0a79fc",
+  "5a3064ea-b251-4a8d-9437-7f57e25585bd": {
+    "id": "5a3064ea-b251-4a8d-9437-7f57e25585bd",
     "date": "06/29/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2459,12 +2431,12 @@
     "solo": 0.0,
     "total_duration": 1.2,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA J70 ELMAA AST",
-    "created_at": "2026-01-27T02:47:59.738011",
-    "updated_at": "2026-01-27T02:47:59.738013"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987216",
+    "updated_at": "2026-01-28T18:56:09.987219"
   },
-  "cdef9b3b-f3be-4e93-9454-632ab524104a": {
-    "id": "cdef9b3b-f3be-4e93-9454-632ab524104a",
+  "fdfac9a1-f7d2-48b4-be51-82afe6691960": {
+    "id": "fdfac9a1-f7d2-48b4-be51-82afe6691960",
     "date": "06/28/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2487,12 +2459,12 @@
     "solo": 0.0,
     "total_duration": 2.6,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: DREWS UBG OLM2",
-    "created_at": "2026-01-27T02:47:59.738020",
-    "updated_at": "2026-01-27T02:47:59.738021"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987233",
+    "updated_at": "2026-01-28T18:56:09.987236"
   },
-  "f3c3fa89-3184-483f-9b11-1e240cfd5e61": {
-    "id": "f3c3fa89-3184-483f-9b11-1e240cfd5e61",
+  "924edc3b-97f7-4586-9375-deea3ff7dfb9": {
+    "id": "924edc3b-97f7-4586-9375-deea3ff7dfb9",
     "date": "06/28/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2515,12 +2487,12 @@
     "solo": 0.0,
     "total_duration": 2.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA J5 SUMMA LMT RBL OAK",
-    "created_at": "2026-01-27T02:47:59.738028",
-    "updated_at": "2026-01-27T02:47:59.738029"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987248",
+    "updated_at": "2026-01-28T18:56:09.987250"
   },
-  "4dfc80df-e86b-4958-a491-123e0776ead1": {
-    "id": "4dfc80df-e86b-4958-a491-123e0776ead1",
+  "cd496e16-893d-4ef7-a651-26b376302be1": {
+    "id": "cd496e16-893d-4ef7-a651-26b376302be1",
     "date": "06/27/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2543,12 +2515,12 @@
     "solo": 0.0,
     "total_duration": 0.9,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: UBG OLM2",
-    "created_at": "2026-01-27T02:47:59.738035",
-    "updated_at": "2026-01-27T02:47:59.738037"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987262",
+    "updated_at": "2026-01-28T18:56:09.987264"
   },
-  "90866624-2025-4b20-ad92-af3fe394fd50": {
-    "id": "90866624-2025-4b20-ad92-af3fe394fd50",
+  "5fc98bd1-c536-4de1-b89c-3a35942eed14": {
+    "id": "5fc98bd1-c536-4de1-b89c-3a35942eed14",
     "date": "06/27/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2571,12 +2543,12 @@
     "solo": 0.0,
     "total_duration": 1.0,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA J70 ELMAA UBG",
-    "created_at": "2026-01-27T02:47:59.738043",
-    "updated_at": "2026-01-27T02:47:59.738044"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987276",
+    "updated_at": "2026-01-28T18:56:09.987278"
   },
-  "0a974238-3b1f-4649-ba85-c427bfac579c": {
-    "id": "0a974238-3b1f-4649-ba85-c427bfac579c",
+  "edacae4c-e2bc-480a-8477-afee3f5d39f8": {
+    "id": "edacae4c-e2bc-480a-8477-afee3f5d39f8",
     "date": "06/27/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2599,12 +2571,12 @@
     "solo": 0.0,
     "total_duration": 0.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KLSHN2 KLSHN CVV",
-    "created_at": "2026-01-27T02:47:59.738050",
-    "updated_at": "2026-01-27T02:47:59.738051"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987290",
+    "updated_at": "2026-01-28T18:56:09.987292"
   },
-  "5b1fa9af-1a47-46a5-93c6-12f3fdefb581": {
-    "id": "5b1fa9af-1a47-46a5-93c6-12f3fdefb581",
+  "59a85152-a559-4fad-a607-c2f6b0bd6f8d": {
+    "id": "59a85152-a559-4fad-a607-c2f6b0bd6f8d",
     "date": "06/27/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2627,12 +2599,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.738057",
-    "updated_at": "2026-01-27T02:47:59.738059"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987303",
+    "updated_at": "2026-01-28T18:56:09.987305"
   },
-  "25fd2d51-ab70-4b27-be6d-4b8d7a7927ce": {
-    "id": "25fd2d51-ab70-4b27-be6d-4b8d7a7927ce",
+  "9eb9a10f-979b-4169-85ae-af0982f44b6a": {
+    "id": "9eb9a10f-979b-4169-85ae-af0982f44b6a",
     "date": "06/26/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2655,12 +2627,12 @@
     "solo": 0.0,
     "total_duration": 1.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: UBG OLM PAE GRIZZ7",
-    "created_at": "2026-01-27T02:47:59.738065",
-    "updated_at": "2026-01-27T02:47:59.738066"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987317",
+    "updated_at": "2026-01-28T18:56:09.987319"
   },
-  "60a956ab-7e3e-4cf4-9ae6-354b500d2a5f": {
-    "id": "60a956ab-7e3e-4cf4-9ae6-354b500d2a5f",
+  "9bb9c9bc-3009-4248-a773-6db7cdc335cc": {
+    "id": "9bb9c9bc-3009-4248-a773-6db7cdc335cc",
     "date": "06/25/2025",
     "aircraft_model": "TBM9",
     "aircraft_ident": "N790TB",
@@ -2683,12 +2655,12 @@
     "solo": 0.0,
     "total_duration": 0.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: ONP",
-    "created_at": "2026-01-27T02:47:59.738072",
-    "updated_at": "2026-01-27T02:47:59.738073"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987331",
+    "updated_at": "2026-01-28T18:56:09.987333"
   },
-  "e0929d44-eefa-4126-9a83-cde67e7283e5": {
-    "id": "e0929d44-eefa-4126-9a83-cde67e7283e5",
+  "a30d33bc-da0d-40f2-bb00-d6bd46eb64e9": {
+    "id": "a30d33bc-da0d-40f2-bb00-d6bd46eb64e9",
     "date": "06/08/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2711,12 +2683,12 @@
     "solo": 0.0,
     "total_duration": 1.8,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: RBL OED EUG",
-    "created_at": "2026-01-27T02:47:59.738079",
-    "updated_at": "2026-01-27T02:47:59.738080"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987345",
+    "updated_at": "2026-01-28T18:56:09.987347"
   },
-  "0529bc55-ccea-4df9-a0c0-d0305173b6a6": {
-    "id": "0529bc55-ccea-4df9-a0c0-d0305173b6a6",
+  "765ea8d9-50ef-40a6-9374-bc681e9a3b27": {
+    "id": "765ea8d9-50ef-40a6-9374-bc681e9a3b27",
     "date": "06/07/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2739,12 +2711,12 @@
     "solo": 0.0,
     "total_duration": 2.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA J5 SUMMA LMT RBL OAK",
-    "created_at": "2026-01-27T02:47:59.738087",
-    "updated_at": "2026-01-27T02:47:59.738088"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987360",
+    "updated_at": "2026-01-28T18:56:09.987362"
   },
-  "bcd86b5d-dc4a-422c-b747-1d3489f49c5b": {
-    "id": "bcd86b5d-dc4a-422c-b747-1d3489f49c5b",
+  "7192ccc3-9cff-4811-9fd2-8614426eef22": {
+    "id": "7192ccc3-9cff-4811-9fd2-8614426eef22",
     "date": "06/01/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2767,12 +2739,12 @@
     "solo": 0.0,
     "total_duration": 0.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KLSHN2 KLSHN CVV",
-    "created_at": "2026-01-27T02:47:59.738096",
-    "updated_at": "2026-01-27T02:47:59.738097"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987374",
+    "updated_at": "2026-01-28T18:56:09.987376"
   },
-  "ffc88ebf-f751-47c6-a5c0-5a6e777952bf": {
-    "id": "ffc88ebf-f751-47c6-a5c0-5a6e777952bf",
+  "3ffa9b7d-4409-47ea-98b6-79e7938dbde4": {
+    "id": "3ffa9b7d-4409-47ea-98b6-79e7938dbde4",
     "date": "06/01/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2795,12 +2767,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.738104",
-    "updated_at": "2026-01-27T02:47:59.738105"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987388",
+    "updated_at": "2026-01-28T18:56:09.987390"
   },
-  "9ad83d30-a282-44bb-b31f-ac113533135b": {
-    "id": "9ad83d30-a282-44bb-b31f-ac113533135b",
+  "e073fe41-5e66-4e0d-bf4c-6627edd6e839": {
+    "id": "e073fe41-5e66-4e0d-bf4c-6627edd6e839",
     "date": "05/31/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2823,12 +2795,12 @@
     "solo": 0.0,
     "total_duration": 0.6,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CVV",
-    "created_at": "2026-01-27T02:47:59.738112",
-    "updated_at": "2026-01-27T02:47:59.738114"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987402",
+    "updated_at": "2026-01-28T18:56:09.987404"
   },
-  "c737115d-5873-4f82-a6d2-6229165e22da": {
-    "id": "c737115d-5873-4f82-a6d2-6229165e22da",
+  "0f87a352-eea7-4862-a5f5-2e08309c2313": {
+    "id": "0f87a352-eea7-4862-a5f5-2e08309c2313",
     "date": "05/26/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2851,12 +2823,12 @@
     "solo": 0.0,
     "total_duration": 3.9,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CWARD2 SLI FMG LKV DSD BTG OLM OLM2",
-    "created_at": "2026-01-27T02:47:59.738121",
-    "updated_at": "2026-01-27T02:47:59.738122"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987416",
+    "updated_at": "2026-01-28T18:56:09.987418"
   },
-  "30a0ea70-6433-44a8-9793-adf24ebd17eb": {
-    "id": "30a0ea70-6433-44a8-9793-adf24ebd17eb",
+  "14897842-56da-4427-8b7a-194ed1f6efd8": {
+    "id": "14897842-56da-4427-8b7a-194ed1f6efd8",
     "date": "05/26/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2879,12 +2851,12 @@
     "solo": 0.0,
     "total_duration": 2.8,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: ENS J1 TIJ",
-    "created_at": "2026-01-27T02:47:59.738129",
-    "updated_at": "2026-01-27T02:47:59.738132"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987430",
+    "updated_at": "2026-01-28T18:56:09.987432"
   },
-  "02c242fb-b638-4ea0-999c-1b6f6ab36ecb": {
-    "id": "02c242fb-b638-4ea0-999c-1b6f6ab36ecb",
+  "341d3241-7dd5-4796-8b82-2c712107965e": {
+    "id": "341d3241-7dd5-4796-8b82-2c712107965e",
     "date": "05/24/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2907,12 +2879,12 @@
     "solo": 0.0,
     "total_duration": 3.0,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: VNY3 PMD PDZ TIJ J1 LAP",
-    "created_at": "2026-01-27T02:47:59.738140",
-    "updated_at": "2026-01-27T02:47:59.738141"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987444",
+    "updated_at": "2026-01-28T18:56:09.987446"
   },
-  "0f7d6c7c-b8be-4e7a-969b-600083cb4759": {
-    "id": "0f7d6c7c-b8be-4e7a-969b-600083cb4759",
+  "4f074674-e185-4176-a044-d86b5e5a5130": {
+    "id": "4f074674-e185-4176-a044-d86b5e5a5130",
     "date": "05/24/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2935,12 +2907,12 @@
     "solo": 0.0,
     "total_duration": 3.2,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA J5 LKV",
-    "created_at": "2026-01-27T02:47:59.738148",
-    "updated_at": "2026-01-27T02:47:59.738149"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987457",
+    "updated_at": "2026-01-28T18:56:09.987459"
   },
-  "53022a42-4f53-4086-9fe0-d7895eab3d90": {
-    "id": "53022a42-4f53-4086-9fe0-d7895eab3d90",
+  "e21bef1b-469c-48b4-b9f9-b0e010992313": {
+    "id": "e21bef1b-469c-48b4-b9f9-b0e010992313",
     "date": "05/19/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2963,12 +2935,12 @@
     "solo": 0.0,
     "total_duration": 0.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KLSHN2 KLSHN CVV",
-    "created_at": "2026-01-27T02:47:59.738156",
-    "updated_at": "2026-01-27T02:47:59.738157"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987471",
+    "updated_at": "2026-01-28T18:56:09.987473"
   },
-  "139db592-53f0-4659-b054-da0186ff3c74": {
-    "id": "139db592-53f0-4659-b054-da0186ff3c74",
+  "2e27a967-fd13-4de5-98c4-9156f634d226": {
+    "id": "2e27a967-fd13-4de5-98c4-9156f634d226",
     "date": "05/19/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -2991,12 +2963,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.738164",
-    "updated_at": "2026-01-27T02:47:59.738165"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987485",
+    "updated_at": "2026-01-28T18:56:09.987487"
   },
-  "29386bb5-8a75-4828-a886-024728701d47": {
-    "id": "29386bb5-8a75-4828-a886-024728701d47",
+  "ca4e70db-fca8-4656-ad62-f8adc9116ccf": {
+    "id": "ca4e70db-fca8-4656-ad62-f8adc9116ccf",
     "date": "05/18/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3019,12 +2991,12 @@
     "solo": 0.0,
     "total_duration": 1.2,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: BTG J1 SEA PAE GRIZZ7",
-    "created_at": "2026-01-27T02:47:59.738171",
-    "updated_at": "2026-01-27T02:47:59.738172"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987499",
+    "updated_at": "2026-01-28T18:56:09.987501"
   },
-  "f24f7fd0-b1eb-4970-9c78-c02f23b8d3cb": {
-    "id": "f24f7fd0-b1eb-4970-9c78-c02f23b8d3cb",
+  "c673cd8d-ec2f-44b8-8867-9841fe5419a4": {
+    "id": "c673cd8d-ec2f-44b8-8867-9841fe5419a4",
     "date": "05/17/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3047,12 +3019,12 @@
     "solo": 0.0,
     "total_duration": 0.9,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA HELNS6",
-    "created_at": "2026-01-27T02:47:59.738178",
-    "updated_at": "2026-01-27T02:47:59.738179"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987512",
+    "updated_at": "2026-01-28T18:56:09.987515"
   },
-  "c2b7e8c9-128b-48b4-8664-f199d21e9740": {
-    "id": "c2b7e8c9-128b-48b4-8664-f199d21e9740",
+  "1bfbc145-b51a-46ac-9e6a-f18d8a44c707": {
+    "id": "1bfbc145-b51a-46ac-9e6a-f18d8a44c707",
     "date": "05/11/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3075,12 +3047,12 @@
     "solo": 0.0,
     "total_duration": 2.9,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SIT BKA4 BKA J501 EEVER PRYCE CASDY CVV",
-    "created_at": "2026-01-27T02:47:59.738185",
-    "updated_at": "2026-01-27T02:47:59.738186"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987526",
+    "updated_at": "2026-01-28T18:56:09.987529"
   },
-  "387c7464-4874-418c-9335-067bac8a61c5": {
-    "id": "387c7464-4874-418c-9335-067bac8a61c5",
+  "7c78453c-190c-4938-b2bb-fe9550092a95": {
+    "id": "7c78453c-190c-4938-b2bb-fe9550092a95",
     "date": "05/10/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3103,12 +3075,12 @@
     "solo": 0.0,
     "total_duration": 3.1,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: PERLL ARRIE BOOPY ZKI SQM",
-    "created_at": "2026-01-27T02:47:59.738192",
-    "updated_at": "2026-01-27T02:47:59.738193"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987540",
+    "updated_at": "2026-01-28T18:56:09.987542"
   },
-  "88498081-df83-490e-bb5a-e5c0b2c19b15": {
-    "id": "88498081-df83-490e-bb5a-e5c0b2c19b15",
+  "704755b3-3d56-4dd5-a676-96a6dd85b83e": {
+    "id": "704755b3-3d56-4dd5-a676-96a6dd85b83e",
     "date": "05/06/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3131,12 +3103,12 @@
     "solo": 0.0,
     "total_duration": 2.7,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: DREWS UBG OLM2",
-    "created_at": "2026-01-27T02:47:59.738199",
-    "updated_at": "2026-01-27T02:47:59.738201"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987554",
+    "updated_at": "2026-01-28T18:56:09.987557"
   },
-  "b9db65aa-a005-4269-84e2-c8f8a1555f58": {
-    "id": "b9db65aa-a005-4269-84e2-c8f8a1555f58",
+  "1e398830-738a-4b45-b0f1-0184d00c0e69": {
+    "id": "1e398830-738a-4b45-b0f1-0184d00c0e69",
     "date": "05/04/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3159,12 +3131,12 @@
     "solo": 0.0,
     "total_duration": 2.1,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA J70 ELMAA ERAVE Q1 EASON STS KAPC",
-    "created_at": "2026-01-27T02:47:59.738207",
-    "updated_at": "2026-01-27T02:47:59.738208"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987568",
+    "updated_at": "2026-01-28T18:56:09.987571"
   },
-  "fe29a836-467e-45c6-9695-115d68b31a80": {
-    "id": "fe29a836-467e-45c6-9695-115d68b31a80",
+  "dc147595-989f-4b59-bcb6-a764a7311b65": {
+    "id": "dc147595-989f-4b59-bcb6-a764a7311b65",
     "date": "04/27/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3187,12 +3159,12 @@
     "solo": 0.0,
     "total_duration": 0.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KLSHN2 KLSHN CVV",
-    "created_at": "2026-01-27T02:47:59.738215",
-    "updated_at": "2026-01-27T02:47:59.738216"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987582",
+    "updated_at": "2026-01-28T18:56:09.987584"
   },
-  "7390f4c5-9589-4d70-898b-efb60e77c1de": {
-    "id": "7390f4c5-9589-4d70-898b-efb60e77c1de",
+  "f844be0c-f401-4fe7-af47-8437c71ec10f": {
+    "id": "f844be0c-f401-4fe7-af47-8437c71ec10f",
     "date": "04/27/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3215,12 +3187,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.738223",
-    "updated_at": "2026-01-27T02:47:59.738224"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987596",
+    "updated_at": "2026-01-28T18:56:09.987598"
   },
-  "d5503324-637f-4c33-9e75-e7b7ec0e4c20": {
-    "id": "d5503324-637f-4c33-9e75-e7b7ec0e4c20",
+  "4d005200-97cd-4c02-926f-fc4f6ac48bb0": {
+    "id": "4d005200-97cd-4c02-926f-fc4f6ac48bb0",
     "date": "04/27/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3243,12 +3215,12 @@
     "solo": 0.0,
     "total_duration": 1.6,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KEVNA KEINN WHSLR7",
-    "created_at": "2026-01-27T02:47:59.738231",
-    "updated_at": "2026-01-27T02:47:59.738232"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987610",
+    "updated_at": "2026-01-28T18:56:09.987612"
   },
-  "264badb4-041c-4856-aa53-6251fee05143": {
-    "id": "264badb4-041c-4856-aa53-6251fee05143",
+  "3b4c1401-6c9b-45ec-a4d3-727e881017c4": {
+    "id": "3b4c1401-6c9b-45ec-a4d3-727e881017c4",
     "date": "04/26/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3271,12 +3243,12 @@
     "solo": 0.0,
     "total_duration": 1.7,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: BAJOL ESTIT; Note: duration estimated",
-    "created_at": "2026-01-27T02:47:59.738239",
-    "updated_at": "2026-01-27T02:47:59.738240"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987625",
+    "updated_at": "2026-01-28T18:56:09.987627"
   },
-  "52b63b96-1a7d-4f7b-b9fa-8ce0edd02740": {
-    "id": "52b63b96-1a7d-4f7b-b9fa-8ce0edd02740",
+  "01065559-0705-4591-9ec4-2c65cc5bf2d6": {
+    "id": "01065559-0705-4591-9ec4-2c65cc5bf2d6",
     "date": "04/25/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3299,12 +3271,12 @@
     "solo": 0.0,
     "total_duration": 0.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CVV",
-    "created_at": "2026-01-27T02:47:59.738247",
-    "updated_at": "2026-01-27T02:47:59.738248"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987639",
+    "updated_at": "2026-01-28T18:56:09.987642"
   },
-  "615db2e1-986f-4ef0-a66e-333972aecf66": {
-    "id": "615db2e1-986f-4ef0-a66e-333972aecf66",
+  "cc6b2633-dc4d-4806-8970-71c9215d08d8": {
+    "id": "cc6b2633-dc4d-4806-8970-71c9215d08d8",
     "date": "04/20/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3327,12 +3299,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KLSHN2 KLSHN",
-    "created_at": "2026-01-27T02:47:59.738254",
-    "updated_at": "2026-01-27T02:47:59.738255"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987653",
+    "updated_at": "2026-01-28T18:56:09.987655"
   },
-  "e480a14a-86c9-4050-9ccd-4d30775f75e3": {
-    "id": "e480a14a-86c9-4050-9ccd-4d30775f75e3",
+  "bafe337e-5bcb-4c51-9de8-e856d26ef56c": {
+    "id": "bafe337e-5bcb-4c51-9de8-e856d26ef56c",
     "date": "04/20/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3355,12 +3327,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.738261",
-    "updated_at": "2026-01-27T02:47:59.738262"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987667",
+    "updated_at": "2026-01-28T18:56:09.987669"
   },
-  "1eca72ef-7ebf-4bc5-b08e-f5e287d5fd69": {
-    "id": "1eca72ef-7ebf-4bc5-b08e-f5e287d5fd69",
+  "42afe6a1-d760-49aa-92f6-3c876dc98903": {
+    "id": "42afe6a1-d760-49aa-92f6-3c876dc98903",
     "date": "04/19/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3383,12 +3355,12 @@
     "solo": 0.0,
     "total_duration": 0.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CVV",
-    "created_at": "2026-01-27T02:47:59.738269",
-    "updated_at": "2026-01-27T02:47:59.738270"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987681",
+    "updated_at": "2026-01-28T18:56:09.987683"
   },
-  "a2b92b27-67b2-4061-8c2b-bcb2f5dc15d3": {
-    "id": "a2b92b27-67b2-4061-8c2b-bcb2f5dc15d3",
+  "129f27a1-1463-4f10-af3b-ce1a9a175521": {
+    "id": "129f27a1-1463-4f10-af3b-ce1a9a175521",
     "date": "04/13/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3411,12 +3383,12 @@
     "solo": 0.0,
     "total_duration": 0.8,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SCAPO7 SCAPO OLM OLM2",
-    "created_at": "2026-01-27T02:47:59.738276",
-    "updated_at": "2026-01-27T02:47:59.738277"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987696",
+    "updated_at": "2026-01-28T18:56:09.987698"
   },
-  "a40c1db8-b2e7-439e-bae7-919136733599": {
-    "id": "a40c1db8-b2e7-439e-bae7-919136733599",
+  "fdb501f8-abc2-43c9-99dd-5ee180d22626": {
+    "id": "fdb501f8-abc2-43c9-99dd-5ee180d22626",
     "date": "04/13/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3439,12 +3411,12 @@
     "solo": 0.0,
     "total_duration": 0.8,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA HELNS6",
-    "created_at": "2026-01-27T02:47:59.738285",
-    "updated_at": "2026-01-27T02:47:59.738286"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987710",
+    "updated_at": "2026-01-28T18:56:09.987712"
   },
-  "305f0b1e-5fe9-4e75-bc2b-c525584f9649": {
-    "id": "305f0b1e-5fe9-4e75-bc2b-c525584f9649",
+  "3b3d3f8e-a32b-4350-8737-c8509ff2c07f": {
+    "id": "3b3d3f8e-a32b-4350-8737-c8509ff2c07f",
     "date": "04/06/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3467,12 +3439,12 @@
     "solo": 0.0,
     "total_duration": 3.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: VNY3 GMN CSTRO LKV BTG SEA PAE",
-    "created_at": "2026-01-27T02:47:59.738293",
-    "updated_at": "2026-01-27T02:47:59.738294"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987723",
+    "updated_at": "2026-01-28T18:56:09.987726"
   },
-  "2465f438-b6e0-4b64-ac2a-d5c2186af49c": {
-    "id": "2465f438-b6e0-4b64-ac2a-d5c2186af49c",
+  "ff1ee5d6-2717-41cf-b7f6-b68536b84cdb": {
+    "id": "ff1ee5d6-2717-41cf-b7f6-b68536b84cdb",
     "date": "04/06/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3495,12 +3467,12 @@
     "solo": 0.0,
     "total_duration": 2.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SSO",
-    "created_at": "2026-01-27T02:47:59.738301",
-    "updated_at": "2026-01-27T02:47:59.738303"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987737",
+    "updated_at": "2026-01-28T18:56:09.987739"
   },
-  "eda251bc-e7f7-4b1d-879f-27eab95f2c3a": {
-    "id": "eda251bc-e7f7-4b1d-879f-27eab95f2c3a",
+  "d1a92a21-5f62-4044-864a-1df548799077": {
+    "id": "d1a92a21-5f62-4044-864a-1df548799077",
     "date": "04/05/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3523,12 +3495,12 @@
     "solo": 0.0,
     "total_duration": 2.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: ZQA ZBV360008 KYAKS KYAKS3",
-    "created_at": "2026-01-27T02:47:59.738309",
-    "updated_at": "2026-01-27T02:47:59.738310"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987751",
+    "updated_at": "2026-01-28T18:56:09.987753"
   },
-  "a6ad8823-4d56-4005-a1dd-8e42f02906d6": {
-    "id": "a6ad8823-4d56-4005-a1dd-8e42f02906d6",
+  "49f2d966-d684-4e4e-a209-19784ac6abe3": {
+    "id": "49f2d966-d684-4e4e-a209-19784ac6abe3",
     "date": "04/03/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3551,12 +3523,12 @@
     "solo": 0.0,
     "total_duration": 2.6,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CROWD",
-    "created_at": "2026-01-27T02:47:59.738316",
-    "updated_at": "2026-01-27T02:47:59.738317"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987765",
+    "updated_at": "2026-01-28T18:56:09.987767"
   },
-  "8a6b264c-21dc-4fa3-a7b0-7941dabb9fa8": {
-    "id": "8a6b264c-21dc-4fa3-a7b0-7941dabb9fa8",
+  "15abf40b-9a7e-48b7-b827-c387d6f2f474": {
+    "id": "15abf40b-9a7e-48b7-b827-c387d6f2f474",
     "date": "04/02/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3579,12 +3551,12 @@
     "solo": 0.0,
     "total_duration": 0.2,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Note: origin estimated, duration estimated",
-    "created_at": "2026-01-27T02:47:59.738327",
-    "updated_at": "2026-01-27T02:47:59.738328"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987779",
+    "updated_at": "2026-01-28T18:56:09.987781"
   },
-  "241ef7b9-aa92-47b4-9968-f0635872e04f": {
-    "id": "241ef7b9-aa92-47b4-9968-f0635872e04f",
+  "e860bb67-423b-4521-80cb-65fccc9ab5f5": {
+    "id": "e860bb67-423b-4521-80cb-65fccc9ab5f5",
     "date": "04/02/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3607,12 +3579,12 @@
     "solo": 0.0,
     "total_duration": 3.0,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: MAYJI WULVS ARIGY BARFF HRISN ACORI MAATY5; Note: duration estimated",
-    "created_at": "2026-01-27T02:47:59.738334",
-    "updated_at": "2026-01-27T02:47:59.738335"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987793",
+    "updated_at": "2026-01-28T18:56:09.987795"
   },
-  "3827761e-0156-4c34-836a-af8cc15e4efa": {
-    "id": "3827761e-0156-4c34-836a-af8cc15e4efa",
+  "304c721e-360b-4eb3-a07b-9690f72591d9": {
+    "id": "304c721e-360b-4eb3-a07b-9690f72591d9",
     "date": "04/02/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3635,12 +3607,12 @@
     "solo": 0.0,
     "total_duration": 1.8,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: BRK JEWLS",
-    "created_at": "2026-01-27T02:47:59.738343",
-    "updated_at": "2026-01-27T02:47:59.738344"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987807",
+    "updated_at": "2026-01-28T18:56:09.987809"
   },
-  "83091dcc-3fec-4483-9230-222eace1c91a": {
-    "id": "83091dcc-3fec-4483-9230-222eace1c91a",
+  "d0f992b1-4c1c-4f20-ba9b-d0f395486035": {
+    "id": "d0f992b1-4c1c-4f20-ba9b-d0f395486035",
     "date": "04/01/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3663,12 +3635,12 @@
     "solo": 0.0,
     "total_duration": 4.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA NORMY J90 MWH TUL",
-    "created_at": "2026-01-27T02:47:59.738351",
-    "updated_at": "2026-01-27T02:47:59.738352"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987821",
+    "updated_at": "2026-01-28T18:56:09.987823"
   },
-  "135007b5-29d3-44a8-8d96-ee992d62e38a": {
-    "id": "135007b5-29d3-44a8-8d96-ee992d62e38a",
+  "60b1ffe8-887f-4430-ac72-b7c9b311682c": {
+    "id": "60b1ffe8-887f-4430-ac72-b7c9b311682c",
     "date": "03/31/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3691,12 +3663,12 @@
     "solo": 0.0,
     "total_duration": 0.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KIENO6 CVV",
-    "created_at": "2026-01-27T02:47:59.738360",
-    "updated_at": "2026-01-27T02:47:59.738361"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987834",
+    "updated_at": "2026-01-28T18:56:09.987836"
   },
-  "b23816f3-87a6-4373-84c2-e313608fae64": {
-    "id": "b23816f3-87a6-4373-84c2-e313608fae64",
+  "ab72b116-0bee-4840-b5ff-535e2da45ea4": {
+    "id": "ab72b116-0bee-4840-b5ff-535e2da45ea4",
     "date": "03/30/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3719,12 +3691,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.738368",
-    "updated_at": "2026-01-27T02:47:59.738369"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987848",
+    "updated_at": "2026-01-28T18:56:09.987850"
   },
-  "c0c058cd-f07c-4787-a69e-a9dae0bf6b26": {
-    "id": "c0c058cd-f07c-4787-a69e-a9dae0bf6b26",
+  "953ea8b5-af29-4536-83df-358a3472bd35": {
+    "id": "953ea8b5-af29-4536-83df-358a3472bd35",
     "date": "03/30/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3747,12 +3719,12 @@
     "solo": 0.0,
     "total_duration": 0.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CVV",
-    "created_at": "2026-01-27T02:47:59.738376",
-    "updated_at": "2026-01-27T02:47:59.738378"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987862",
+    "updated_at": "2026-01-28T18:56:09.987864"
   },
-  "097f6012-dabf-4844-8a9d-e2ccf724695c": {
-    "id": "097f6012-dabf-4844-8a9d-e2ccf724695c",
+  "69d0c10c-c7a6-4c1c-af3e-ef0821bb3516": {
+    "id": "69d0c10c-c7a6-4c1c-af3e-ef0821bb3516",
     "date": "03/23/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3775,12 +3747,12 @@
     "solo": 0.0,
     "total_duration": 0.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KIENO6 CVV",
-    "created_at": "2026-01-27T02:47:59.738384",
-    "updated_at": "2026-01-27T02:47:59.738385"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987876",
+    "updated_at": "2026-01-28T18:56:09.987878"
   },
-  "940d03e0-fc97-46f9-8568-cb15dfb9442c": {
-    "id": "940d03e0-fc97-46f9-8568-cb15dfb9442c",
+  "56c5e779-09a3-44cc-9b29-1c6ed7ae1f63": {
+    "id": "56c5e779-09a3-44cc-9b29-1c6ed7ae1f63",
     "date": "03/23/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3803,12 +3775,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.738391",
-    "updated_at": "2026-01-27T02:47:59.738392"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987889",
+    "updated_at": "2026-01-28T18:56:09.987891"
   },
-  "24e70083-e9c0-4ec9-8275-79970b2d7829": {
-    "id": "24e70083-e9c0-4ec9-8275-79970b2d7829",
+  "da1eb069-157e-48c4-bb12-8ebe28b4e903": {
+    "id": "da1eb069-157e-48c4-bb12-8ebe28b4e903",
     "date": "03/22/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3831,12 +3803,12 @@
     "solo": 0.0,
     "total_duration": 0.5,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: CVV",
-    "created_at": "2026-01-27T02:47:59.738398",
-    "updated_at": "2026-01-27T02:47:59.738399"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987903",
+    "updated_at": "2026-01-28T18:56:09.987905"
   },
-  "f99ce93d-8ccf-4608-8282-9cc913af1fb2": {
-    "id": "f99ce93d-8ccf-4608-8282-9cc913af1fb2",
+  "8cd6bcb2-0244-4b8f-a258-900167dbec86": {
+    "id": "8cd6bcb2-0244-4b8f-a258-900167dbec86",
     "date": "03/16/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3859,12 +3831,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KIENO6 CVV",
-    "created_at": "2026-01-27T02:47:59.738407",
-    "updated_at": "2026-01-27T02:47:59.738408"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987920",
+    "updated_at": "2026-01-28T18:56:09.987922"
   },
-  "7aa42b46-4eb1-49f3-9f34-6cfe3911cf6b": {
-    "id": "7aa42b46-4eb1-49f3-9f34-6cfe3911cf6b",
+  "4a0428ff-7162-4fa4-addc-4261ead5c8f4": {
+    "id": "4a0428ff-7162-4fa4-addc-4261ead5c8f4",
     "date": "03/16/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3887,12 +3859,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.738415",
-    "updated_at": "2026-01-27T02:47:59.738416"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987934",
+    "updated_at": "2026-01-28T18:56:09.987936"
   },
-  "6d33a57c-7c9a-47ac-8ad2-b3f839e8b4f7": {
-    "id": "6d33a57c-7c9a-47ac-8ad2-b3f839e8b4f7",
+  "237b3800-e30d-4043-98d3-a1933abec10b": {
+    "id": "237b3800-e30d-4043-98d3-a1933abec10b",
     "date": "03/15/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3915,12 +3887,12 @@
     "solo": 0.0,
     "total_duration": 1.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: UBG OLM PAE GRIZZ7",
-    "created_at": "2026-01-27T02:47:59.738424",
-    "updated_at": "2026-01-27T02:47:59.738425"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987948",
+    "updated_at": "2026-01-28T18:56:09.987950"
   },
-  "7d9f7551-f52c-4133-9621-9f1525159c0a": {
-    "id": "7d9f7551-f52c-4133-9621-9f1525159c0a",
+  "f4ae999e-4de6-474c-ae2a-3ed9000fd691": {
+    "id": "f4ae999e-4de6-474c-ae2a-3ed9000fd691",
     "date": "03/15/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3943,12 +3915,12 @@
     "solo": 0.0,
     "total_duration": 0.9,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA J70 ELMAA UBG",
-    "created_at": "2026-01-27T02:47:59.738431",
-    "updated_at": "2026-01-27T02:47:59.738432"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987961",
+    "updated_at": "2026-01-28T18:56:09.987963"
   },
-  "409efaa1-08e4-42dc-8d8d-e08d72293fe5": {
-    "id": "409efaa1-08e4-42dc-8d8d-e08d72293fe5",
+  "3629539c-d473-4151-8450-8f86493b49c3": {
+    "id": "3629539c-d473-4151-8450-8f86493b49c3",
     "date": "03/11/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3971,12 +3943,12 @@
     "solo": 0.0,
     "total_duration": 0.9,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: BTG OLM2",
-    "created_at": "2026-01-27T02:47:59.738438",
-    "updated_at": "2026-01-27T02:47:59.738439"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987975",
+    "updated_at": "2026-01-28T18:56:09.987977"
   },
-  "4c8568e8-7788-4b33-b829-c6980efdc486": {
-    "id": "4c8568e8-7788-4b33-b829-c6980efdc486",
+  "724558c9-bad4-41c9-abcd-1ff01e4f2a02": {
+    "id": "724558c9-bad4-41c9-abcd-1ff01e4f2a02",
     "date": "03/11/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -3999,12 +3971,12 @@
     "solo": 0.0,
     "total_duration": 0.8,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA HELNS6",
-    "created_at": "2026-01-27T02:47:59.738445",
-    "updated_at": "2026-01-27T02:47:59.738446"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.987989",
+    "updated_at": "2026-01-28T18:56:09.987991"
   },
-  "3b47d354-493b-41d7-8024-65a48bef0381": {
-    "id": "3b47d354-493b-41d7-8024-65a48bef0381",
+  "6412209f-b3ec-4323-883b-4ca95db15763": {
+    "id": "6412209f-b3ec-4323-883b-4ca95db15763",
     "date": "03/09/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -4027,12 +3999,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KIENO6 CVV",
-    "created_at": "2026-01-27T02:47:59.738452",
-    "updated_at": "2026-01-27T02:47:59.738453"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.988003",
+    "updated_at": "2026-01-28T18:56:09.988005"
   },
-  "a2ac2540-63be-47a2-8726-99a235738d82": {
-    "id": "a2ac2540-63be-47a2-8726-99a235738d82",
+  "3307863c-6d60-426b-83ad-49087777a19c": {
+    "id": "3307863c-6d60-426b-83ad-49087777a19c",
     "date": "03/09/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -4055,12 +4027,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.738461",
-    "updated_at": "2026-01-27T02:47:59.738462"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.988019",
+    "updated_at": "2026-01-28T18:56:09.988022"
   },
-  "c17e6e7d-9a61-4182-9580-35c78bb726cc": {
-    "id": "c17e6e7d-9a61-4182-9580-35c78bb726cc",
+  "2727941c-c975-4717-b0b0-c989fb07eddb": {
+    "id": "2727941c-c975-4717-b0b0-c989fb07eddb",
     "date": "03/08/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -4083,12 +4055,12 @@
     "solo": 0.0,
     "total_duration": 0.6,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: PAE GRIZZ7",
-    "created_at": "2026-01-27T02:47:59.738469",
-    "updated_at": "2026-01-27T02:47:59.738470"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.988033",
+    "updated_at": "2026-01-28T18:56:09.988036"
   },
-  "ee26349f-5ee2-485d-b8a9-e3fe7b68e3e2": {
-    "id": "ee26349f-5ee2-485d-b8a9-e3fe7b68e3e2",
+  "ec774078-8a83-42e0-8171-bfb20ddf3987": {
+    "id": "ec774078-8a83-42e0-8171-bfb20ddf3987",
     "date": "03/02/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -4111,12 +4083,12 @@
     "solo": 0.0,
     "total_duration": 0.8,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: BTG OLM2",
-    "created_at": "2026-01-27T02:47:59.738477",
-    "updated_at": "2026-01-27T02:47:59.738478"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.988047",
+    "updated_at": "2026-01-28T18:56:09.988050"
   },
-  "d5ce23e5-1e69-4334-a045-7d62168d34f4": {
-    "id": "d5ce23e5-1e69-4334-a045-7d62168d34f4",
+  "0599cfa2-897d-4e95-b674-5f9dc11211d3": {
+    "id": "0599cfa2-897d-4e95-b674-5f9dc11211d3",
     "date": "03/01/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -4139,12 +4111,12 @@
     "solo": 0.0,
     "total_duration": 1.0,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: SEA J70 ELMAA UBG",
-    "created_at": "2026-01-27T02:47:59.738484",
-    "updated_at": "2026-01-27T02:47:59.738485"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.988062",
+    "updated_at": "2026-01-28T18:56:09.988064"
   },
-  "95963eb5-ea1f-4e83-9a2e-5ecf8a4bb841": {
-    "id": "95963eb5-ea1f-4e83-9a2e-5ecf8a4bb841",
+  "9fc43681-c939-4531-827a-84ea28db9dc5": {
+    "id": "9fc43681-c939-4531-827a-84ea28db9dc5",
     "date": "02/16/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -4167,12 +4139,12 @@
     "solo": 0.0,
     "total_duration": 0.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KIENO6 CVV",
-    "created_at": "2026-01-27T02:47:59.738491",
-    "updated_at": "2026-01-27T02:47:59.738493"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.988076",
+    "updated_at": "2026-01-28T18:56:09.988078"
   },
-  "ba370bd3-572c-4382-b861-0216519c57d6": {
-    "id": "ba370bd3-572c-4382-b861-0216519c57d6",
+  "1941657f-f006-4c36-b2a7-70ba65c660b8": {
+    "id": "1941657f-f006-4c36-b2a7-70ba65c660b8",
     "date": "02/16/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -4195,12 +4167,12 @@
     "solo": 0.0,
     "total_duration": 0.4,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.738500",
-    "updated_at": "2026-01-27T02:47:59.738501"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.988090",
+    "updated_at": "2026-01-28T18:56:09.988092"
   },
-  "47fac244-95ae-41db-a486-e37fdbc5b438": {
-    "id": "47fac244-95ae-41db-a486-e37fdbc5b438",
+  "927f9243-2209-4c94-a893-3547ce4620e9": {
+    "id": "927f9243-2209-4c94-a893-3547ce4620e9",
     "date": "02/15/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -4223,12 +4195,12 @@
     "solo": 0.0,
     "total_duration": 0.7,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: PAE GRIZZ7",
-    "created_at": "2026-01-27T02:47:59.738508",
-    "updated_at": "2026-01-27T02:47:59.738509"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.988103",
+    "updated_at": "2026-01-28T18:56:09.988105"
   },
-  "c4d491b4-5d3d-4589-a04f-013c42138ffe": {
-    "id": "c4d491b4-5d3d-4589-a04f-013c42138ffe",
+  "0e9dc975-3422-4404-9e30-6372da722451": {
+    "id": "0e9dc975-3422-4404-9e30-6372da722451",
     "date": "02/09/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -4251,12 +4223,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: KIENO6 CVV",
-    "created_at": "2026-01-27T02:47:59.738516",
-    "updated_at": "2026-01-27T02:47:59.738518"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.988118",
+    "updated_at": "2026-01-28T18:56:09.988120"
   },
-  "59ece73c-4c4e-4b09-bb03-aea1ffc69149": {
-    "id": "59ece73c-4c4e-4b09-bb03-aea1ffc69149",
+  "8e203064-69fc-42ec-89c0-89863887dfab": {
+    "id": "8e203064-69fc-42ec-89c0-89863887dfab",
     "date": "02/09/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -4279,12 +4251,12 @@
     "solo": 0.0,
     "total_duration": 0.3,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: HUH",
-    "created_at": "2026-01-27T02:47:59.738524",
-    "updated_at": "2026-01-27T02:47:59.738525"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.988131",
+    "updated_at": "2026-01-28T18:56:09.988134"
   },
-  "13814f1f-5b84-4f2f-b2eb-59c12f606b58": {
-    "id": "13814f1f-5b84-4f2f-b2eb-59c12f606b58",
+  "6822790e-216b-4162-9c4e-6d8bd6b18a9a": {
+    "id": "6822790e-216b-4162-9c4e-6d8bd6b18a9a",
     "date": "02/08/2025",
     "aircraft_model": "TBM7",
     "aircraft_ident": "N790TB",
@@ -4307,8 +4279,8 @@
     "solo": 0.0,
     "total_duration": 0.6,
     "duration_estimated": false,
-    "remarks": "Flight: N790TB; Route: PAE GRIZZ7",
-    "created_at": "2026-01-27T02:47:59.738531",
-    "updated_at": "2026-01-27T02:47:59.738532"
+    "remarks": "",
+    "created_at": "2026-01-28T18:56:09.988146",
+    "updated_at": "2026-01-28T18:56:09.988148"
   }
 }
