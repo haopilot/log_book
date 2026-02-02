@@ -19,10 +19,19 @@ else
 fi
 
 # Create service account file from environment variable if it exists
-if [ ! -z "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
+echo "Checking for GOOGLE_SERVICE_ACCOUNT_JSON environment variable..."
+if [ -z "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
+    echo "WARNING: GOOGLE_SERVICE_ACCOUNT_JSON is not set or is empty"
+else
     echo "Creating service account credentials from environment variable..."
     echo "$GOOGLE_SERVICE_ACCOUNT_JSON" > service-account.json
-    echo "Service account credentials created"
+    echo "Service account credentials created successfully"
+    # Verify file was created
+    if [ -f service-account.json ]; then
+        echo "Verified: service-account.json file exists"
+    else
+        echo "ERROR: service-account.json file was not created"
+    fi
 fi
 
 echo "Build completed successfully"
