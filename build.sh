@@ -18,4 +18,11 @@ else
     echo "Airport database already exists"
 fi
 
+# Create service account file from environment variable if it exists
+if [ ! -z "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
+    echo "Creating service account credentials from environment variable..."
+    echo "$GOOGLE_SERVICE_ACCOUNT_JSON" > service-account.json
+    echo "Service account credentials created"
+fi
+
 echo "Build completed successfully"
