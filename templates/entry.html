@@ -474,10 +474,8 @@
       remarks: ''
     };
 
-    // Approach counts: { "ILS RWY 16R": 2, "RNAV (GPS) RWY 34L": 1 }
-    let approachCounts = {};
-    // User's custom remarks (anything not auto-generated from approaches)
-    let userRemarks = '';
+    // Approach counts: { "ILS14R KBFI": 2, "RNAV16R KPAE": 1 }
+      let approachCounts = {};
 
     // Auto-fill defaults on focus (tab into field)
     fields.forEach(f => {
@@ -523,73 +521,82 @@
       }
     }
 
-    function renderApproachSelector(approaches, airport) {
-      const container = document.getElementById('approach-checkboxes');
-      const label = document.getElementById('approach-airport-label');
-      const row = document.getElementById('approach-selector-row');
+    // Current airport for approach tracking
+      let currentApproachAirport = '';
 
-      label.textContent = `(${airport})`;
-      container.innerHTML = '';
+      function renderApproachSelector(approaches, airport) {
+        const container = document.getElementById('approach-checkboxes');
+        const label = document.getElementById('approach-airport-label');
+        const row = document.getElementById('approach-selector-row');
 
-      approaches.forEach(approach => {
-        const item = document.createElement('div');
-        item.className = 'approach-item';
-        item.dataset.name = approach.name;
+        // Store the airport (strip asterisk if present)
+        currentApproachAirport = airport.replace('*', '');
+        label.textContent = `(${airport})`;
+        container.innerHTML = '';
 
-        const count = approachCounts[approach.name] || 0;
-        if (count > 0) {
-          item.classList.add('has-count');
-        }
+        approaches.forEach(approach => {
+          const item = document.createElement('div');
+          item.className = 'approach-item';
+          item.dataset.approachId = approach.id;
 
-        // Minus button
-        const minusBtn = document.createElement('button');
-        minusBtn.type = 'button';
-        minusBtn.className = 'approach-btn approach-btn-minus';
-        minusBtn.textContent = '−';
-        minusBtn.onclick = () => adjustApproachCount(approach.name, -1);
+          // Key format: "ILS14R KBFI" (id + space + airport)
+          const approachKey = `${approach.id} ${currentApproachAirport}`;
+          const count = approachCounts[approachKey] || 0;
+          if (count > 0) {
+            item.classList.add('has-count');
+          }
 
-        // Approach name
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'approach-name';
-        nameSpan.textContent = approach.name;
+          // Minus button
+          const minusBtn = document.createElement('button');
+          minusBtn.type = 'button';
+          minusBtn.className = 'approach-btn approach-btn-minus';
+          minusBtn.textContent = '−';
+          minusBtn.onclick = () => adjustApproachCount(approach.id, -1);
 
-        // Count display
-        const countSpan = document.createElement('span');
-        countSpan.className = 'approach-count';
-        countSpan.id = `count-${approach.id}`;
-        countSpan.textContent = count;
+          // Approach name (display the full name in UI)
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'approach-name';
+          nameSpan.textContent = approach.name;
 
-        // Plus button
-        const plusBtn = document.createElement('button');
-        plusBtn.type = 'button';
-        plusBtn.className = 'approach-btn approach-btn-plus';
-        plusBtn.textContent = '+';
-        plusBtn.onclick = () => adjustApproachCount(approach.name, 1);
+          // Count display
+          const countSpan = document.createElement('span');
+          countSpan.className = 'approach-count';
+          countSpan.id = `count-${approach.id}`;
+          countSpan.textContent = count;
 
-        item.appendChild(minusBtn);
-        item.appendChild(nameSpan);
-        item.appendChild(countSpan);
-        item.appendChild(plusBtn);
-        container.appendChild(item);
-      });
+          // Plus button
+          const plusBtn = document.createElement('button');
+          plusBtn.type = 'button';
+          plusBtn.className = 'approach-btn approach-btn-plus';
+          plusBtn.textContent = '+';
+          plusBtn.onclick = () => adjustApproachCount(approach.id, 1);
 
-      row.style.display = 'flex';
-    }
+          item.appendChild(minusBtn);
+          item.appendChild(nameSpan);
+          item.appendChild(countSpan);
+          item.appendChild(plusBtn);
+          container.appendChild(item);
+        });
 
-    function adjustApproachCount(approachName, delta) {
-      const current = approachCounts[approachName] || 0;
+        row.style.display = 'flex';
+      }
+
+    function adjustApproachCount(approachId, delta) {
+      // Key format: "ILS14R KBFI" (id + space + airport)
+      const approachKey = `${approachId} ${currentApproachAirport}`;
+      const current = approachCounts[approachKey] || 0;
       const newCount = Math.max(0, current + delta);
 
       if (newCount === 0) {
-        delete approachCounts[approachName];
+        delete approachCounts[approachKey];
       } else {
-        approachCounts[approachName] = newCount;
+        approachCounts[approachKey] = newCount;
       }
 
       // Update UI
       const items = document.querySelectorAll('.approach-item');
       items.forEach(item => {
-        if (item.dataset.name === approachName) {
+        if (item.dataset.approachId === approachId) {
           const countSpan = item.querySelector('.approach-count');
           countSpan.textContent = newCount;
           item.classList.toggle('has-count', newCount > 0);
@@ -608,60 +615,23 @@
     function updateRemarksWithApproaches() {
       const remarksField = document.getElementById('remarks');
 
-      // Build approach text
-      let approachText = '';
+      // Build approach text - keys are already in "ILS14R KBFI" format
       const approachList = [];
-      for (const [name, count] of Object.entries(approachCounts)) {
+      for (const [approachKey, count] of Object.entries(approachCounts)) {
         if (count > 0) {
           if (count === 1) {
-            approachList.push(name);
+            approachList.push(approachKey);
           } else {
-            approachList.push(`${name} x${count}`);
+            approachList.push(`${approachKey} x${count}`);
           }
         }
       }
 
-      if (approachList.length > 0) {
-        approachText = approachList.join(', ');
-      }
-
-      // Combine with user remarks (if any)
-      if (userRemarks && approachText) {
-        remarksField.value = `${approachText}; ${userRemarks}`;
-      } else if (approachText) {
-        remarksField.value = approachText;
-      } else {
-        remarksField.value = userRemarks;
-      }
+      // Remarks contain ONLY approaches
+      remarksField.value = approachList.join(', ');
     }
 
-    // Track user edits to remarks field
-    document.getElementById('remarks').addEventListener('input', function() {
-      // Parse out the approach portion and keep only user content
-      const value = this.value;
-
-      // If user clears field, clear user remarks
-      if (!value.trim()) {
-        userRemarks = '';
-        return;
-      }
-
-      // Check if there's a semicolon separator (approach; user remarks format)
-      const semicolonIndex = value.indexOf(';');
-      if (semicolonIndex !== -1) {
-        // Everything after the first semicolon is user remarks
-        userRemarks = value.substring(semicolonIndex + 1).trim();
-      } else {
-        // Check if the current text matches our approach format
-        const hasApproachPattern = Object.keys(approachCounts).length > 0 &&
-          Object.keys(approachCounts).some(name => value.includes(name));
-
-        if (!hasApproachPattern) {
-          // No approaches selected, this is all user remarks
-          userRemarks = value;
-        }
-      }
-    });
+    // No need to track user edits - remarks are managed by approach selector
 
     // Show approach selector when num_inst_app field is focused
     document.getElementById('num_inst_app').addEventListener('focus', function() {
@@ -695,29 +665,18 @@
       const remarks = document.getElementById('remarks').value;
       if (!remarks) return;
 
-      // Try to parse approach format: "ILS RWY 16R x2, RNAV (GPS) RWY 34L; user notes"
-      const semicolonIndex = remarks.indexOf(';');
-      let approachPart = remarks;
+      // Parse new format: "ILS14R KBFI, RNAV16R KPAE x2"
+      const entries = remarks.split(',');
+      for (const entry of entries) {
+        const trimmed = entry.trim();
+        if (!trimmed) continue;
 
-      if (semicolonIndex !== -1) {
-        approachPart = remarks.substring(0, semicolonIndex);
-        userRemarks = remarks.substring(semicolonIndex + 1).trim();
-      }
-
-      // Parse approach entries (name x2, name, etc.)
-      const approachPattern = /([A-Z]+[^,;]*?)(?:\s*x(\d+))?(?:,|$)/gi;
-      let match;
-      while ((match = approachPattern.exec(approachPart)) !== null) {
-        const name = match[1].trim();
-        const count = match[2] ? parseInt(match[2]) : 1;
-        if (name && (name.includes('ILS') || name.includes('RNAV') || name.includes('VOR') ||
-            name.includes('LOC') || name.includes('NDB') || name.includes('Visual') || name.includes('RWY'))) {
-          approachCounts[name] = count;
-        } else if (!semicolonIndex) {
-          // If no semicolon and doesn't look like approach, it's user remarks
-          userRemarks = remarks;
-          approachCounts = {};
-          break;
+        // Match pattern like "ILS14R KBFI" or "ILS14R KBFI x2"
+        const match = trimmed.match(/^([A-Z0-9-]+)\s+([A-Z]{4})\s*(?:x(\d+))?$/i);
+        if (match) {
+          const approachKey = `${match[1]} ${match[2].toUpperCase()}`;
+          const count = match[3] ? parseInt(match[3]) : 1;
+          approachCounts[approachKey] = count;
         }
       }
     }

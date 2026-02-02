@@ -29,7 +29,7 @@ def calculate_sunset(lat: float, lon: float, date: datetime) -> Optional[datetim
         # We need to find sunset for the LOCAL date, not the UTC date
         timezone_offset_hours = lon / 15.0  # Rough estimate: 15 degrees = 1 hour
         local_time = date + timedelta(hours=timezone_offset_hours)
-        
+
         # Use the local date for the calculation
         year = local_time.year
         month = local_time.month
