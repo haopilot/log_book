@@ -4,6 +4,7 @@ Pilot Logbook - Web Application
 A web-based pilot logbook using ASA Standard format.
 """
 
+import os
 from datetime import datetime
 
 from config import Config
@@ -13,13 +14,57 @@ from models.logbook_entry import Logbook, LogbookEntry
 app = Flask(__name__)
 app.secret_key = Config.SECRET_KEY
 
+
+def init_logbook():
+    """Initialize logbook from Google Sheets or local file."""
+    logbook_instance = Logbook()
+
+    # Try loading from Google Sheets if configured
+    if Config.GOOGLE_SHEETS_ID:
+        try:
+            from services.google_sheets import GoogleSheetsService
+            sheets_service = GoogleSheetsService()
+            result = sheets_service.import_logbook()
+
+            if result.get("success") and result.get("entries"):
+                print(f"✓ Loaded {len(result['entries'])} entries from Google Sheets")
+                for entry in result["entries"]:
+                    logbook_instance.add_entry(entry)
+                return logbook_instance
+            else:
+                print("Google Sheets configured but empty or error, loading from local file")
+        except Exception as e:
+            print(f"Could not load from Google Sheets: {e}, loading from local file")
+
+    # Fall back to local file
+    if os.path.exists(Config.DATA_FILE):
+        logbook_instance = Logbook.load_from_file(Config.DATA_FILE)
+        print(f"✓ Loaded logbook from {Config.DATA_FILE}")
+    else:
+        print("No existing logbook found, starting fresh")
+
+    return logbook_instance
+
+
 # Global logbook instance
-logbook = Logbook.load_from_file(Config.DATA_FILE)
+logbook = init_logbook()
 
 
 def save_logbook():
-    """Save logbook to file."""
+    """Save logbook to file and Google Sheets if configured."""
+    # Save to local file
     logbook.save_to_file(Config.DATA_FILE)
+
+    # Also save to Google Sheets if configured
+    if Config.GOOGLE_SHEETS_ID:
+        try:
+            from services.google_sheets import GoogleSheetsService
+            sheets_service = GoogleSheetsService()
+            result = sheets_service.export_logbook(logbook)
+            if result.get("success"):
+                print(f"✓ Synced {result.get('rows', 0)} entries to Google Sheets")
+        except Exception as e:
+            print(f"Warning: Could not sync to Google Sheets: {e}")
 
 
 def parse_float(value, default=0.0):
