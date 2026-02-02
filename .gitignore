@@ -40,6 +40,7 @@ Thumbs.db
 
 # Data files (keep structure but not data)
 data/*.json
+data/*.csv
 !data/.gitkeep
 
 # Exports
