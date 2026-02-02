@@ -158,7 +158,15 @@ class Logbook:
     def get_all_entries(self, sort_by_date: bool = True) -> list[LogbookEntry]:
         entries = list(self.entries.values())
         if sort_by_date:
-            entries.sort(key=lambda e: e.date, reverse=True)
+            # Sort by date, converting MM/DD/YYYY to datetime for proper chronological sorting
+            def date_key(entry):
+                try:
+                    # Parse MM/DD/YYYY format
+                    return datetime.strptime(entry.date, "%m/%d/%Y")
+                except (ValueError, AttributeError):
+                    # If date is invalid or missing, put it at the end
+                    return datetime.min
+            entries.sort(key=date_key, reverse=True)
         return entries
 
     def get_totals(self) -> dict:
