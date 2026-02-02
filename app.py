@@ -31,8 +31,11 @@ def init_logbook():
                 for entry in result["entries"]:
                     logbook_instance.add_entry(entry)
                 return logbook_instance
+            elif result.get("success"):
+                print("Google Sheets is empty, loading from local file")
             else:
-                print("Google Sheets configured but empty or error, loading from local file")
+                error_msg = result.get("error", "Unknown error")
+                print(f"Google Sheets error: {error_msg}, loading from local file")
         except Exception as e:
             print(f"Could not load from Google Sheets: {e}, loading from local file")
 
