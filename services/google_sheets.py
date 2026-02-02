@@ -5,6 +5,7 @@ Provides export and sync functionality with Google Sheets.
 ASA Standard format.
 """
 
+import json
 import os
 import pickle
 from typing import Optional
@@ -12,6 +13,7 @@ from typing import Optional
 from config import Config
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
+from google.oauth2 import service_account
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -35,7 +37,25 @@ class GoogleSheetsService:
         self._creds = None
 
     def _get_credentials(self) -> Credentials:
-        """Get or refresh Google API credentials."""
+        """Get or refresh Google API credentials (supports both OAuth and Service Account)."""
+        if not os.path.exists(self.credentials_file):
+            raise FileNotFoundError(
+                f"Credentials file not found: {self.credentials_file}. "
+                "Download credentials from Google Cloud Console."
+            )
+
+        # Check if it's a service account file
+        with open(self.credentials_file, 'r') as f:
+            cred_data = json.load(f)
+            if cred_data.get('type') == 'service_account':
+                # Use service account credentials (no interactive auth needed)
+                creds = service_account.Credentials.from_service_account_file(
+                    self.credentials_file,
+                    scopes=SCOPES
+                )
+                return creds
+
+        # Otherwise, use OAuth flow (for interactive authentication)
         creds = None
         token_file = "token.pickle"
 
@@ -47,12 +67,6 @@ class GoogleSheetsService:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
-                if not os.path.exists(self.credentials_file):
-                    raise FileNotFoundError(
-                        f"Credentials file not found: {self.credentials_file}. "
-                        "Download credentials.json from Google Cloud Console."
-                    )
-
                 flow = InstalledAppFlow.from_client_secrets_file(
                     self.credentials_file, SCOPES
                 )

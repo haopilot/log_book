@@ -49,4 +49,6 @@ logbook_export_*.csv
 
 # Credentials
 credentials.json
+service-account.json
 token.json
+token.pickle
