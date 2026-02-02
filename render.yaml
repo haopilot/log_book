@@ -7,6 +7,10 @@ services:
     branch: master
     buildCommand: "./build.sh"
     startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT"
+    disk:
+      name: logbook-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0
@@ -33,4 +37,4 @@ services:
       - key: HOST
         value: 0.0.0.0
       - key: DATA_FILE
-        value: logbook_data.json
+        value: /opt/render/project/src/data/logbook_data.json
