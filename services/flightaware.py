@@ -239,8 +239,8 @@ class FlightAwareService:
         except Exception:
             pass
 
-        # Fetch historical data in 6-day windows
-        window_days = 6
+        # Fetch historical data in 3-day windows (smaller for more frequent yields)
+        window_days = 3
         current_end = end_dt
 
         while current_end > start_dt:
@@ -254,6 +254,9 @@ class FlightAwareService:
             }
 
             try:
+                # Yield a keepalive signal before making API call
+                yield {"_keepalive": True}
+
                 data = self._make_request(f"/history/flights/{tail_number}", params)
                 flights = data.get("flights", [])
                 for flight in flights:
@@ -329,8 +332,8 @@ class FlightAwareService:
         except Exception:
             pass
 
-        # Fetch historical data in 6-day windows
-        window_days = 6
+        # Fetch historical data in 3-day windows (smaller for more frequent yields)
+        window_days = 3
         current_end = end_dt
 
         while current_end > start_dt:
@@ -344,6 +347,9 @@ class FlightAwareService:
             }
 
             try:
+                # Yield a keepalive signal before making API call
+                yield {"_keepalive": True}
+
                 data = self._make_request(f"/history/flights/{tail_number}", params)
                 flights = data.get("flights", [])
                 for flight in flights:

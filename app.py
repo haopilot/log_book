@@ -478,6 +478,12 @@ def search_flightaware_stream():
                 most_recent_flight_date=most_recent_date,
                 max_lookback_months=max_lookback_months,
             ):
+                # Handle keepalive signals from FlightAware service
+                if flight.get('_keepalive'):
+                    yield ": keepalive from API\n\n"
+                    sys.stdout.flush()
+                    continue
+
                 # Check if already imported
                 route_from = flight.get('route_from') or ''
                 route_to = flight.get('route_to') or ''
@@ -489,8 +495,8 @@ def search_flightaware_stream():
                 yield f"data: {json.dumps({'flight': flight})}\n\n"
                 last_heartbeat = time.time()
 
-                # Send periodic heartbeat every 10 flights to keep connection alive
-                if flight_count % 10 == 0:
+                # Send periodic heartbeat every 5 flights to keep connection alive
+                if flight_count % 5 == 0:
                     yield ": heartbeat\n\n"
                     sys.stdout.flush()
 
