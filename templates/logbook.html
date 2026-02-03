@@ -434,37 +434,28 @@
 
       if (!confirm(confirmMsg)) return;
 
-      let deleted = 0;
-      let errors = 0;
+      try {
+        showToast('Deleting entries...');
 
-      for (const id of selectedIds) {
-        try {
-          const res = await fetch(`/api/entries/${id}`, { method: 'DELETE' });
-          if (res.ok) {
-            deleted++;
-            // Remove the entry from DOM
-            const entry = document.querySelector(`.flight-entry[data-id="${id}"]`);
-            if (entry) entry.remove();
-          } else {
-            errors++;
-          }
-        } catch (e) {
-          errors++;
+        // Use batch delete endpoint for better performance
+        const res = await fetch('/api/entries/batch', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ entry_ids: selectedIds })
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+          showToast(`Deleted ${result.deleted} flight(s)`);
+          // Reload page to refresh from Google Sheets
+          setTimeout(() => location.reload(), 500);
+        } else {
+          showToast(result.error || 'Delete failed', true);
         }
-      }
-
-      if (deleted > 0) {
-        showToast(`Deleted ${deleted} flight(s)`);
-      }
-      if (errors > 0) {
-        showToast(`Failed to delete ${errors} flight(s)`, true);
-      }
-
-      updateBatchBar();
-
-      // Reload page to update totals
-      if (deleted > 0) {
-        setTimeout(() => location.reload(), 1000);
+      } catch (e) {
+        showToast('Error deleting flights', true);
+        console.error(e);
       }
     }
 

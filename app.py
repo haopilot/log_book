@@ -230,6 +230,30 @@ def delete_entry(entry_id):
     return jsonify({"error": "Entry not found"}), 404
 
 
+@app.route("/api/entries/batch", methods=["DELETE"])
+def batch_delete_entries():
+    """Delete multiple logbook entries in a batch."""
+    data = request.json
+    entry_ids = data.get("entry_ids", [])
+
+    if not entry_ids:
+        return jsonify({"error": "No entry IDs provided"}), 400
+
+    deleted_count = 0
+    for entry_id in entry_ids:
+        if logbook.delete_entry(entry_id):
+            deleted_count += 1
+
+    # Save to Google Sheets once after all deletions
+    save_logbook()
+
+    return jsonify({
+        "success": True,
+        "deleted": deleted_count,
+        "message": f"Deleted {deleted_count} entries"
+    })
+
+
 @app.route("/api/totals", methods=["GET"])
 def get_totals():
     """Get logbook totals."""
