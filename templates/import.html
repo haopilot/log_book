@@ -321,7 +321,8 @@
       <div id="loadingState" class="loading hidden">
         <i class="fas fa-spinner"></i>
         <p id="loadingMessage">Scanning FlightAware for new flights...</p>
-        <p style="font-size: 0.75rem; color: #8b7355; margin-top: 10px;">Using intelligent import to fetch only flights not in your logbook...</p>
+        <p id="progressMessage" style="font-size: 0.9rem; color: #2c4a1e; margin-top: 10px; font-weight: 700;">Fetched 0 flights...</p>
+        <p style="font-size: 0.75rem; color: #8b7355; margin-top: 10px;">This may take 1-2 minutes for large imports. Connection is maintained with keepalives.</p>
       </div>
 
       <div id="initialState" class="empty-state">
@@ -503,8 +504,12 @@
         `/api/flightaware/search/stream?tail_number=${encodeURIComponent(tailNumber)}&max_lookback_months=${maxLookback}`
       );
 
+      let lastUpdate = Date.now();
+      let totalFetched = 0;
+
       eventSource.onmessage = function(event) {
         const data = JSON.parse(event.data);
+        lastUpdate = Date.now();
 
         if (data.error) {
           eventSource.close();
@@ -532,6 +537,14 @@
         }
 
         if (data.flight) {
+          totalFetched++;
+
+          // Update progress message
+          const progressMsg = document.getElementById('progressMessage');
+          if (progressMsg) {
+            progressMsg.textContent = `Fetched ${totalFetched} flights... (${flights.length} new)`;
+          }
+
           // Only add if not already imported
           if (!data.flight.already_imported) {
             flights.push(data.flight);
@@ -542,9 +555,21 @@
 
       eventSource.onerror = function(event) {
         eventSource.close();
-        document.getElementById('errorMessage').textContent = 'Connection lost. Please try again.';
-        showState('error');
-        document.getElementById('searchBtn').disabled = false;
+
+        // Check if we got any flights before the error
+        if (flights.length > 0) {
+          // Partial success - show what we got
+          document.getElementById('searchBtn').disabled = false;
+          flights = flights.filter(f => !f.already_imported);
+          renderFlights();
+          document.getElementById('selectAll').checked = true;
+          showToast(`Connection interrupted after fetching ${totalFetched} flights. Showing ${flights.length} new flights.`, true);
+        } else {
+          // Total failure
+          document.getElementById('errorMessage').textContent = 'Connection lost. Please try again.';
+          showState('error');
+          document.getElementById('searchBtn').disabled = false;
+        }
       };
     });
 

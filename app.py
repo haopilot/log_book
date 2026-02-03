@@ -429,16 +429,15 @@ def search_flightaware():
 
 @app.route("/api/flightaware/search/stream", methods=["GET"])
 def search_flightaware_stream():
-    """Stream FlightAware search results incrementally using Server-Sent Events.
+    """Stream FlightAware search results using OPTIMIZED batch import.
 
-    Uses intelligent incremental import:
-    - First import: Fetches historical data (up to max_lookback_months)
-    - Subsequent imports: Only fetches flights since the most recent flight in logbook
+    Uses aggressive batching and minimal processing to avoid timeouts.
+    Yields flights in batches for maximum performance.
     """
     import json
 
     from flask import Response
-    from services.flightaware import FlightAwareService
+    from services.flightaware_optimized import OptimizedFlightAwareService
 
     if not Config.FLIGHTAWARE_API_KEY:
         def error_stream():
@@ -446,11 +445,7 @@ def search_flightaware_stream():
         return Response(error_stream(), mimetype='text/event-stream')
 
     tail_number = request.args.get("tail_number") or Config.DEFAULT_TAIL_NUMBER
-
-    # Get the most recent flight date from logbook for incremental import
     most_recent_date = logbook.get_most_recent_flight_date()
-
-    # User can override max lookback for first import (default 24 months)
     max_lookback_months = int(request.args.get("max_lookback_months") or 24)
 
     # Get existing entries for duplicate checking
@@ -461,48 +456,48 @@ def search_flightaware_stream():
         existing_keys.add(key)
 
     def generate():
-        import time
         import sys
-        service = FlightAwareService()
-        last_heartbeat = time.time()
+        service = OptimizedFlightAwareService()
         flight_count = 0
 
         try:
-            # Send initial keepalive
             yield ": keepalive\n\n"
             sys.stdout.flush()
 
-            # Use intelligent incremental import
-            for flight in service.get_flights_as_logbook_entries_streaming(
+            for result in service.stream_flights_ultra_fast(
                 tail_number=tail_number,
                 most_recent_flight_date=most_recent_date,
                 max_lookback_months=max_lookback_months,
             ):
-                # Handle keepalive signals from FlightAware service
-                if flight.get('_keepalive'):
-                    yield ": keepalive from API\n\n"
+                # Handle keepalive
+                if result.get('_keepalive'):
+                    yield ": keepalive\n\n"
                     sys.stdout.flush()
                     continue
 
-                # Check if already imported
-                route_from = flight.get('route_from') or ''
-                route_to = flight.get('route_to') or ''
-                date = flight.get('date') or ''
-                key = f"{date}|{route_from}|{route_to}"
-                flight["already_imported"] = key in existing_keys
+                # Handle batch of flights
+                if result.get('_batch'):
+                    batch = result['_batch']
+                    for flight in batch:
+                        # Check if already imported
+                        route_from = flight.get('route_from') or ''
+                        route_to = flight.get('route_to') or ''
+                        date = flight.get('date') or ''
+                        key = f"{date}|{route_from}|{route_to}"
+                        flight["already_imported"] = key in existing_keys
 
-                flight_count += 1
-                yield f"data: {json.dumps({'flight': flight})}\n\n"
-                last_heartbeat = time.time()
+                        flight_count += 1
+                        yield f"data: {json.dumps({'flight': flight})}\n\n"
 
-                # Send periodic heartbeat every 5 flights to keep connection alive
-                if flight_count % 5 == 0:
+                    # Heartbeat after each batch
                     yield ": heartbeat\n\n"
                     sys.stdout.flush()
 
-            yield f"data: {json.dumps({'done': True})}\n\n"
+            yield f"data: {json.dumps({'done': True, 'total': flight_count})}\n\n"
         except Exception as e:
             print(f"Error in streaming: {e}")
+            import traceback
+            traceback.print_exc()
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
 
     response = Response(generate(), mimetype='text/event-stream')
@@ -510,6 +505,32 @@ def search_flightaware_stream():
     response.headers['X-Accel-Buffering'] = 'no'
     response.headers['Connection'] = 'keep-alive'
     return response
+
+
+@app.route("/api/flightaware/enrich", methods=["POST"])
+def enrich_flights():
+    """Enrich flight entries with airport lookups and calculations.
+
+    This is phase 2 of the two-phase import process.
+    Accepts a batch of flights for efficient processing.
+    """
+    from services.flightaware_optimized import OptimizedFlightAwareService
+
+    data = request.json
+    flights = data.get("flights", [])
+
+    if not flights:
+        return jsonify({"success": False, "error": "No flight data provided"}), 400
+
+    try:
+        service = OptimizedFlightAwareService()
+        enriched = service.enrich_batch(flights)
+        return jsonify({
+            "success": True,
+            "flights": enriched
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route("/api/approaches/<airport_code>", methods=["GET"])
