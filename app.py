@@ -16,10 +16,16 @@ app.secret_key = Config.SECRET_KEY
 
 
 def init_logbook():
-    """Initialize logbook from Google Sheets or local file."""
+    """Initialize logbook from local file (primary) or Google Sheets (fallback)."""
     logbook_instance = Logbook()
 
-    # Try loading from Google Sheets if configured
+    # Try loading from local file first (source of truth)
+    if os.path.exists(Config.DATA_FILE):
+        logbook_instance = Logbook.load_from_file(Config.DATA_FILE)
+        print(f"✓ Loaded {len(logbook_instance.entries)} entries from {Config.DATA_FILE}")
+        return logbook_instance
+
+    # Fall back to Google Sheets if local file doesn't exist
     if Config.GOOGLE_SHEETS_ID:
         try:
             from services.google_sheets import GoogleSheetsService
@@ -30,22 +36,18 @@ def init_logbook():
                 print(f"✓ Loaded {len(result['entries'])} entries from Google Sheets")
                 for entry in result["entries"]:
                     logbook_instance.add_entry(entry)
+                # Save to local file so it becomes the source of truth
+                logbook_instance.save_to_file(Config.DATA_FILE)
                 return logbook_instance
             elif result.get("success"):
-                print("Google Sheets is empty, loading from local file")
+                print("Google Sheets is empty, starting fresh")
             else:
                 error_msg = result.get("error", "Unknown error")
-                print(f"Google Sheets error: {error_msg}, loading from local file")
+                print(f"Google Sheets error: {error_msg}, starting fresh")
         except Exception as e:
-            print(f"Could not load from Google Sheets: {e}, loading from local file")
+            print(f"Could not load from Google Sheets: {e}, starting fresh")
 
-    # Fall back to local file
-    if os.path.exists(Config.DATA_FILE):
-        logbook_instance = Logbook.load_from_file(Config.DATA_FILE)
-        print(f"✓ Loaded logbook from {Config.DATA_FILE}")
-    else:
-        print("No existing logbook found, starting fresh")
-
+    print("No existing logbook found, starting fresh")
     return logbook_instance
 
 
