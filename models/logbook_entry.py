@@ -169,6 +169,28 @@ class Logbook:
             entries.sort(key=date_key, reverse=True)
         return entries
 
+    def get_most_recent_flight_date(self) -> Optional[datetime]:
+        """
+        Get the date of the most recent flight in the logbook.
+
+        Returns:
+            datetime object of the most recent flight, or None if logbook is empty
+        """
+        if not self.entries:
+            return None
+
+        most_recent = None
+        for entry in self.entries.values():
+            try:
+                entry_date = datetime.strptime(entry.date, "%m/%d/%Y")
+                if most_recent is None or entry_date > most_recent:
+                    most_recent = entry_date
+            except (ValueError, AttributeError):
+                # Skip invalid dates
+                continue
+
+        return most_recent
+
     def get_totals(self) -> dict:
         totals = {
             "sel": 0.0,

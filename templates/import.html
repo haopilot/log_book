@@ -297,39 +297,43 @@
           <input type="text" id="tailNumber" value="{{ tail_number }}" placeholder="N790TB">
         </div>
         <div class="form-group">
-          <label>History</label>
-          <select id="monthsBack" style="padding: 12px 15px; background: #fff; border: 2px solid #c9b896; font-family: 'Courier Prime', monospace; font-size: 1rem; color: #3a2a1a; border-radius: 2px; font-weight: 700;">
-            <option value="3">3 months</option>
-            <option value="6">6 months</option>
-            <option value="12" selected>1 year</option>
-            <option value="24">2 years</option>
+          <label>Max History (First Import)</label>
+          <select id="maxLookback" style="padding: 12px 15px; background: #fff; border: 2px solid #c9b896; font-family: 'Courier Prime', monospace; font-size: 1rem; color: #3a2a1a; border-radius: 2px; font-weight: 700;">
+            <option value="12">1 year</option>
+            <option value="24" selected>2 years</option>
             <option value="36">3 years</option>
+            <option value="60">5 years</option>
           </select>
         </div>
         <button type="submit" class="btn btn-primary btn-lg" id="searchBtn">
-          <i class="fas fa-search"></i> Scan for New Flights
+          <i class="fas fa-sync-alt"></i> Scan for New Flights
         </button>
       </form>
-      <p style="font-size: 0.75rem; color: #8b7355; margin-top: 15px;">
-        <i class="fas fa-info-circle"></i> Historical data is fetched in 7-day chunks. Longer periods may take a moment.
+      <p style="font-size: 0.75rem; color: #2c4a1e; margin-top: 15px; font-weight: 700;">
+        <i class="fas fa-lightbulb"></i> Intelligent Import: Automatically fetches only NEW flights since your last entry
+      </p>
+      <p style="font-size: 0.7rem; color: #8b7355; margin-top: 8px;">
+        <i class="fas fa-info-circle"></i> For first import: Fetches history up to selected time period. Subsequent imports: Only new flights.
       </p>
     </div>
 
     <div class="results-section">
       <div id="loadingState" class="loading hidden">
         <i class="fas fa-spinner"></i>
-        <p id="loadingMessage">Scanning FlightAware for flights...</p>
-        <p style="font-size: 0.75rem; color: #8b7355; margin-top: 10px;">Fetching historical data in 7-day chunks. This may take a moment...</p>
+        <p id="loadingMessage">Scanning FlightAware for new flights...</p>
+        <p style="font-size: 0.75rem; color: #8b7355; margin-top: 10px;">Using intelligent import to fetch only flights not in your logbook...</p>
       </div>
 
       <div id="initialState" class="empty-state">
-        <i class="fas fa-radar"></i>
-        <p>Click "Scan for New Flights" to find flights not yet in your logbook</p>
+        <i class="fas fa-sync-alt"></i>
+        <p>Click "Scan for New Flights" to automatically detect and import flights not yet in your logbook</p>
+        <p style="font-size: 0.85rem; color: #8b7355; margin-top: 10px;">No manual date selection needed - it's smart!</p>
       </div>
 
       <div id="emptyState" class="empty-state success hidden">
         <i class="fas fa-check-circle"></i>
         <p>All caught up! No new flights to import.</p>
+        <p style="font-size: 0.85rem; color: #2c4a1e; margin-top: 10px;">Your logbook is up to date with FlightAware.</p>
       </div>
 
       <div id="errorState" class="error-state hidden">
@@ -480,7 +484,7 @@
       e.preventDefault();
 
       const tailNumber = document.getElementById('tailNumber').value.trim();
-      const monthsBack = document.getElementById('monthsBack').value;
+      const maxLookback = document.getElementById('maxLookback').value;
 
       if (!tailNumber) {
         showToast('Please enter a tail number', true);
@@ -492,11 +496,11 @@
       document.getElementById('flightsList').innerHTML = '';
       showState('streaming');
       document.getElementById('searchBtn').disabled = true;
-      document.getElementById('resultsCount').textContent = 'Scanning for flights...';
+      document.getElementById('resultsCount').textContent = 'Scanning for new flights...';
 
-      // Use Server-Sent Events for streaming
+      // Use Server-Sent Events for streaming with intelligent incremental import
       const eventSource = new EventSource(
-        `/api/flightaware/search/stream?tail_number=${encodeURIComponent(tailNumber)}&months_back=${monthsBack}`
+        `/api/flightaware/search/stream?tail_number=${encodeURIComponent(tailNumber)}&max_lookback_months=${maxLookback}`
       );
 
       eventSource.onmessage = function(event) {

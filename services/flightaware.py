@@ -270,6 +270,96 @@ class FlightAwareService:
 
             current_end = current_start
 
+    def get_flights_incremental_streaming(
+        self,
+        tail_number: str,
+        most_recent_flight_date: Optional[datetime] = None,
+        max_lookback_months: int = 24,
+    ):
+        """
+        Intelligent incremental import that fetches only NEW flights since the last import.
+
+        For first import (no previous flights): Fetch up to max_lookback_months
+        For subsequent imports: Fetch only flights since most_recent_flight_date
+
+        Args:
+            tail_number: Aircraft registration (e.g., "N790TB")
+            most_recent_flight_date: Date of the most recent flight in logbook (None for first import)
+            max_lookback_months: Maximum history to fetch on first import (default 24 months)
+
+        Yields:
+            Individual flight dictionaries as they're found
+        """
+        # Clean up tail number
+        tail_number = tail_number.upper().strip()
+        if not tail_number.startswith("N"):
+            tail_number = f"N{tail_number}"
+
+        seen_ids = set()
+
+        # Determine date range
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        end_dt = today - timedelta(days=1)
+
+        if most_recent_flight_date:
+            # Incremental import: Start from day after the most recent flight
+            start_dt = most_recent_flight_date + timedelta(days=1)
+            print(f"Incremental import: Fetching flights since {start_dt.strftime('%Y-%m-%d')}")
+        else:
+            # First import: Fetch historical data (default 24 months)
+            start_dt = end_dt - timedelta(days=max_lookback_months * 30)
+            print(f"First import: Fetching up to {max_lookback_months} months of history")
+
+        # If start date is after end date, there's nothing to fetch
+        if start_dt > end_dt:
+            print("No new flights to fetch (logbook is up to date)")
+            return
+
+        # First, try to get recent flights from /flights endpoint (last 10 days)
+        try:
+            recent_data = self._make_request(f"/flights/{tail_number}")
+            recent_flights = recent_data.get("flights", [])
+            for flight in recent_flights:
+                flight_id = flight.get("fa_flight_id")
+                if flight_id and flight_id not in seen_ids:
+                    seen_ids.add(flight_id)
+                    yield flight
+                elif not flight_id:
+                    yield flight
+        except Exception:
+            pass
+
+        # Fetch historical data in 6-day windows
+        window_days = 6
+        current_end = end_dt
+
+        while current_end > start_dt:
+            current_start = current_end - timedelta(days=window_days)
+            if current_start < start_dt:
+                current_start = start_dt
+
+            params = {
+                "start": current_start.strftime("%Y-%m-%dT00:00:00Z"),
+                "end": current_end.strftime("%Y-%m-%dT00:00:00Z"),
+            }
+
+            try:
+                data = self._make_request(f"/history/flights/{tail_number}", params)
+                flights = data.get("flights", [])
+                for flight in flights:
+                    flight_id = flight.get("fa_flight_id")
+                    if flight_id and flight_id not in seen_ids:
+                        seen_ids.add(flight_id)
+                        yield flight
+                    elif not flight_id:
+                        yield flight
+            except Exception as e:
+                print(
+                    f"Warning: Failed to fetch history for {current_start.strftime('%Y-%m-%d')} to {current_end.strftime('%Y-%m-%d')}: {e}"
+                )
+
+            current_end = current_start
+
     def flight_to_logbook_entry(self, flight: dict) -> dict:
         """
         Convert a FlightAware flight to a logbook entry format.
@@ -520,20 +610,24 @@ class FlightAwareService:
     def get_flights_as_logbook_entries_streaming(
         self,
         tail_number: str,
-        months_back: int = 12,
+        most_recent_flight_date: Optional[datetime] = None,
+        max_lookback_months: int = 24,
     ):
         """
         Generator that yields logbook entries as they're fetched.
-        Used for streaming results to the UI incrementally.
+        Uses intelligent incremental import.
 
         Args:
             tail_number: Aircraft registration
-            months_back: How many months of history to fetch
+            most_recent_flight_date: Date of most recent flight in logbook (None for first import)
+            max_lookback_months: Maximum history to fetch on first import (default 24 months)
 
         Yields:
             Logbook entry dictionaries as they're processed
         """
-        for flight in self.get_flights_by_tail_streaming(tail_number, months_back):
+        for flight in self.get_flights_incremental_streaming(
+            tail_number, most_recent_flight_date, max_lookback_months
+        ):
             # Skip cancelled flights
             if flight.get("cancelled"):
                 continue

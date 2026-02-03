@@ -429,7 +429,12 @@ def search_flightaware():
 
 @app.route("/api/flightaware/search/stream", methods=["GET"])
 def search_flightaware_stream():
-    """Stream FlightAware search results incrementally using Server-Sent Events."""
+    """Stream FlightAware search results incrementally using Server-Sent Events.
+
+    Uses intelligent incremental import:
+    - First import: Fetches historical data (up to max_lookback_months)
+    - Subsequent imports: Only fetches flights since the most recent flight in logbook
+    """
     import json
 
     from flask import Response
@@ -441,7 +446,12 @@ def search_flightaware_stream():
         return Response(error_stream(), mimetype='text/event-stream')
 
     tail_number = request.args.get("tail_number") or Config.DEFAULT_TAIL_NUMBER
-    months_back = int(request.args.get("months_back") or 12)
+
+    # Get the most recent flight date from logbook for incremental import
+    most_recent_date = logbook.get_most_recent_flight_date()
+
+    # User can override max lookback for first import (default 24 months)
+    max_lookback_months = int(request.args.get("max_lookback_months") or 24)
 
     # Get existing entries for duplicate checking
     existing_entries = logbook.get_all_entries() or []
@@ -454,10 +464,11 @@ def search_flightaware_stream():
         service = FlightAwareService()
 
         try:
-            # Stream flights as they're fetched
+            # Use intelligent incremental import
             for flight in service.get_flights_as_logbook_entries_streaming(
                 tail_number=tail_number,
-                months_back=months_back,
+                most_recent_flight_date=most_recent_date,
+                max_lookback_months=max_lookback_months,
             ):
                 # Check if already imported
                 route_from = flight.get('route_from') or ''
