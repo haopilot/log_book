@@ -461,9 +461,17 @@ def search_flightaware_stream():
         existing_keys.add(key)
 
     def generate():
+        import time
+        import sys
         service = FlightAwareService()
+        last_heartbeat = time.time()
+        flight_count = 0
 
         try:
+            # Send initial keepalive
+            yield ": keepalive\n\n"
+            sys.stdout.flush()
+
             # Use intelligent incremental import
             for flight in service.get_flights_as_logbook_entries_streaming(
                 tail_number=tail_number,
@@ -477,13 +485,25 @@ def search_flightaware_stream():
                 key = f"{date}|{route_from}|{route_to}"
                 flight["already_imported"] = key in existing_keys
 
+                flight_count += 1
                 yield f"data: {json.dumps({'flight': flight})}\n\n"
+                last_heartbeat = time.time()
+
+                # Send periodic heartbeat every 10 flights to keep connection alive
+                if flight_count % 10 == 0:
+                    yield ": heartbeat\n\n"
+                    sys.stdout.flush()
 
             yield f"data: {json.dumps({'done': True})}\n\n"
         except Exception as e:
+            print(f"Error in streaming: {e}")
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
 
-    return Response(generate(), mimetype='text/event-stream')
+    response = Response(generate(), mimetype='text/event-stream')
+    response.headers['Cache-Control'] = 'no-cache'
+    response.headers['X-Accel-Buffering'] = 'no'
+    response.headers['Connection'] = 'keep-alive'
+    return response
 
 
 @app.route("/api/approaches/<airport_code>", methods=["GET"])
