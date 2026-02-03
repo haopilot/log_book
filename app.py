@@ -16,16 +16,10 @@ app.secret_key = Config.SECRET_KEY
 
 
 def init_logbook():
-    """Initialize logbook from local file (primary) or Google Sheets (fallback)."""
+    """Initialize logbook from Google Sheets (single source of truth)."""
     logbook_instance = Logbook()
 
-    # Try loading from local file first (source of truth)
-    if os.path.exists(Config.DATA_FILE):
-        logbook_instance = Logbook.load_from_file(Config.DATA_FILE)
-        print(f"✓ Loaded {len(logbook_instance.entries)} entries from {Config.DATA_FILE}")
-        return logbook_instance
-
-    # Fall back to Google Sheets if local file doesn't exist
+    # Load from Google Sheets - the single source of truth
     if Config.GOOGLE_SHEETS_ID:
         try:
             from services.google_sheets import GoogleSheetsService
@@ -36,8 +30,6 @@ def init_logbook():
                 print(f"✓ Loaded {len(result['entries'])} entries from Google Sheets")
                 for entry in result["entries"]:
                     logbook_instance.add_entry(entry)
-                # Save to local file so it becomes the source of truth
-                logbook_instance.save_to_file(Config.DATA_FILE)
                 return logbook_instance
             elif result.get("success"):
                 print("Google Sheets is empty, starting fresh")
@@ -46,8 +38,9 @@ def init_logbook():
                 print(f"Google Sheets error: {error_msg}, starting fresh")
         except Exception as e:
             print(f"Could not load from Google Sheets: {e}, starting fresh")
+    else:
+        print("Google Sheets not configured, starting fresh")
 
-    print("No existing logbook found, starting fresh")
     return logbook_instance
 
 
@@ -56,20 +49,21 @@ logbook = init_logbook()
 
 
 def save_logbook():
-    """Save logbook to file and Google Sheets if configured."""
-    # Save to local file
-    logbook.save_to_file(Config.DATA_FILE)
-
-    # Also save to Google Sheets if configured
+    """Save logbook to Google Sheets (single source of truth)."""
     if Config.GOOGLE_SHEETS_ID:
         try:
             from services.google_sheets import GoogleSheetsService
             sheets_service = GoogleSheetsService()
             result = sheets_service.export_logbook(logbook)
             if result.get("success"):
-                print(f"✓ Synced {result.get('rows', 0)} entries to Google Sheets")
+                print(f"✓ Saved {result.get('rows', 0)} entries to Google Sheets")
+            else:
+                print(f"Error saving to Google Sheets: {result.get('error', 'Unknown error')}")
         except Exception as e:
-            print(f"Warning: Could not sync to Google Sheets: {e}")
+            print(f"Error: Could not save to Google Sheets: {e}")
+            raise  # Re-raise to ensure the user knows the save failed
+    else:
+        print("Warning: Google Sheets not configured, changes not saved!")
 
 
 def parse_float(value, default=0.0):
