@@ -6,6 +6,9 @@ set -o errexit  # Exit on error
 # Install Python dependencies
 pip install -r requirements.txt
 
+# Ensure latest CA certificates for SSL connections (FlightAware API)
+pip install --upgrade certifi
+
 # Create data directory if it doesn't exist
 mkdir -p data
 
