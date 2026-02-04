@@ -61,14 +61,25 @@ class OptimizedFlightAwareService:
         seen_ids = set()
         today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         end_dt = today - timedelta(days=1)
+        is_incremental = most_recent_flight_date is not None
 
         if most_recent_flight_date:
             start_dt = most_recent_flight_date + timedelta(days=1)
         else:
             start_dt = end_dt - timedelta(days=max_lookback_months * 30)
 
+        # Yield search metadata so frontend knows what's happening
+        yield {"_meta": {
+            "is_incremental": is_incremental,
+            "start_date": start_dt.strftime("%Y-%m-%d"),
+            "end_date": end_dt.strftime("%Y-%m-%d"),
+            "tail_number": tail_number,
+        }}
+
         if start_dt > end_dt:
             return
+
+        api_errors = 0
 
         # Try recent flights first (fast, no windowing needed)
         try:
@@ -85,12 +96,15 @@ class OptimizedFlightAwareService:
 
             if batch:
                 yield {"_batch": batch}
-        except Exception:
-            pass
+        except Exception as e:
+            api_errors += 1
+            print(f"Warning: Recent flights lookup failed: {e}")
+            yield {"_warning": f"Recent flights lookup failed: {e}"}
 
         # Historical data with maximum window size (6 days for /history)
         window_days = 6
         current_end = end_dt
+        windows_attempted = 0
 
         while current_end > start_dt:
             current_start = current_end - timedelta(days=window_days)
@@ -106,6 +120,7 @@ class OptimizedFlightAwareService:
                 # Keepalive before API call
                 yield {"_keepalive": True}
 
+                windows_attempted += 1
                 data = self._make_request(f"/history/flights/{tail_number}", params)
                 flights = data.get("flights", [])
 
@@ -126,9 +141,19 @@ class OptimizedFlightAwareService:
                     yield {"_batch": batch}
 
             except Exception as e:
+                api_errors += 1
                 print(f"Warning: Failed window {current_start.date()} to {current_end.date()}: {e}")
+                # Surface persistent errors to frontend
+                if api_errors >= 3:
+                    yield {"_warning": f"Multiple API errors ({api_errors}): {e}"}
 
             current_end = current_start
+
+        # Yield summary so the caller knows what happened
+        yield {"_summary": {
+            "windows_attempted": windows_attempted,
+            "api_errors": api_errors,
+        }}
 
     def _fast_extract(self, flight: dict) -> dict:
         """ULTRA FAST extraction - absolute minimum processing."""

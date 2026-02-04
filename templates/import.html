@@ -332,9 +332,10 @@
       </div>
 
       <div id="emptyState" class="empty-state success hidden">
-        <i class="fas fa-check-circle"></i>
-        <p>All caught up! No new flights to import.</p>
-        <p style="font-size: 0.85rem; color: #2c4a1e; margin-top: 10px;">Your logbook is up to date with FlightAware.</p>
+        <i class="fas fa-check-circle" id="emptyIcon"></i>
+        <p id="emptyTitle">All caught up! No new flights to import.</p>
+        <p id="emptyDetail" style="font-size: 0.85rem; color: #2c4a1e; margin-top: 10px;">Your logbook is up to date with FlightAware.</p>
+        <p id="emptyDiag" style="font-size: 0.75rem; color: #8b7355; margin-top: 8px;"></p>
       </div>
 
       <div id="errorState" class="error-state hidden">
@@ -376,6 +377,7 @@
 
   <script>
     let flights = [];
+    let searchMeta = {};
 
     function showToast(msg, isError = false) {
       const t = document.getElementById('toast');
@@ -494,6 +496,7 @@
 
       // Reset state
       flights = [];
+      searchMeta = {};
       document.getElementById('flightsList').innerHTML = '';
       showState('streaming');
       document.getElementById('searchBtn').disabled = true;
@@ -519,6 +522,22 @@
           return;
         }
 
+        if (data.meta) {
+          searchMeta = data.meta;
+          const loadMsg = document.getElementById('loadingMessage');
+          if (loadMsg) {
+            loadMsg.textContent = searchMeta.is_incremental
+              ? `Scanning for new flights since ${searchMeta.start_date}...`
+              : `Full scan: ${searchMeta.start_date} to ${searchMeta.end_date}...`;
+          }
+          return;
+        }
+
+        if (data.warning) {
+          console.warn('FlightAware warning:', data.warning);
+          return;
+        }
+
         if (data.done) {
           eventSource.close();
           document.getElementById('searchBtn').disabled = false;
@@ -527,6 +546,44 @@
           flights = flights.filter(f => !f.already_imported);
 
           if (flights.length === 0) {
+            // Show different message based on context
+            const emptyIcon = document.getElementById('emptyIcon');
+            const emptyTitle = document.getElementById('emptyTitle');
+            const emptyDetail = document.getElementById('emptyDetail');
+            const emptyDiag = document.getElementById('emptyDiag');
+            const emptyState = document.getElementById('emptyState');
+
+            if (data.api_errors > 0 && data.total === 0) {
+              // API errors caused no results
+              emptyState.classList.remove('success');
+              emptyIcon.className = 'fas fa-exclamation-triangle';
+              emptyTitle.textContent = 'No flights retrieved - API errors occurred';
+              emptyDetail.textContent = (data.warnings && data.warnings.length > 0)
+                ? data.warnings[0]
+                : `${data.api_errors} API error(s) during scan. Check your FlightAware API key and plan.`;
+              emptyDiag.textContent = `Searched: ${data.search_range} | Windows: ${data.windows_searched} | Errors: ${data.api_errors}`;
+            } else if (!data.is_incremental && data.total === 0) {
+              // First import, no flights found at all
+              emptyState.classList.remove('success');
+              emptyIcon.className = 'fas fa-search';
+              emptyTitle.textContent = 'No flights found in FlightAware';
+              emptyDetail.textContent = `No flight records found for ${searchMeta.tail_number || tailNumber} in the search period.`;
+              emptyDiag.textContent = `Searched: ${data.search_range} | ${data.windows_searched} time windows checked`;
+            } else if (data.is_incremental) {
+              // Incremental scan, genuinely caught up
+              emptyState.className = 'empty-state success';
+              emptyIcon.className = 'fas fa-check-circle';
+              emptyTitle.textContent = 'All caught up! No new flights to import.';
+              emptyDetail.textContent = 'Your logbook is up to date with FlightAware.';
+              emptyDiag.textContent = `Scanned since: ${searchMeta.start_date || '?'}`;
+            } else {
+              // Full scan, flights found but all already imported
+              emptyState.className = 'empty-state success';
+              emptyIcon.className = 'fas fa-check-circle';
+              emptyTitle.textContent = 'All flights already imported';
+              emptyDetail.textContent = `Found ${data.total} flight(s), all already in your logbook.`;
+              emptyDiag.textContent = `Searched: ${data.search_range}`;
+            }
             showState('empty');
           } else {
             // Re-render sorted

@@ -459,6 +459,9 @@ def search_flightaware_stream():
         import sys
         service = OptimizedFlightAwareService()
         flight_count = 0
+        search_meta = {}
+        search_summary = {}
+        warnings = []
 
         try:
             yield ": keepalive\n\n"
@@ -469,6 +472,25 @@ def search_flightaware_stream():
                 most_recent_flight_date=most_recent_date,
                 max_lookback_months=max_lookback_months,
             ):
+                # Handle metadata
+                if result.get('_meta'):
+                    search_meta = result['_meta']
+                    yield f"data: {json.dumps({'meta': search_meta})}\n\n"
+                    sys.stdout.flush()
+                    continue
+
+                # Handle warnings
+                if result.get('_warning'):
+                    warnings.append(result['_warning'])
+                    yield f"data: {json.dumps({'warning': result['_warning']})}\n\n"
+                    sys.stdout.flush()
+                    continue
+
+                # Handle summary
+                if result.get('_summary'):
+                    search_summary = result['_summary']
+                    continue
+
                 # Handle keepalive
                 if result.get('_keepalive'):
                     yield ": keepalive\n\n"
@@ -493,7 +515,17 @@ def search_flightaware_stream():
                     yield ": heartbeat\n\n"
                     sys.stdout.flush()
 
-            yield f"data: {json.dumps({'done': True, 'total': flight_count})}\n\n"
+            done_payload = {
+                'done': True,
+                'total': flight_count,
+                'is_incremental': search_meta.get('is_incremental', False),
+                'search_range': f"{search_meta.get('start_date', '?')} to {search_meta.get('end_date', '?')}",
+                'api_errors': search_summary.get('api_errors', 0),
+                'windows_searched': search_summary.get('windows_attempted', 0),
+            }
+            if warnings:
+                done_payload['warnings'] = warnings
+            yield f"data: {json.dumps(done_payload)}\n\n"
         except Exception as e:
             print(f"Error in streaming: {e}")
             import traceback
