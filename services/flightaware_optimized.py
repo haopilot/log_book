@@ -10,6 +10,7 @@ Key optimizations:
 
 from datetime import datetime, timedelta
 from typing import Optional
+import certifi
 import requests
 from config import Config
 
@@ -32,7 +33,7 @@ class OptimizedFlightAwareService:
         }
 
         url = f"{self.base_url}{endpoint}"
-        response = requests.get(url, headers=headers, params=params, timeout=30)
+        response = requests.get(url, headers=headers, params=params, timeout=30, verify=certifi.where())
 
         if response.status_code == 401:
             raise ValueError("Invalid FlightAware API key")
