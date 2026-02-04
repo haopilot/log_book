@@ -445,6 +445,12 @@ def search_flightaware_stream():
         return Response(error_stream(), mimetype='text/event-stream')
 
     tail_number = request.args.get("tail_number") or Config.DEFAULT_TAIL_NUMBER
+
+    # Reload logbook from Google Sheets to ensure this worker has the latest state.
+    # With multiple Gunicorn workers, deletes in one worker don't propagate to others.
+    global logbook
+    logbook = init_logbook()
+
     most_recent_date = logbook.get_most_recent_flight_date()
 
     # Get existing entries for duplicate checking
