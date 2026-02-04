@@ -12,7 +12,12 @@ from datetime import datetime, timedelta
 from typing import Optional
 import certifi
 import requests
+import urllib3
 from config import Config
+
+# FlightAware's SSL cert expired 2026-02-03. Suppress warnings until they renew.
+# TODO: Remove verify=False once FlightAware renews their SSL certificate
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class OptimizedFlightAwareService:
@@ -33,7 +38,8 @@ class OptimizedFlightAwareService:
         }
 
         url = f"{self.base_url}{endpoint}"
-        response = requests.get(url, headers=headers, params=params, timeout=30, verify=certifi.where())
+        # TODO: Change verify back to certifi.where() once FlightAware renews SSL cert
+        response = requests.get(url, headers=headers, params=params, timeout=30, verify=False)
 
         if response.status_code == 401:
             raise ValueError("Invalid FlightAware API key")
