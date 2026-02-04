@@ -162,6 +162,17 @@ class OptimizedFlightAwareService:
             "api_errors": api_errors,
         }}
 
+    def _resolve_airport(self, lat: float, lon: float) -> str:
+        """Resolve lat/lon to ICAO airport code using cached airport database."""
+        try:
+            from services.airport_lookup import find_closest_airport
+            airport = find_closest_airport(lat, lon, max_distance_nm=30, pure_distance=True, icao_only=True)
+            if airport:
+                return airport["icao"]
+        except Exception:
+            pass
+        return ""
+
     def _fast_extract(self, flight: dict) -> dict:
         """ULTRA FAST extraction - absolute minimum processing."""
         # Get times
@@ -190,11 +201,20 @@ class OptimizedFlightAwareService:
             except Exception:
                 pass
 
-        # Airport codes - use directly from API
+        # Airport codes - use ICAO from API, fall back to coordinate lookup
         orig = flight.get("origin", {}) or {}
         dest = flight.get("destination", {}) or {}
-        from_code = orig.get("code_icao") or orig.get("code") or "-"
-        to_code = dest.get("code_icao") or dest.get("code") or "-"
+        from_code = orig.get("code_icao") or ""
+        to_code = dest.get("code_icao") or ""
+
+        # Resolve missing ICAO codes from coordinates
+        if not from_code and orig.get("latitude") and orig.get("longitude"):
+            from_code = self._resolve_airport(orig["latitude"], orig["longitude"])
+        if not to_code and dest.get("latitude") and dest.get("longitude"):
+            to_code = self._resolve_airport(dest["latitude"], dest["longitude"])
+
+        from_code = from_code or orig.get("code") or "-"
+        to_code = to_code or dest.get("code") or "-"
 
         # Aircraft type
         aircraft = flight.get("aircraft_type") or ""
