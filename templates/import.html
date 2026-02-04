@@ -304,7 +304,7 @@
         <i class="fas fa-lightbulb"></i> Intelligent Import: Automatically fetches only NEW flights since your last entry
       </p>
       <p style="font-size: 0.7rem; color: #8b7355; margin-top: 8px;">
-        <i class="fas fa-info-circle"></i> First import: Fetches up to 5 years of history. Subsequent imports: Only new flights.
+        <i class="fas fa-info-circle"></i> First import: Fetches history from Dec 2023. Subsequent imports: Only new flights.
       </p>
     </div>
 
@@ -493,9 +493,8 @@
       document.getElementById('resultsCount').textContent = 'Scanning for new flights...';
 
       // Use Server-Sent Events for streaming with intelligent incremental import
-      // First scan: 5 years of history. Subsequent: only new flights (handled server-side).
       const eventSource = new EventSource(
-        `/api/flightaware/search/stream?tail_number=${encodeURIComponent(tailNumber)}&max_lookback_months=60`
+        `/api/flightaware/search/stream?tail_number=${encodeURIComponent(tailNumber)}`
       );
 
       let lastUpdate = Date.now();

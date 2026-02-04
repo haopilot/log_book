@@ -446,7 +446,6 @@ def search_flightaware_stream():
 
     tail_number = request.args.get("tail_number") or Config.DEFAULT_TAIL_NUMBER
     most_recent_date = logbook.get_most_recent_flight_date()
-    max_lookback_months = int(request.args.get("max_lookback_months") or 24)
 
     # Get existing entries for duplicate checking
     existing_entries = logbook.get_all_entries() or []
@@ -470,7 +469,7 @@ def search_flightaware_stream():
             for result in service.stream_flights_ultra_fast(
                 tail_number=tail_number,
                 most_recent_flight_date=most_recent_date,
-                max_lookback_months=max_lookback_months,
+                existing_keys=existing_keys,
             ):
                 # Handle metadata
                 if result.get('_meta'):

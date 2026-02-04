@@ -50,15 +50,20 @@ class OptimizedFlightAwareService:
 
         return response.json()
 
+    # Fixed start date for first-ever scan
+    FIRST_SCAN_START = datetime(2023, 12, 1)
+
     def stream_flights_ultra_fast(
         self,
         tail_number: str,
         most_recent_flight_date: Optional[datetime] = None,
-        max_lookback_months: int = 24,
+        existing_keys: Optional[set] = None,
     ):
         """
         Stream flights with ULTRA FAST processing.
         Yields batches of flights to minimize overhead.
+
+        For incremental scans, stops early once it reaches known flights.
         """
         # Clean tail number
         tail_number = tail_number.upper().strip()
@@ -73,7 +78,7 @@ class OptimizedFlightAwareService:
         if most_recent_flight_date:
             start_dt = most_recent_flight_date + timedelta(days=1)
         else:
-            start_dt = end_dt - timedelta(days=max_lookback_months * 30)
+            start_dt = self.FIRST_SCAN_START
 
         # Yield search metadata so frontend knows what's happening
         yield {"_meta": {
@@ -87,6 +92,7 @@ class OptimizedFlightAwareService:
             return
 
         api_errors = 0
+        existing_keys = existing_keys or set()
 
         # Try recent flights first (fast, no windowing needed)
         try:
@@ -112,6 +118,7 @@ class OptimizedFlightAwareService:
         window_days = 6
         current_end = end_dt
         windows_attempted = 0
+        consecutive_known = 0  # Track consecutive windows with all-known flights
 
         while current_end > start_dt:
             current_start = current_end - timedelta(days=window_days)
@@ -147,6 +154,24 @@ class OptimizedFlightAwareService:
                 if batch:
                     yield {"_batch": batch}
 
+                # Early stop for incremental scans: if this window's flights
+                # are all already in the logbook, we've reached known territory
+                if is_incremental and existing_keys and batch:
+                    all_known = all(
+                        f"{f['date']}|{f['route_from']}|{f['route_to']}" in existing_keys
+                        for f in batch
+                    )
+                    if all_known:
+                        consecutive_known += 1
+                        if consecutive_known >= 2:
+                            print(f"Incremental scan: reached known flights, stopping early")
+                            break
+                    else:
+                        consecutive_known = 0
+                elif is_incremental and not batch:
+                    # Empty window doesn't reset the counter
+                    pass
+
             except Exception as e:
                 api_errors += 1
                 print(f"Warning: Failed window {current_start.date()} to {current_end.date()}: {e}")
@@ -161,6 +186,28 @@ class OptimizedFlightAwareService:
             "windows_attempted": windows_attempted,
             "api_errors": api_errors,
         }}
+
+    def _airport_distance(self, from_code: str, to_code: str) -> Optional[float]:
+        """Get distance in nm between two airports. Returns None if can't calculate."""
+        if not from_code or not to_code or from_code == "-" or to_code == "-":
+            return None
+        try:
+            from services.airport_lookup import get_airport_coordinates, haversine_distance
+            orig = get_airport_coordinates(from_code)
+            dest = get_airport_coordinates(to_code)
+            if orig and dest:
+                return haversine_distance(orig[0], orig[1], dest[0], dest[1])
+        except Exception:
+            pass
+        return None
+
+    def _estimate_duration(self, from_code: str, to_code: str, cruise_kts: float = 300) -> float:
+        """Estimate flight duration from airport distance. Returns 0.0 if can't calculate."""
+        dist = self._airport_distance(from_code, to_code)
+        if dist and dist > 0:
+            # distance / speed + 0.2h for taxi/climb/descent
+            return round((dist / cruise_kts) + 0.2, 1)
+        return 0.0
 
     def _resolve_airport(self, lat: float, lon: float) -> str:
         """Resolve lat/lon to ICAO airport code using cached airport database."""
@@ -237,6 +284,21 @@ class OptimizedFlightAwareService:
         from_code = self._resolve_code(orig) or orig.get("code") or "-"
         to_code = self._resolve_code(dest) or dest.get("code") or "-"
 
+        # If still no duration, estimate from airport distance
+        if duration == 0.0 and from_code != "-" and to_code != "-":
+            duration = self._estimate_duration(from_code, to_code)
+            estimated = duration > 0
+            if not date and dep:
+                try:
+                    dep_dt = datetime.fromisoformat(dep.replace("Z", "+00:00"))
+                    date = dep_dt.strftime("%m/%d/%Y")
+                except Exception:
+                    pass
+
+        # Cross-country per FAA 61.1(b): landing point >50nm from departure
+        xc_distance = self._airport_distance(from_code, to_code)
+        is_cross_country = xc_distance > 50.0 if xc_distance is not None else (from_code != to_code)
+
         # Aircraft type
         aircraft = flight.get("aircraft_type") or ""
         tail = flight.get("registration") or ""
@@ -258,7 +320,7 @@ class OptimizedFlightAwareService:
             "mel": 0.0 if is_sel else duration,
             "day": duration,  # Default all day
             "night": 0.0,
-            "cross_country": duration if from_code != to_code else 0.0,
+            "cross_country": duration if is_cross_country else 0.0,
             "actual_inst": 0.0,
             "simulated_inst": 0.0,
             "num_inst_app": 0,
