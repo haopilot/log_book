@@ -2,6 +2,7 @@
 Pilot Logbook - Web Application
 
 A web-based pilot logbook using ASA Standard format.
+Uses SQLite for local storage with Google Sheets as backup.
 """
 
 import os
@@ -10,60 +11,46 @@ from datetime import datetime
 from config import Config
 from flask import Flask, jsonify, redirect, render_template, request, send_file, url_for
 from models.logbook_entry import Logbook, LogbookEntry
+from services.sqlite_storage import SQLiteStorage
+from services.sync_service import SyncService
 
 app = Flask(__name__)
 app.secret_key = Config.SECRET_KEY
 
 
-def init_logbook():
-    """Initialize logbook from Google Sheets (single source of truth)."""
-    logbook_instance = Logbook()
+def init_storage():
+    """Initialize SQLite storage and sync from Google Sheets."""
+    storage = SQLiteStorage(db_path=Config.SQLITE_DB_PATH)
+    sync_service = SyncService(storage)
 
-    # Load from Google Sheets - the single source of truth
+    # On startup, load from Google Sheets (the authoritative source on Render.com)
     if Config.GOOGLE_SHEETS_ID:
-        try:
-            from services.google_sheets import GoogleSheetsService
-            sheets_service = GoogleSheetsService()
-            result = sheets_service.import_logbook()
-
-            if result.get("success") and result.get("entries"):
-                print(f"✓ Loaded {len(result['entries'])} entries from Google Sheets")
-                for entry in result["entries"]:
-                    logbook_instance.add_entry(entry)
-                return logbook_instance
-            elif result.get("success"):
-                print("Google Sheets is empty, starting fresh")
-            else:
-                error_msg = result.get("error", "Unknown error")
-                print(f"Google Sheets error: {error_msg}, starting fresh")
-        except Exception as e:
-            print(f"Could not load from Google Sheets: {e}, starting fresh")
+        result = sync_service.load_from_sheets()
+        if result.get("success"):
+            print(f"✓ Loaded {result.get('count', 0)} entries from Google Sheets into SQLite")
+        else:
+            error_msg = result.get("error", "Unknown error")
+            print(f"Warning: Could not load from Sheets: {error_msg}")
+            # Continue with empty or existing SQLite data
     else:
-        print("Google Sheets not configured, starting fresh")
+        print("Google Sheets not configured, using local SQLite only")
 
-    return logbook_instance
-
-
-# Global logbook instance
-logbook = init_logbook()
+    return storage, sync_service
 
 
-def save_logbook():
-    """Save logbook to Google Sheets (single source of truth)."""
+# Global storage instances
+storage, sync_service = init_storage()
+
+
+def save_to_sheets():
+    """Sync local SQLite data to Google Sheets (backup)."""
     if Config.GOOGLE_SHEETS_ID:
-        try:
-            from services.google_sheets import GoogleSheetsService
-            sheets_service = GoogleSheetsService()
-            result = sheets_service.export_logbook(logbook)
-            if result.get("success"):
-                print(f"✓ Saved {result.get('rows', 0)} entries to Google Sheets")
-            else:
-                print(f"Error saving to Google Sheets: {result.get('error', 'Unknown error')}")
-        except Exception as e:
-            print(f"Error: Could not save to Google Sheets: {e}")
-            raise  # Re-raise to ensure the user knows the save failed
-    else:
-        print("Warning: Google Sheets not configured, changes not saved!")
+        result = sync_service.export_to_sheets()
+        if result.get("success"):
+            print(f"✓ Synced to Google Sheets")
+        else:
+            error_msg = result.get("error", "Unknown error")
+            print(f"Warning: Sheets sync failed: {error_msg}")
 
 
 def parse_float(value, default=0.0):
@@ -85,8 +72,8 @@ def parse_int(value, default=0):
 @app.route("/")
 def index():
     """Main logbook view - summary list."""
-    entries = logbook.get_all_entries(sort_by_date=True)
-    totals = logbook.get_totals()
+    entries = storage.get_all_entries(sort_by_date=True)
+    totals = storage.get_totals()
     return render_template(
         "logbook.html",
         entries=entries,
@@ -128,7 +115,7 @@ def new_entry():
 @app.route("/entry/<entry_id>")
 def view_entry(entry_id):
     """View/edit a specific flight entry."""
-    entry = logbook.get_entry(entry_id)
+    entry = storage.get_entry(entry_id)
     if not entry:
         return redirect(url_for("index"))
     return render_template("entry.html", entry=entry.to_dict(), is_new=False)
@@ -137,14 +124,14 @@ def view_entry(entry_id):
 @app.route("/api/entries", methods=["GET"])
 def get_entries():
     """Get all logbook entries."""
-    entries = logbook.get_all_entries(sort_by_date=True)
+    entries = storage.get_all_entries(sort_by_date=True)
     return jsonify([e.to_dict() for e in entries])
 
 
 @app.route("/api/entries/<entry_id>", methods=["GET"])
 def get_entry(entry_id):
     """Get a specific logbook entry."""
-    entry = logbook.get_entry(entry_id)
+    entry = storage.get_entry(entry_id)
     if entry:
         return jsonify(entry.to_dict())
     return jsonify({"error": "Entry not found"}), 404
@@ -179,15 +166,15 @@ def create_entry():
         remarks=data.get("remarks", ""),
     )
 
-    logbook.add_entry(entry)
-    save_logbook()
+    storage.add_entry(entry)
+    save_to_sheets()
     return jsonify({"id": entry.id, "message": "Entry created"}), 201
 
 
 @app.route("/api/entries/<entry_id>", methods=["PUT"])
 def update_entry(entry_id):
     """Update an existing logbook entry."""
-    entry = logbook.get_entry(entry_id)
+    entry = storage.get_entry(entry_id)
     if not entry:
         return jsonify({"error": "Entry not found"}), 404
 
@@ -216,16 +203,16 @@ def update_entry(entry_id):
     entry.total_duration = parse_float(data.get("total_duration"), entry.total_duration)
     entry.remarks = data.get("remarks", entry.remarks)
 
-    logbook.update_entry(entry)
-    save_logbook()
+    storage.update_entry(entry)
+    save_to_sheets()
     return jsonify({"message": "Entry updated"})
 
 
 @app.route("/api/entries/<entry_id>", methods=["DELETE"])
 def delete_entry(entry_id):
     """Delete a logbook entry."""
-    if logbook.delete_entry(entry_id):
-        save_logbook()
+    if storage.delete_entry(entry_id):
+        save_to_sheets()
         return jsonify({"message": "Entry deleted"})
     return jsonify({"error": "Entry not found"}), 404
 
@@ -239,13 +226,8 @@ def batch_delete_entries():
     if not entry_ids:
         return jsonify({"error": "No entry IDs provided"}), 400
 
-    deleted_count = 0
-    for entry_id in entry_ids:
-        if logbook.delete_entry(entry_id):
-            deleted_count += 1
-
-    # Save to Google Sheets once after all deletions
-    save_logbook()
+    deleted_count = storage.delete_entries(entry_ids)
+    save_to_sheets()
 
     return jsonify({
         "success": True,
@@ -257,12 +239,17 @@ def batch_delete_entries():
 @app.route("/api/totals", methods=["GET"])
 def get_totals():
     """Get logbook totals."""
-    return jsonify(logbook.get_totals())
+    return jsonify(storage.get_totals())
 
 
 @app.route("/api/export/json", methods=["GET"])
 def export_json():
     """Export logbook as JSON file."""
+    # Build Logbook object for JSON export
+    logbook = Logbook()
+    for entry in storage.get_all_entries():
+        logbook.entries[entry.id] = entry
+
     json_data = logbook.to_json()
     filename = f"logbook_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
 
@@ -283,7 +270,7 @@ def export_csv():
     import csv
     from io import StringIO
 
-    entries = logbook.get_all_entries(sort_by_date=True)
+    entries = storage.get_all_entries(sort_by_date=True)
 
     output = StringIO()
     writer = csv.writer(output)
@@ -312,8 +299,6 @@ def export_csv():
 @app.route("/api/import/json", methods=["POST"])
 def import_json():
     """Import logbook entries from JSON."""
-    global logbook
-
     if "file" not in request.files:
         return jsonify({"error": "No file provided"}), 400
 
@@ -325,10 +310,11 @@ def import_json():
         content = file.read().decode("utf-8")
         imported = Logbook.from_json(content)
 
-        for entry_id, entry in imported.entries.items():
-            logbook.entries[entry_id] = entry
+        # Add all entries to SQLite
+        for entry in imported.entries.values():
+            storage.add_entry(entry)
 
-        save_logbook()
+        save_to_sheets()
         return jsonify(
             {"message": f"Imported {len(imported.entries)} entries", "success": True}
         )
@@ -339,8 +325,6 @@ def import_json():
 @app.route("/api/export/sheets", methods=["POST"])
 def export_to_sheets():
     """Export logbook to Google Sheets."""
-    from services.google_sheets import GoogleSheetsService
-
     if not Config.GOOGLE_SHEETS_ID:
         return (
             jsonify(
@@ -349,14 +333,24 @@ def export_to_sheets():
             400,
         )
 
-    try:
-        service = GoogleSheetsService()
-        result = service.export_logbook(logbook)
+    result = sync_service.export_to_sheets()
+    if result.get("success"):
         return jsonify(result)
-    except FileNotFoundError as e:
-        return jsonify({"success": False, "error": str(e)}), 400
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+    else:
+        return jsonify(result), 500
+
+
+@app.route("/api/sync/status", methods=["GET"])
+def get_sync_status():
+    """Get current sync status."""
+    return jsonify(sync_service.get_sync_status())
+
+
+@app.route("/api/sync/reload", methods=["POST"])
+def reload_from_sheets():
+    """Force reload data from Google Sheets."""
+    result = sync_service.load_from_sheets()
+    return jsonify(result)
 
 
 # ============== FlightAware Integration ==============
@@ -402,11 +396,7 @@ def search_flightaware():
             flights = []
 
         # Check which flights are already in logbook (by date + route)
-        existing_entries = logbook.get_all_entries() or []
-        existing_keys = set()
-        for entry in existing_entries:
-            key = f"{entry.date}|{entry.route_from}|{entry.route_to}"
-            existing_keys.add(key)
+        existing_keys = storage.get_existing_keys()
 
         # Mark flights as already imported or new
         for flight in flights:
@@ -446,19 +436,9 @@ def search_flightaware_stream():
 
     tail_number = request.args.get("tail_number") or Config.DEFAULT_TAIL_NUMBER
 
-    # Reload logbook from Google Sheets to ensure this worker has the latest state.
-    # With multiple Gunicorn workers, deletes in one worker don't propagate to others.
-    global logbook
-    logbook = init_logbook()
-
-    most_recent_date = logbook.get_most_recent_flight_date()
-
-    # Get existing entries for duplicate checking
-    existing_entries = logbook.get_all_entries() or []
-    existing_keys = set()
-    for entry in existing_entries:
-        key = f"{entry.date}|{entry.route_from}|{entry.route_to}"
-        existing_keys.add(key)
+    # Get most recent flight date and existing keys from SQLite (always fresh)
+    most_recent_date = storage.get_most_recent_flight_date()
+    existing_keys = storage.get_existing_keys()
 
     def generate():
         import sys
@@ -597,6 +577,8 @@ def import_flightaware():
         # Remove the already_imported and fa_flight_id fields before creating entry
         flight_data.pop("already_imported", None)
         flight_data.pop("fa_flight_id", None)
+        flight_data.pop("_raw", None)
+        flight_data.pop("duration_estimated", None)
 
         entry = LogbookEntry(
             date=flight_data.get("date", ""),
@@ -623,10 +605,10 @@ def import_flightaware():
             remarks=flight_data.get("remarks", ""),
         )
 
-        logbook.add_entry(entry)
+        storage.add_entry(entry)
         imported_count += 1
 
-    save_logbook()
+    save_to_sheets()
     return jsonify({
         "success": True,
         "message": f"Imported {imported_count} flight(s)",

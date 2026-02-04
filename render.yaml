@@ -34,3 +34,5 @@ services:
         value: 0.0.0.0
       - key: DATA_FILE
         value: logbook_data.json
+      - key: SQLITE_DB_PATH
+        value: logbook.db

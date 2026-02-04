@@ -38,3 +38,6 @@ class Config:
 
     # Local storage path for logbook data
     DATA_FILE = os.environ.get("DATA_FILE", "logbook_data.json")
+
+    # SQLite database path (primary local storage)
+    SQLITE_DB_PATH = os.environ.get("SQLITE_DB_PATH", "logbook.db")
