@@ -2,94 +2,96 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Import from FlightAware - Pilot Logbook</title>
-  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #0d6b64;
+      --primary-light: #14b8a6;
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --bg-hover: #334155;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border: #334155;
+      --success: #22c55e;
+      --error: #ef4444;
+      --warning: #f59e0b;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
     body {
-      font-family: 'Courier Prime', 'Courier New', monospace;
-      background: #d4c4a8;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .page-container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: #f8f4e8;
-      border: 3px solid #5a4a3a;
-      box-shadow: 4px 4px 15px rgba(0,0,0,0.3);
-    }
-
-    .page-header {
-      background: linear-gradient(to bottom, #2c4a1e 0%, #1a3010 100%);
-      color: #f5f0e1;
-      padding: 15px 25px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 3px solid #5a4a3a;
+      flex-direction: column;
     }
 
-    .page-title {
-      font-size: 1.3rem;
-      font-weight: 700;
-      letter-spacing: 1px;
+    /* Header */
+    .header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
     }
 
     .back-link {
-      color: #f5f0e1;
-      text-decoration: none;
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.85rem;
-      opacity: 0.9;
-    }
-
-    .back-link:hover { opacity: 1; }
-
-    .btn {
-      padding: 10px 20px;
-      border: 2px solid;
-      border-radius: 3px;
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-transform: uppercase;
+      color: var(--text-secondary);
       text-decoration: none;
-      display: inline-flex;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--text-primary);
+    }
+
+    .page-title {
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    .page-title i {
+      color: var(--primary-light);
     }
 
-    .btn-primary { background: #2c4a1e; color: #f5f0e1; border-color: #1a3010; }
-    .btn-primary:hover:not(:disabled) { background: #3d6428; }
-    .btn-secondary { background: #f5f0e1; color: #5a4a3a; border-color: #8b7355; }
-    .btn-secondary:hover:not(:disabled) { background: #e8e0cc; }
-    .btn-lg { padding: 15px 30px; font-size: 1rem; }
+    .header-spacer {
+      width: 100px;
+    }
 
     /* Search Section */
     .search-section {
-      padding: 25px;
-      border-bottom: 2px solid #d4c4a8;
-      background: #e8e0cc;
-      text-align: center;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 20px;
+      flex-shrink: 0;
     }
 
     .search-form {
       display: flex;
-      gap: 15px;
-      align-items: center;
+      gap: 16px;
+      align-items: flex-end;
       justify-content: center;
       flex-wrap: wrap;
     }
@@ -97,83 +99,166 @@
     .form-group {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
+      gap: 6px;
     }
 
     .form-group label {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: #5a4a3a;
-      margin-bottom: 5px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
       text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .form-group input {
-      padding: 12px 15px;
-      background: #fff;
-      border: 2px solid #c9b896;
-      font-family: 'Courier Prime', monospace;
+      padding: 12px 16px;
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: inherit;
       font-size: 1rem;
-      color: #3a2a1a;
-      border-radius: 2px;
-      width: 150px;
+      font-weight: 600;
+      width: 140px;
       text-align: center;
-      font-weight: 700;
+      text-transform: uppercase;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     .form-group input:focus {
       outline: none;
-      border-color: #2c4a1e;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.2);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-lg {
+      padding: 14px 28px;
+      font-size: 0.9375rem;
+    }
+
+    .search-info {
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    .search-info p {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin: 4px 0;
+    }
+
+    .search-info p i {
+      color: var(--primary-light);
+      margin-right: 6px;
     }
 
     /* Results Section */
     .results-section {
-      padding: 20px 25px;
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 16px 20px;
     }
 
     .results-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
+      flex-shrink: 0;
     }
 
     .results-count {
-      font-size: 0.9rem;
-      color: #5a4a3a;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
     }
 
     .select-all-group {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.8rem;
-      color: #5a4a3a;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
       cursor: pointer;
     }
 
     .select-all-group input {
       width: 18px;
       height: 18px;
+      accent-color: var(--primary);
       cursor: pointer;
     }
 
     /* Flight List */
     .flight-list {
-      border: 2px solid #d4c4a8;
-      border-radius: 3px;
-      max-height: 450px;
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .list-header {
+      display: grid;
+      grid-template-columns: 40px 1fr 80px 80px;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--bg-hover);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .list-body {
+      flex: 1;
       overflow-y: auto;
     }
 
     .flight-item {
       display: grid;
-      grid-template-columns: 30px 100px 70px 80px 80px 70px;
-      gap: 12px;
-      padding: 12px 15px;
-      border-bottom: 1px solid #e8e0cc;
+      grid-template-columns: 40px 1fr 80px 80px;
+      gap: 8px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
       align-items: center;
-      font-size: 0.85rem;
+      transition: background 0.15s;
     }
 
     .flight-item:last-child {
@@ -181,62 +266,94 @@
     }
 
     .flight-item:hover {
-      background: #f0ebe0;
+      background: var(--bg-hover);
     }
 
     .flight-item input[type="checkbox"] {
       width: 18px;
       height: 18px;
+      accent-color: var(--primary);
       cursor: pointer;
     }
 
-    .flight-date { font-weight: 700; color: #3a2a1a; }
-    .flight-aircraft { color: #5a4a3a; }
-    .flight-route { color: #2c4a1e; font-weight: 700; }
-    .flight-duration { text-align: right; font-weight: 700; color: #2c4a1e; }
-
-    .list-header {
-      display: grid;
-      grid-template-columns: 30px 100px 70px 80px 80px 70px;
-      gap: 12px;
-      padding: 10px 15px;
-      background: #d4c4a8;
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: #5a4a3a;
-      text-transform: uppercase;
-      position: sticky;
-      top: 0;
-    }
-
-    /* Footer */
-    .import-footer {
-      padding: 20px 25px;
-      border-top: 2px solid #d4c4a8;
+    .flight-main {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #e8e0cc;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
     }
 
-    .selected-count {
-      font-size: 0.9rem;
-      color: #5a4a3a;
-      font-weight: 700;
+    .flight-route {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      color: var(--text-primary);
+    }
+
+    .flight-route .arrow {
+      color: var(--primary-light);
+      font-size: 0.75rem;
+    }
+
+    .flight-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .flight-date {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .flight-duration {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--primary-light);
+      text-align: right;
+    }
+
+    .flight-duration.estimated {
+      color: var(--warning);
     }
 
     /* States */
-    .loading, .empty-state, .error-state {
+    .state-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       text-align: center;
-      padding: 50px 20px;
-      color: #8b7355;
+      padding: 40px 20px;
     }
 
-    .loading i {
-      font-size: 2.5rem;
+    .state-icon {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: var(--text-muted);
+    }
+
+    .state-icon.spinning {
       animation: spin 1s linear infinite;
-      margin-bottom: 15px;
-      display: block;
+      color: var(--primary-light);
+    }
+
+    .state-icon.success {
+      color: var(--success);
+    }
+
+    .state-icon.error {
+      color: var(--error);
+    }
+
+    .state-icon.warning {
+      color: var(--warning);
     }
 
     @keyframes spin {
@@ -244,127 +361,347 @@
       to { transform: rotate(360deg); }
     }
 
-    .error-state {
-      color: #8b3a3a;
+    .state-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
     }
 
-    .empty-state i, .error-state i {
-      font-size: 2.5rem;
-      margin-bottom: 15px;
-      display: block;
+    .state-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      max-width: 400px;
     }
 
-    .empty-state.success {
-      color: #2c4a1e;
+    .state-detail {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 12px;
     }
 
-    .empty-state.success i {
-      color: #2c4a1e;
+    .progress-bar {
+      width: 200px;
+      height: 4px;
+      background: var(--bg-hover);
+      border-radius: 2px;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+
+    .progress-bar-inner {
+      height: 100%;
+      background: var(--primary-light);
+      border-radius: 2px;
+      animation: progress 2s ease-in-out infinite;
+    }
+
+    @keyframes progress {
+      0% { width: 0%; margin-left: 0; }
+      50% { width: 60%; margin-left: 20%; }
+      100% { width: 0%; margin-left: 100%; }
+    }
+
+    /* Footer */
+    .import-footer {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .selected-count {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
     }
 
     /* Toast */
     .toast {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 12px 20px;
-      background: #2c4a1e;
-      color: #f5f0e1;
-      border: 2px solid #1a3010;
-      font-family: 'Courier Prime', monospace;
-      font-weight: 700;
-      font-size: 0.85rem;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      padding: 14px 24px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
       z-index: 2000;
-      display: none;
+      opacity: 0;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
     }
-    .toast.error { background: #8b3a3a; border-color: #6a2a2a; }
-    .toast.show { display: block; }
+
+    .toast.success {
+      border-color: var(--success);
+    }
+
+    .toast.success i {
+      color: var(--success);
+    }
+
+    .toast.error {
+      border-color: var(--error);
+    }
+
+    .toast.error i {
+      color: var(--error);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
 
     .hidden { display: none !important; }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .header {
+        padding: 10px 16px;
+      }
+
+      .page-title {
+        font-size: 0.875rem;
+      }
+
+      .header-spacer {
+        display: none;
+      }
+
+      .search-section {
+        padding: 16px;
+      }
+
+      .search-form {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .form-group {
+        width: 100%;
+      }
+
+      .form-group input {
+        width: 100%;
+      }
+
+      .btn-lg {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .search-info {
+        margin-top: 12px;
+      }
+
+      .search-info p {
+        font-size: 0.75rem;
+      }
+
+      .results-section {
+        padding: 12px 16px;
+      }
+
+      .list-header {
+        grid-template-columns: 32px 1fr 60px;
+        padding: 10px 12px;
+        font-size: 0.625rem;
+      }
+
+      .list-header span:nth-child(3) {
+        display: none;
+      }
+
+      .flight-item {
+        grid-template-columns: 32px 1fr 60px;
+        padding: 12px;
+      }
+
+      .flight-date {
+        display: none;
+      }
+
+      .flight-meta {
+        flex-wrap: wrap;
+      }
+
+      .flight-meta::before {
+        content: attr(data-date);
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+
+      .import-footer {
+        padding: 14px 16px;
+      }
+
+      .state-icon {
+        font-size: 2.5rem;
+      }
+
+      .state-title {
+        font-size: 1rem;
+      }
+
+      .toast {
+        bottom: 90px;
+        left: 16px;
+        right: 16px;
+        transform: translateX(0) translateY(100px);
+      }
+
+      .toast.show {
+        transform: translateX(0) translateY(0);
+      }
+    }
+
+    /* Landscape Mobile */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .header {
+        padding: 8px 20px;
+      }
+
+      .search-section {
+        padding: 12px 20px;
+      }
+
+      .search-form {
+        flex-direction: row;
+      }
+
+      .search-info {
+        display: none;
+      }
+
+      .results-section {
+        padding: 8px 20px;
+      }
+
+      .results-header {
+        margin-bottom: 8px;
+      }
+
+      .list-header {
+        padding: 8px 12px;
+      }
+
+      .flight-item {
+        padding: 10px 12px;
+      }
+
+      .import-footer {
+        padding: 10px 20px;
+      }
+
+      .state-container {
+        padding: 20px;
+      }
+
+      .state-icon {
+        font-size: 2rem;
+        margin-bottom: 12px;
+      }
+
+      .toast {
+        bottom: 70px;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="page-container">
-    <header class="page-header">
-      <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to Logbook</a>
-      <h1 class="page-title"><i class="fas fa-plane-arrival"></i> IMPORT FROM FLIGHTAWARE</h1>
-    </header>
+  <header class="header">
+    <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+    <h1 class="page-title"><i class="fas fa-cloud-download-alt"></i> FlightAware Import</h1>
+    <div class="header-spacer"></div>
+  </header>
 
-    <div class="search-section">
-      <form class="search-form" id="searchForm">
-        <div class="form-group">
-          <label>Tail Number</label>
-          <input type="text" id="tailNumber" value="{{ tail_number }}" placeholder="N790TB">
-        </div>
-        <button type="submit" class="btn btn-primary btn-lg" id="searchBtn">
-          <i class="fas fa-sync-alt"></i> Scan for New Flights
-        </button>
-      </form>
-      <p style="font-size: 0.75rem; color: #2c4a1e; margin-top: 15px; font-weight: 700;">
-        <i class="fas fa-lightbulb"></i> Intelligent Import: Automatically fetches only NEW flights since your last entry
-      </p>
-      <p style="font-size: 0.7rem; color: #8b7355; margin-top: 8px;">
-        <i class="fas fa-info-circle"></i> First import: Fetches history from Dec 2023. Subsequent imports: Only new flights.
-      </p>
-    </div>
-
-    <div class="results-section">
-      <div id="loadingState" class="loading hidden">
-        <i class="fas fa-spinner"></i>
-        <p id="loadingMessage">Scanning FlightAware for new flights...</p>
-        <p id="progressMessage" style="font-size: 0.9rem; color: #2c4a1e; margin-top: 10px; font-weight: 700;">Fetched 0 flights...</p>
-        <p style="font-size: 0.75rem; color: #8b7355; margin-top: 10px;">This may take 1-2 minutes for large imports. Connection is maintained with keepalives.</p>
+  <div class="search-section">
+    <form class="search-form" id="searchForm">
+      <div class="form-group">
+        <label>Tail Number</label>
+        <input type="text" id="tailNumber" value="{{ tail_number }}" placeholder="N790TB">
       </div>
-
-      <div id="initialState" class="empty-state">
-        <i class="fas fa-sync-alt"></i>
-        <p>Click "Scan for New Flights" to automatically detect and import flights not yet in your logbook</p>
-        <p style="font-size: 0.85rem; color: #8b7355; margin-top: 10px;">No manual date selection needed - it's smart!</p>
-      </div>
-
-      <div id="emptyState" class="empty-state success hidden">
-        <i class="fas fa-check-circle" id="emptyIcon"></i>
-        <p id="emptyTitle">All caught up! No new flights to import.</p>
-        <p id="emptyDetail" style="font-size: 0.85rem; color: #2c4a1e; margin-top: 10px;">Your logbook is up to date with FlightAware.</p>
-        <p id="emptyDiag" style="font-size: 0.75rem; color: #8b7355; margin-top: 8px;"></p>
-      </div>
-
-      <div id="errorState" class="error-state hidden">
-        <i class="fas fa-exclamation-triangle"></i>
-        <p id="errorMessage">Error message here</p>
-      </div>
-
-      <div id="resultsContainer" class="hidden">
-        <div class="results-header">
-          <span class="results-count" id="resultsCount">0 new flights found</span>
-          <label class="select-all-group">
-            <input type="checkbox" id="selectAll" checked> Select all
-          </label>
-        </div>
-
-        <div class="flight-list">
-          <div class="list-header">
-            <span></span>
-            <span>Date</span>
-            <span>Type</span>
-            <span>From</span>
-            <span>To</span>
-            <span>Duration</span>
-          </div>
-          <div id="flightsList"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="import-footer" id="importFooter">
-      <span class="selected-count" id="selectedCount">0 flights selected</span>
-      <button class="btn btn-primary" id="importBtn" disabled>
-        <i class="fas fa-download"></i> Import Selected
+      <button type="submit" class="btn btn-primary btn-lg" id="searchBtn">
+        <i class="fas fa-sync-alt"></i> Scan for New Flights
       </button>
+    </form>
+    <div class="search-info">
+      <p><i class="fas fa-bolt"></i> Intelligent import: Automatically detects only NEW flights since your last entry</p>
+      <p>First import fetches history from Dec 2023. Subsequent imports scan only for new flights.</p>
     </div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="results-section">
+    <!-- Initial State -->
+    <div id="initialState" class="state-container">
+      <i class="fas fa-radar state-icon"></i>
+      <p class="state-title">Ready to Scan</p>
+      <p class="state-subtitle">Click "Scan for New Flights" to automatically detect and import flights not yet in your logbook</p>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="state-container hidden">
+      <i class="fas fa-spinner state-icon spinning"></i>
+      <p class="state-title" id="loadingMessage">Scanning FlightAware...</p>
+      <p class="state-subtitle" id="progressMessage">Fetched 0 flights...</p>
+      <div class="progress-bar"><div class="progress-bar-inner"></div></div>
+      <p class="state-detail">This may take 1-2 minutes for large imports</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="state-container hidden">
+      <i class="fas fa-check-circle state-icon success" id="emptyIcon"></i>
+      <p class="state-title" id="emptyTitle">All caught up!</p>
+      <p class="state-subtitle" id="emptyDetail">Your logbook is up to date with FlightAware.</p>
+      <p class="state-detail" id="emptyDiag"></p>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="state-container hidden">
+      <i class="fas fa-exclamation-triangle state-icon error"></i>
+      <p class="state-title">Something went wrong</p>
+      <p class="state-subtitle" id="errorMessage">Error message here</p>
+    </div>
+
+    <!-- Results Container -->
+    <div id="resultsContainer" class="hidden" style="display: flex; flex-direction: column; height: 100%;">
+      <div class="results-header">
+        <span class="results-count" id="resultsCount">0 new flights found</span>
+        <label class="select-all-group">
+          <input type="checkbox" id="selectAll" checked> Select all
+        </label>
+      </div>
+
+      <div class="flight-list">
+        <div class="list-header">
+          <span></span>
+          <span>Route</span>
+          <span>Date</span>
+          <span>Duration</span>
+        </div>
+        <div class="list-body" id="flightsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="import-footer" id="importFooter">
+    <span class="selected-count" id="selectedCount">0 flights selected</span>
+    <button class="btn btn-primary" id="importBtn" disabled>
+      <i class="fas fa-download"></i> Import Selected
+    </button>
+  </div>
+
+  <div class="toast" id="toast"><i class="fas fa-check"></i> <span></span></div>
 
   <script>
     let flights = [];
@@ -372,8 +709,9 @@
 
     function showToast(msg, isError = false) {
       const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.className = 'toast show' + (isError ? ' error' : '');
+      t.querySelector('span').textContent = msg;
+      t.querySelector('i').className = isError ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+      t.className = 'toast show ' + (isError ? 'error' : 'success');
       setTimeout(() => t.classList.remove('show'), 3000);
     }
 
@@ -392,49 +730,62 @@
         document.getElementById('emptyState').classList.remove('hidden');
       } else if (state === 'error') {
         document.getElementById('errorState').classList.remove('hidden');
-      } else if (state === 'results') {
+      } else if (state === 'results' || state === 'streaming') {
         document.getElementById('resultsContainer').classList.remove('hidden');
-      } else if (state === 'streaming') {
-        // Show results container for incremental display
-        document.getElementById('resultsContainer').classList.remove('hidden');
+        document.getElementById('resultsContainer').style.display = 'flex';
       }
     }
 
     function updateSelectedCount() {
       const checked = document.querySelectorAll('.flight-checkbox:checked').length;
-      document.getElementById('selectedCount').textContent = `${checked} flight(s) selected`;
+      document.getElementById('selectedCount').textContent = `${checked} flight${checked !== 1 ? 's' : ''} selected`;
       document.getElementById('importBtn').disabled = checked === 0;
+    }
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      const month = (d.getMonth() + 1).toString().padStart(2, '0');
+      const day = d.getDate().toString().padStart(2, '0');
+      const year = d.getFullYear().toString().slice(-2);
+      return `${month}/${day}/${year}`;
     }
 
     function addFlightToList(flight, index) {
       const container = document.getElementById('flightsList');
       const div = document.createElement('div');
       div.className = 'flight-item';
-      const durationDisplay = flight.total_duration
-        ? (flight.duration_estimated ? flight.total_duration.toFixed(1) + 'h*' : flight.total_duration.toFixed(1) + 'h')
+
+      const duration = flight.total_duration;
+      const durationDisplay = duration
+        ? duration.toFixed(1) + 'h' + (flight.duration_estimated ? '*' : '')
         : '—';
+      const durationClass = flight.duration_estimated ? 'flight-duration estimated' : 'flight-duration';
+      const formattedDate = formatDate(flight.date);
+
       div.innerHTML = `
         <input type="checkbox" class="flight-checkbox" data-index="${index}" checked>
-        <span class="flight-date">${flight.date}</span>
-        <span class="flight-aircraft">${flight.aircraft_model || '—'}</span>
-        <span class="flight-route">${flight.route_from}</span>
-        <span class="flight-route">${flight.route_to}</span>
-        <span class="flight-duration">${durationDisplay}</span>
+        <div class="flight-main">
+          <div class="flight-route">
+            <span>${flight.route_from}</span>
+            <i class="fas fa-arrow-right arrow"></i>
+            <span>${flight.route_to}</span>
+          </div>
+          <div class="flight-meta" data-date="${formattedDate}">
+            <span>${flight.aircraft_model || 'Unknown'}</span>
+          </div>
+        </div>
+        <span class="flight-date">${formattedDate}</span>
+        <span class="${durationClass}">${durationDisplay}</span>
       `;
 
-      // Insert in sorted position (newest first)
       container.appendChild(div);
-
-      // Add event listener
       div.querySelector('.flight-checkbox').addEventListener('change', updateSelectedCount);
 
-      // Update count
-      document.getElementById('resultsCount').textContent = `${flights.length} new flight(s) found`;
+      document.getElementById('resultsCount').textContent = `${flights.length} new flight${flights.length !== 1 ? 's' : ''} found`;
       updateSelectedCount();
 
       // Auto-scroll to show the new flight
-      const flightList = document.querySelector('.flight-list');
-      flightList.scrollTop = flightList.scrollHeight;
+      container.scrollTop = container.scrollHeight;
     }
 
     function renderFlights() {
@@ -442,25 +793,33 @@
       container.innerHTML = '';
 
       // Sort by date descending
-      flights.sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        return dateB - dateA;
-      });
+      flights.sort((a, b) => new Date(b.date) - new Date(a.date));
 
       flights.forEach((flight, index) => {
         const div = document.createElement('div');
         div.className = 'flight-item';
-        const durationDisplay = flight.total_duration
-          ? (flight.duration_estimated ? flight.total_duration.toFixed(1) + 'h*' : flight.total_duration.toFixed(1) + 'h')
+
+        const duration = flight.total_duration;
+        const durationDisplay = duration
+          ? duration.toFixed(1) + 'h' + (flight.duration_estimated ? '*' : '')
           : '—';
+        const durationClass = flight.duration_estimated ? 'flight-duration estimated' : 'flight-duration';
+        const formattedDate = formatDate(flight.date);
+
         div.innerHTML = `
           <input type="checkbox" class="flight-checkbox" data-index="${index}" checked>
-          <span class="flight-date">${flight.date}</span>
-          <span class="flight-aircraft">${flight.aircraft_model || '—'}</span>
-          <span class="flight-route">${flight.route_from}</span>
-          <span class="flight-route">${flight.route_to}</span>
-          <span class="flight-duration">${durationDisplay}</span>
+          <div class="flight-main">
+            <div class="flight-route">
+              <span>${flight.route_from}</span>
+              <i class="fas fa-arrow-right arrow"></i>
+              <span>${flight.route_to}</span>
+            </div>
+            <div class="flight-meta" data-date="${formattedDate}">
+              <span>${flight.aircraft_model || 'Unknown'}</span>
+            </div>
+          </div>
+          <span class="flight-date">${formattedDate}</span>
+          <span class="${durationClass}">${durationDisplay}</span>
         `;
         container.appendChild(div);
       });
@@ -469,11 +828,11 @@
         cb.addEventListener('change', updateSelectedCount);
       });
 
-      document.getElementById('resultsCount').textContent = `${flights.length} new flight(s) found`;
+      document.getElementById('resultsCount').textContent = `${flights.length} new flight${flights.length !== 1 ? 's' : ''} found`;
       updateSelectedCount();
     }
 
-    // Search form - now uses streaming
+    // Search form - streaming
     document.getElementById('searchForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
@@ -488,21 +847,18 @@
       flights = [];
       searchMeta = {};
       document.getElementById('flightsList').innerHTML = '';
-      showState('streaming');
+      showState('loading');
       document.getElementById('searchBtn').disabled = true;
-      document.getElementById('resultsCount').textContent = 'Scanning for new flights...';
 
-      // Use Server-Sent Events for streaming with intelligent incremental import
+      // Use Server-Sent Events for streaming
       const eventSource = new EventSource(
         `/api/flightaware/search/stream?tail_number=${encodeURIComponent(tailNumber)}`
       );
 
-      let lastUpdate = Date.now();
       let totalFetched = 0;
 
       eventSource.onmessage = function(event) {
         const data = JSON.parse(event.data);
-        lastUpdate = Date.now();
 
         if (data.error) {
           eventSource.close();
@@ -515,11 +871,9 @@
         if (data.meta) {
           searchMeta = data.meta;
           const loadMsg = document.getElementById('loadingMessage');
-          if (loadMsg) {
-            loadMsg.textContent = searchMeta.is_incremental
-              ? `Scanning for new flights since ${searchMeta.start_date}...`
-              : `Full scan: ${searchMeta.start_date} to ${searchMeta.end_date}...`;
-          }
+          loadMsg.textContent = searchMeta.is_incremental
+            ? `Scanning for new flights since ${searchMeta.start_date}...`
+            : `Full scan: ${searchMeta.start_date} to ${searchMeta.end_date}...`;
           return;
         }
 
@@ -532,51 +886,41 @@
           eventSource.close();
           document.getElementById('searchBtn').disabled = false;
 
-          // Filter to only show new flights
+          // Filter to only new flights
           flights = flights.filter(f => !f.already_imported);
 
           if (flights.length === 0) {
-            // Show different message based on context
             const emptyIcon = document.getElementById('emptyIcon');
             const emptyTitle = document.getElementById('emptyTitle');
             const emptyDetail = document.getElementById('emptyDetail');
             const emptyDiag = document.getElementById('emptyDiag');
-            const emptyState = document.getElementById('emptyState');
 
             if (data.api_errors > 0 && data.total === 0) {
-              // API errors caused no results
-              emptyState.classList.remove('success');
-              emptyIcon.className = 'fas fa-exclamation-triangle';
-              emptyTitle.textContent = 'No flights retrieved - API errors occurred';
+              emptyIcon.className = 'fas fa-exclamation-triangle state-icon warning';
+              emptyTitle.textContent = 'No flights retrieved';
               emptyDetail.textContent = (data.warnings && data.warnings.length > 0)
                 ? data.warnings[0]
-                : `${data.api_errors} API error(s) during scan. Check your FlightAware API key and plan.`;
-              emptyDiag.textContent = `Searched: ${data.search_range} | Windows: ${data.windows_searched} | Errors: ${data.api_errors}`;
+                : `${data.api_errors} API error(s) during scan. Check your FlightAware API key.`;
+              emptyDiag.textContent = `Searched: ${data.search_range} | Errors: ${data.api_errors}`;
             } else if (!data.is_incremental && data.total === 0) {
-              // First import, no flights found at all
-              emptyState.classList.remove('success');
-              emptyIcon.className = 'fas fa-search';
-              emptyTitle.textContent = 'No flights found in FlightAware';
+              emptyIcon.className = 'fas fa-search state-icon';
+              emptyTitle.textContent = 'No flights found';
               emptyDetail.textContent = `No flight records found for ${searchMeta.tail_number || tailNumber} in the search period.`;
-              emptyDiag.textContent = `Searched: ${data.search_range} | ${data.windows_searched} time windows checked`;
+              emptyDiag.textContent = `Searched: ${data.search_range}`;
             } else if (data.is_incremental) {
-              // Incremental scan, genuinely caught up
-              emptyState.className = 'empty-state success';
-              emptyIcon.className = 'fas fa-check-circle';
-              emptyTitle.textContent = 'All caught up! No new flights to import.';
+              emptyIcon.className = 'fas fa-check-circle state-icon success';
+              emptyTitle.textContent = 'All caught up!';
               emptyDetail.textContent = 'Your logbook is up to date with FlightAware.';
               emptyDiag.textContent = `Scanned since: ${searchMeta.start_date || '?'}`;
             } else {
-              // Full scan, flights found but all already imported
-              emptyState.className = 'empty-state success';
-              emptyIcon.className = 'fas fa-check-circle';
+              emptyIcon.className = 'fas fa-check-circle state-icon success';
               emptyTitle.textContent = 'All flights already imported';
               emptyDetail.textContent = `Found ${data.total} flight(s), all already in your logbook.`;
               emptyDiag.textContent = `Searched: ${data.search_range}`;
             }
             showState('empty');
           } else {
-            // Re-render sorted
+            showState('results');
             renderFlights();
             document.getElementById('selectAll').checked = true;
           }
@@ -585,34 +929,29 @@
 
         if (data.flight) {
           totalFetched++;
-
-          // Update progress message
           const progressMsg = document.getElementById('progressMessage');
-          if (progressMsg) {
-            progressMsg.textContent = `Fetched ${totalFetched} flights... (${flights.length} new)`;
-          }
+          progressMsg.textContent = `Fetched ${totalFetched} flights... (${flights.filter(f => !f.already_imported).length + (!data.flight.already_imported ? 1 : 0)} new)`;
 
-          // Only add if not already imported
           if (!data.flight.already_imported) {
             flights.push(data.flight);
+            // Show streaming results
+            showState('streaming');
             addFlightToList(data.flight, flights.length - 1);
           }
         }
       };
 
-      eventSource.onerror = function(event) {
+      eventSource.onerror = function() {
         eventSource.close();
 
-        // Check if we got any flights before the error
         if (flights.length > 0) {
-          // Partial success - show what we got
           document.getElementById('searchBtn').disabled = false;
           flights = flights.filter(f => !f.already_imported);
+          showState('results');
           renderFlights();
           document.getElementById('selectAll').checked = true;
-          showToast(`Connection interrupted after fetching ${totalFetched} flights. Showing ${flights.length} new flights.`, true);
+          showToast(`Connection interrupted. Showing ${flights.length} flights found.`, true);
         } else {
-          // Total failure
           document.getElementById('errorMessage').textContent = 'Connection lost. Please try again.';
           showState('error');
           document.getElementById('searchBtn').disabled = false;
@@ -650,11 +989,14 @@
         const data = await res.json();
 
         if (data.success) {
-          showToast(`Imported ${data.imported} flight(s)!`);
-          // Remove imported flights from list
+          showToast(`Imported ${data.imported} flight${data.imported !== 1 ? 's' : ''}!`);
           flights = flights.filter((_, i) => !selectedIndices.includes(i));
 
           if (flights.length === 0) {
+            document.getElementById('emptyIcon').className = 'fas fa-check-circle state-icon success';
+            document.getElementById('emptyTitle').textContent = 'Import complete!';
+            document.getElementById('emptyDetail').textContent = 'All selected flights have been added to your logbook.';
+            document.getElementById('emptyDiag').textContent = '';
             showState('empty');
           } else {
             renderFlights();

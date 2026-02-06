@@ -2,354 +2,679 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Pilot Logbook</title>
-  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #0d5d56;
+      --primary-light: #14b8a6;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-hover: #f1f5f9;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Courier Prime', 'Courier New', monospace;
-      background: #d4c4a8;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
       min-height: 100vh;
-      padding: 20px;
-    }
-
-    .logbook-container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: #f8f4e8;
-      border: 3px solid #5a4a3a;
-      box-shadow: 4px 4px 15px rgba(0,0,0,0.3);
+      min-height: 100dvh;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
     }
 
     /* Header */
-    .logbook-header {
-      background: linear-gradient(to bottom, #2c4a1e 0%, #1a3010 100%);
-      color: #f5f0e1;
-      padding: 15px 25px;
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 3px solid #5a4a3a;
+      gap: 12px;
     }
 
-    .logbook-title {
-      font-size: 1.5rem;
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-weight: 700;
-      letter-spacing: 2px;
+      font-size: 1.1rem;
+      color: var(--primary);
     }
 
-    .header-actions { display: flex; gap: 10px; }
+    .logo i { font-size: 1.25rem; }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
 
     /* Buttons */
     .btn {
-      padding: 8px 16px;
-      border: 2px solid;
-      border-radius: 3px;
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.8rem;
-      font-weight: 700;
+      padding: 10px 16px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
       cursor: pointer;
-      text-transform: uppercase;
-      text-decoration: none;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      white-space: nowrap;
     }
 
-    .btn-primary { background: #2c4a1e; color: #f5f0e1; border-color: #1a3010; }
-    .btn-primary:hover { background: #3d6428; }
-    .btn-secondary { background: #f5f0e1; color: #5a4a3a; border-color: #8b7355; }
-    .btn-secondary:hover { background: #e8e0cc; }
-    .btn-danger { background: #8b3a3a; color: #f5f0e1; border-color: #6a2a2a; }
-    .btn-danger:hover { background: #a04545; }
-    .btn-sm { padding: 5px 10px; font-size: 0.7rem; }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-primary:active { transform: scale(0.98); }
 
-    /* Summary Stats */
-    .summary-bar {
-      background: #e8e0cc;
-      padding: 12px 25px;
-      border-bottom: 2px solid #c9b896;
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--surface-hover); }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+    .btn-danger:hover { background: var(--danger-hover); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 8px;
+    }
+    .btn-ghost:hover { background: var(--surface-hover); color: var(--text); }
+
+    .btn-icon {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border-radius: var(--radius);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
       display: flex;
-      gap: 30px;
-      font-size: 0.85rem;
+      gap: 24px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
-    .stat { display: flex; gap: 8px; }
-    .stat-label { color: #8b7355; }
-    .stat-value { font-weight: 700; color: #2c4a1e; }
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: max-content;
+    }
 
-    /* Batch Actions Bar */
-    .batch-actions-bar {
-      background: #3a2a1a;
-      padding: 12px 25px;
+    .stat-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* Batch Actions */
+    .batch-bar {
+      background: var(--primary-dark);
+      padding: 10px 16px;
       display: none;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 2px solid #5a4a3a;
+      gap: 12px;
     }
 
-    .batch-actions-bar.show {
-      display: flex;
-    }
+    .batch-bar.show { display: flex; }
 
     .batch-info {
-      color: #f5f0e1;
-      font-size: 0.85rem;
-      font-weight: 700;
+      color: white;
+      font-size: 0.875rem;
+      font-weight: 500;
     }
 
-    .batch-buttons {
+    .batch-actions {
       display: flex;
-      gap: 10px;
+      gap: 8px;
+    }
+
+    .batch-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .batch-btn-clear {
+      background: rgba(255,255,255,0.15);
+      color: white;
+    }
+    .batch-btn-clear:hover { background: rgba(255,255,255,0.25); }
+
+    .batch-btn-delete {
+      background: var(--danger);
+      color: white;
+    }
+    .batch-btn-delete:hover { background: var(--danger-hover); }
+
+    /* Main Content */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     /* Flight List */
+    .flight-list-container {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
     .flight-list {
-      padding: 0;
+      display: flex;
+      flex-direction: column;
     }
 
-    .flight-entry {
-      display: grid;
-      grid-template-columns: 35px 100px 70px 90px 70px 70px 70px auto;
-      gap: 12px;
-      padding: 15px 25px;
-      border-bottom: 1px solid #d4c4a8;
-      transition: background 0.15s;
+    .flight-item {
+      display: flex;
       align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border-light);
+      cursor: pointer;
+      transition: background 0.1s;
     }
 
-    .flight-entry:hover {
-      background: #f0ebe0;
-    }
-
-    .flight-entry:last-child {
-      border-bottom: none;
-    }
-
-    .flight-entry.selected {
-      background: #e8f0e4;
-    }
+    .flight-item:hover { background: var(--surface-hover); }
+    .flight-item.selected { background: #ecfdf5; }
+    .flight-item:active { background: var(--border-light); }
 
     .flight-checkbox {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary);
       cursor: pointer;
-      accent-color: #2c4a1e;
+      flex-shrink: 0;
     }
 
     .flight-content {
-      display: contents;
-      cursor: pointer;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
     }
 
-    .flight-date {
-      font-weight: 700;
-      color: #3a2a1a;
+    .flight-main {
+      flex: 1;
+      min-width: 0;
     }
+
+    .flight-route {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .flight-route i {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+    }
+
+    .flight-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .flight-date { font-weight: 500; }
 
     .flight-aircraft {
-      color: #5a4a3a;
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
 
-    .flight-ident {
-      font-weight: 700;
-      color: #2c4a1e;
-    }
-
-    .flight-from,
-    .flight-to {
-      color: #5a4a3a;
+    .flight-tail {
+      color: var(--primary);
+      font-weight: 500;
     }
 
     .flight-duration {
-      font-weight: 700;
-      color: #2c4a1e;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text);
       text-align: right;
+      min-width: 50px;
+    }
+
+    .flight-duration.estimated {
+      color: var(--text-secondary);
+    }
+
+    .flight-duration.estimated::after {
+      content: '*';
+      color: var(--warning);
     }
 
     .flight-arrow {
-      color: #c9b896;
-      text-align: right;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    /* List Header (Desktop) */
+    .list-header {
+      display: none;
+      padding: 10px 16px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      gap: 12px;
+      align-items: center;
+      position: sticky;
+      top: 0;
+    }
+
+    .list-header-checkbox {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary);
+      cursor: pointer;
     }
 
     /* Empty State */
     .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
       text-align: center;
-      padding: 60px 20px;
-      color: #8b7355;
+      background: var(--surface);
     }
 
-    .empty-state i {
-      font-size: 3rem;
-      margin-bottom: 15px;
-      color: #c9b896;
-    }
-
-    .empty-state p {
-      font-size: 1rem;
+    .empty-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       margin-bottom: 20px;
+    }
+
+    .empty-icon i {
+      font-size: 2rem;
+      color: var(--text-muted);
+    }
+
+    .empty-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .empty-text {
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      font-size: 0.9rem;
     }
 
     /* Dropdown */
     .dropdown { position: relative; }
+
     .dropdown-menu {
       display: none;
       position: absolute;
-      top: 100%; right: 0;
-      background: #f5f0e1;
-      border: 2px solid #8b7355;
-      min-width: 140px;
-      z-index: 100;
-      margin-top: 5px;
+      top: calc(100% + 4px);
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      min-width: 180px;
+      z-index: 200;
+      overflow: hidden;
     }
+
     .dropdown-menu.show { display: block; }
+
     .dropdown-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 10px 12px;
-      color: #3a2a1a;
+      gap: 10px;
+      padding: 12px 14px;
+      color: var(--text);
       text-decoration: none;
+      font-size: 0.875rem;
       cursor: pointer;
       border: none;
       background: none;
       width: 100%;
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.75rem;
+      font-family: inherit;
+      transition: background 0.1s;
     }
-    .dropdown-item:hover { background: #e8e0cc; }
+
+    .dropdown-item:hover { background: var(--surface-hover); }
+    .dropdown-item i { color: var(--text-secondary); width: 16px; }
 
     /* Toast */
     .toast {
       position: fixed;
-      bottom: 20px; right: 20px;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
       padding: 12px 20px;
-      background: #2c4a1e;
-      color: #f5f0e1;
-      border: 2px solid #1a3010;
-      font-family: 'Courier Prime', monospace;
-      font-weight: 700;
-      font-size: 0.85rem;
+      background: var(--text);
+      color: white;
+      border-radius: var(--radius-lg);
+      font-size: 0.875rem;
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
       z-index: 2000;
-      display: none;
-    }
-    .toast.error { background: #8b3a3a; border-color: #6a2a2a; }
-    .toast.show { display: block; }
-
-    /* Column Headers */
-    .list-header {
-      display: grid;
-      grid-template-columns: 35px 100px 70px 90px 70px 70px 70px auto;
-      gap: 12px;
-      padding: 10px 25px;
-      background: #d4c4a8;
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: #5a4a3a;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      opacity: 0;
+      transition: all 0.3s ease;
     }
 
-    .list-header span:nth-child(7) {
-      text-align: right;
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
     }
 
-    .select-all-checkbox {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-      accent-color: #2c4a1e;
+    .toast.error { background: var(--danger); }
+    .toast.success { background: var(--success); }
+
+    /* Desktop Styles */
+    @media (min-width: 768px) {
+      .header { padding: 16px 24px; }
+      .stats-bar { padding: 16px 24px; gap: 40px; }
+      .batch-bar { padding: 12px 24px; }
+
+      .list-header {
+        display: grid;
+        grid-template-columns: 32px 1fr 100px 100px 100px 80px 32px;
+        padding: 12px 24px;
+      }
+
+      .flight-item {
+        display: grid;
+        grid-template-columns: 32px 1fr 100px 100px 100px 80px 32px;
+        padding: 16px 24px;
+        gap: 16px;
+      }
+
+      .flight-content {
+        display: contents;
+      }
+
+      .flight-main {
+        display: contents;
+      }
+
+      .flight-route {
+        font-size: 0.9rem;
+      }
+
+      .flight-meta {
+        display: contents;
+        margin: 0;
+      }
+
+      .flight-date {
+        font-size: 0.875rem;
+        color: var(--text);
+      }
+
+      .flight-aircraft {
+        font-size: 0.875rem;
+      }
+
+      .flight-tail {
+        font-size: 0.875rem;
+      }
+
+      .flight-duration {
+        font-size: 0.9rem;
+      }
+
+      .stat-value { font-size: 1.25rem; }
+    }
+
+    @media (min-width: 1024px) {
+      .header { padding: 16px 32px; }
+      .stats-bar { padding: 20px 32px; }
+      .batch-bar { padding: 14px 32px; }
+      .list-header { padding: 12px 32px; }
+      .flight-item { padding: 18px 32px; }
+    }
+
+    /* Mobile Landscape */
+    @media (max-width: 767px) and (orientation: landscape) {
+      .header { padding: 8px 16px; }
+      .stats-bar { padding: 8px 16px; }
+
+      .flight-item { padding: 10px 16px; }
+
+      .stat { flex-direction: row; align-items: center; gap: 6px; }
+      .stat-label { font-size: 0.65rem; }
+      .stat-value { font-size: 0.9rem; }
+    }
+
+    /* Small Mobile */
+    @media (max-width: 380px) {
+      .logo span { display: none; }
+      .btn span { display: none; }
+      .btn { padding: 10px 12px; }
+    }
+
+    /* Hide text on very small screens */
+    @media (max-width: 480px) {
+      .header-actions .btn:not(.btn-primary) span { display: none; }
     }
   </style>
 </head>
 <body>
-  <div class="logbook-container">
-    <header class="logbook-header">
-      <h1 class="logbook-title">✈ PILOT LOGBOOK</h1>
-      <div class="header-actions">
-        <a href="/entry/new" class="btn btn-primary"><i class="fas fa-plus"></i> New Flight</a>
-        <a href="/import" class="btn btn-secondary"><i class="fas fa-plane-arrival"></i> Import</a>
-        <div class="dropdown">
-          <button class="btn btn-secondary" onclick="toggleDropdown(this)"><i class="fas fa-ellipsis-v"></i></button>
-          <div class="dropdown-menu">
-            <button class="dropdown-item" onclick="exportToSheets()"><i class="fab fa-google-drive"></i> Export to Sheets</button>
-            <a href="/api/export/csv" class="dropdown-item"><i class="fas fa-file-csv"></i> Download CSV</a>
-            <a href="/api/export/json" class="dropdown-item"><i class="fas fa-download"></i> Download JSON</a>
-            <button class="dropdown-item" onclick="document.getElementById('importInput').click()"><i class="fas fa-upload"></i> Import JSON</button>
-            <input type="file" id="importInput" accept=".json" style="display:none" onchange="importJSON(this)">
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <div class="summary-bar">
-      <div class="stat">
-        <span class="stat-label">Total Flights:</span>
-        <span class="stat-value">{{ totals.flights }}</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Total Time:</span>
-        <span class="stat-value">{{ "%.1f"|format(totals.total_duration) }} hrs</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">PIC:</span>
-        <span class="stat-value">{{ "%.1f"|format(totals.pic) }} hrs</span>
-      </div>
-      {% if totals.cross_country %}
-      <div class="stat">
-        <span class="stat-label">X-C:</span>
-        <span class="stat-value">{{ "%.1f"|format(totals.cross_country) }} hrs</span>
-      </div>
-      {% endif %}
-    </div>
-
-    <!-- Batch Actions Bar -->
-    <div class="batch-actions-bar" id="batchActionsBar">
-      <span class="batch-info"><span id="selectedCount">0</span> flight(s) selected</span>
-      <div class="batch-buttons">
-        <button class="btn btn-secondary btn-sm" onclick="clearSelection()"><i class="fas fa-times"></i> Clear</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteSelected()"><i class="fas fa-trash"></i> Delete Selected</button>
-      </div>
-    </div>
-
-    {% if entries %}
-    <div class="list-header">
-      <input type="checkbox" class="select-all-checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)">
-      <span>Date</span>
-      <span>Type</span>
-      <span>Tail #</span>
-      <span>From</span>
-      <span>To</span>
-      <span>Duration</span>
-      <span></span>
-    </div>
-    <div class="flight-list">
-      {% for entry in entries %}
-      <div class="flight-entry" data-id="{{ entry.id }}">
-        <input type="checkbox" class="flight-checkbox" data-id="{{ entry.id }}" onclick="onCheckboxChange(event)">
-        <div class="flight-content" onclick="window.location='/entry/{{ entry.id }}'">
-          <span class="flight-date">{{ entry.date }}</span>
-          <span class="flight-aircraft">{{ entry.aircraft_model }}</span>
-          <span class="flight-ident">{{ entry.aircraft_ident }}</span>
-          <span class="flight-from">{{ entry.route_from }}</span>
-          <span class="flight-to">{{ entry.route_to }}</span>
-          <span class="flight-duration">{% if entry.total_duration %}{% if entry.total_duration is string %}{{ entry.total_duration }}{% elif entry.duration_estimated %}{{ "%.1f"|format(entry.total_duration) }}h*{% else %}{{ "%.1f"|format(entry.total_duration) }}h{% endif %}{% else %}—{% endif %}</span>
-          <span class="flight-arrow"><i class="fas fa-chevron-right"></i></span>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="empty-state">
+  <header class="header">
+    <div class="logo">
       <i class="fas fa-plane"></i>
-      <p>No flights recorded yet</p>
-      <a href="/entry/new" class="btn btn-primary"><i class="fas fa-plus"></i> Add Your First Flight</a>
+      <span>Logbook</span>
+    </div>
+    <div class="header-actions">
+      <a href="/entry/new" class="btn btn-primary">
+        <i class="fas fa-plus"></i>
+        <span>New Flight</span>
+      </a>
+      <a href="/import" class="btn btn-secondary">
+        <i class="fas fa-cloud-download-alt"></i>
+        <span>Import</span>
+      </a>
+      <div class="dropdown">
+        <button class="btn btn-ghost btn-icon" onclick="toggleDropdown(this)" aria-label="More options">
+          <i class="fas fa-ellipsis-v"></i>
+        </button>
+        <div class="dropdown-menu">
+          <button class="dropdown-item" onclick="exportToSheets()">
+            <i class="fab fa-google-drive"></i> Export to Sheets
+          </button>
+          <a href="/api/export/csv" class="dropdown-item">
+            <i class="fas fa-file-csv"></i> Download CSV
+          </a>
+          <a href="/api/export/json" class="dropdown-item">
+            <i class="fas fa-download"></i> Download JSON
+          </a>
+          <button class="dropdown-item" onclick="document.getElementById('importInput').click()">
+            <i class="fas fa-upload"></i> Import JSON
+          </button>
+          <input type="file" id="importInput" accept=".json" style="display:none" onchange="importJSON(this)">
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-label">Flights</span>
+      <span class="stat-value">{{ totals.flights }}</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Total Time</span>
+      <span class="stat-value">{{ "%.1f"|format(totals.total_duration) }}h</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">PIC</span>
+      <span class="stat-value">{{ "%.1f"|format(totals.pic) }}h</span>
+    </div>
+    {% if totals.cross_country %}
+    <div class="stat">
+      <span class="stat-label">Cross-Country</span>
+      <span class="stat-value">{{ "%.1f"|format(totals.cross_country) }}h</span>
+    </div>
+    {% endif %}
+    {% if totals.night %}
+    <div class="stat">
+      <span class="stat-label">Night</span>
+      <span class="stat-value">{{ "%.1f"|format(totals.night) }}h</span>
+    </div>
+    {% endif %}
+    {% if totals.actual_inst %}
+    <div class="stat">
+      <span class="stat-label">Instrument</span>
+      <span class="stat-value">{{ "%.1f"|format(totals.actual_inst) }}h</span>
     </div>
     {% endif %}
   </div>
+
+  <div class="batch-bar" id="batchBar">
+    <span class="batch-info"><span id="selectedCount">0</span> selected</span>
+    <div class="batch-actions">
+      <button class="batch-btn batch-btn-clear" onclick="clearSelection()">
+        <i class="fas fa-times"></i> Clear
+      </button>
+      <button class="batch-btn batch-btn-delete" onclick="deleteSelected()">
+        <i class="fas fa-trash"></i> Delete
+      </button>
+    </div>
+  </div>
+
+  <main class="main">
+    {% if entries %}
+    <div class="list-header">
+      <input type="checkbox" class="list-header-checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)">
+      <span>Route</span>
+      <span>Date</span>
+      <span>Aircraft</span>
+      <span>Tail</span>
+      <span>Duration</span>
+      <span></span>
+    </div>
+    <div class="flight-list-container">
+      <div class="flight-list">
+        {% for entry in entries %}
+        <div class="flight-item" data-id="{{ entry.id }}" onclick="navigateToEntry('{{ entry.id }}', event)">
+          <input type="checkbox" class="flight-checkbox" data-id="{{ entry.id }}" onclick="onCheckboxChange(event)">
+          <div class="flight-content">
+            <div class="flight-main">
+              <div class="flight-route">
+                <span>{{ entry.route_from or '—' }}</span>
+                <i class="fas fa-arrow-right"></i>
+                <span>{{ entry.route_to or '—' }}</span>
+              </div>
+              <div class="flight-meta">
+                <span class="flight-date">{{ entry.date }}</span>
+                <span class="flight-aircraft">{{ entry.aircraft_model }}</span>
+                <span class="flight-tail">{{ entry.aircraft_ident }}</span>
+              </div>
+            </div>
+            <span class="flight-duration{% if entry.duration_estimated %} estimated{% endif %}">
+              {% if entry.total_duration %}{{ "%.1f"|format(entry.total_duration) }}h{% else %}—{% endif %}
+            </span>
+            <span class="flight-arrow"><i class="fas fa-chevron-right"></i></span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i class="fas fa-plane"></i>
+      </div>
+      <h2 class="empty-title">No flights yet</h2>
+      <p class="empty-text">Start logging your flights to track your progress</p>
+      <a href="/entry/new" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add First Flight
+      </a>
+    </div>
+    {% endif %}
+  </main>
 
   <div class="toast" id="toast"></div>
 
@@ -363,99 +688,89 @@
 
     function toggleDropdown(btn) {
       const menu = btn.nextElementSibling;
-      menu.classList.toggle('show');
-      setTimeout(() => document.addEventListener('click', function close(e) {
-        if (!btn.contains(e.target) && !menu.contains(e.target)) {
-          menu.classList.remove('show');
-          document.removeEventListener('click', close);
-        }
-      }), 0);
+      const isOpen = menu.classList.contains('show');
+      document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
+      if (!isOpen) {
+        menu.classList.add('show');
+        setTimeout(() => {
+          document.addEventListener('click', function close(e) {
+            if (!btn.contains(e.target) && !menu.contains(e.target)) {
+              menu.classList.remove('show');
+              document.removeEventListener('click', close);
+            }
+          });
+        }, 0);
+      }
     }
 
-    // Selection management
+    function navigateToEntry(id, event) {
+      if (event.target.classList.contains('flight-checkbox')) return;
+      window.location = '/entry/' + id;
+    }
+
     function getSelectedIds() {
-      const checkboxes = document.querySelectorAll('.flight-checkbox:checked');
-      return Array.from(checkboxes).map(cb => cb.dataset.id);
+      return Array.from(document.querySelectorAll('.flight-checkbox:checked')).map(cb => cb.dataset.id);
     }
 
     function updateBatchBar() {
-      const selectedIds = getSelectedIds();
-      const count = selectedIds.length;
-      const bar = document.getElementById('batchActionsBar');
-      const countSpan = document.getElementById('selectedCount');
+      const ids = getSelectedIds();
+      const bar = document.getElementById('batchBar');
+      document.getElementById('selectedCount').textContent = ids.length;
+      bar.classList.toggle('show', ids.length > 0);
 
-      countSpan.textContent = count;
-
-      if (count > 0) {
-        bar.classList.add('show');
-      } else {
-        bar.classList.remove('show');
-      }
-
-      // Update entry highlighting
-      document.querySelectorAll('.flight-entry').forEach(entry => {
-        const checkbox = entry.querySelector('.flight-checkbox');
-        entry.classList.toggle('selected', checkbox && checkbox.checked);
+      document.querySelectorAll('.flight-item').forEach(item => {
+        const cb = item.querySelector('.flight-checkbox');
+        item.classList.toggle('selected', cb && cb.checked);
       });
 
-      // Update select all checkbox state
-      const allCheckboxes = document.querySelectorAll('.flight-checkbox');
-      const selectAllCb = document.getElementById('selectAllCheckbox');
-      if (selectAllCb) {
-        selectAllCb.checked = allCheckboxes.length > 0 && count === allCheckboxes.length;
-        selectAllCb.indeterminate = count > 0 && count < allCheckboxes.length;
+      const allCbs = document.querySelectorAll('.flight-checkbox');
+      const selectAll = document.getElementById('selectAllCheckbox');
+      if (selectAll) {
+        selectAll.checked = allCbs.length > 0 && ids.length === allCbs.length;
+        selectAll.indeterminate = ids.length > 0 && ids.length < allCbs.length;
       }
     }
 
-    function onCheckboxChange(event) {
-      event.stopPropagation();
+    function onCheckboxChange(e) {
+      e.stopPropagation();
       updateBatchBar();
     }
 
-    function toggleSelectAll(checkbox) {
-      const allCheckboxes = document.querySelectorAll('.flight-checkbox');
-      allCheckboxes.forEach(cb => cb.checked = checkbox.checked);
+    function toggleSelectAll(cb) {
+      document.querySelectorAll('.flight-checkbox').forEach(c => c.checked = cb.checked);
       updateBatchBar();
     }
 
     function clearSelection() {
-      document.querySelectorAll('.flight-checkbox').forEach(cb => cb.checked = false);
-      document.getElementById('selectAllCheckbox').checked = false;
+      document.querySelectorAll('.flight-checkbox').forEach(c => c.checked = false);
+      const selectAll = document.getElementById('selectAllCheckbox');
+      if (selectAll) selectAll.checked = false;
       updateBatchBar();
     }
 
     async function deleteSelected() {
-      const selectedIds = getSelectedIds();
-      if (selectedIds.length === 0) return;
+      const ids = getSelectedIds();
+      if (!ids.length) return;
 
-      const confirmMsg = selectedIds.length === 1
-        ? 'Are you sure you want to delete this flight?'
-        : `Are you sure you want to delete ${selectedIds.length} flights?`;
-
-      if (!confirm(confirmMsg)) return;
+      const msg = ids.length === 1 ? 'Delete this flight?' : `Delete ${ids.length} flights?`;
+      if (!confirm(msg)) return;
 
       try {
-        showToast('Deleting entries...');
-
-        // Use batch delete endpoint for better performance
+        showToast('Deleting...');
         const res = await fetch('/api/entries/batch', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ entry_ids: selectedIds })
+          body: JSON.stringify({ entry_ids: ids })
         });
-
-        const result = await res.json();
-
-        if (result.success) {
-          showToast(`Deleted ${result.deleted} flight(s)`);
-          // Reload page to refresh from Google Sheets
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Deleted ${data.deleted} flight(s)`);
           setTimeout(() => location.reload(), 500);
         } else {
-          showToast(result.error || 'Delete failed', true);
+          showToast(data.error || 'Delete failed', true);
         }
       } catch (e) {
-        showToast('Error deleting flights', true);
-        console.error(e);
+        showToast('Error deleting', true);
       }
     }
 
@@ -465,23 +780,33 @@
       fd.append('file', input.files[0]);
       try {
         const res = await fetch('/api/import/json', { method: 'POST', body: fd });
-        const r = await res.json();
-        if (r.success) { showToast(r.message); location.reload(); }
-        else showToast(r.error || 'Import failed', true);
-      } catch (e) { showToast('Error importing', true); }
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message);
+          location.reload();
+        } else {
+          showToast(data.error || 'Import failed', true);
+        }
+      } catch (e) {
+        showToast('Error importing', true);
+      }
       input.value = '';
     }
 
     async function exportToSheets() {
-      showToast('Exporting to Google Sheets...');
+      showToast('Exporting...');
       try {
-        const res = await fetch('/api/export/sheets', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-        const r = await res.json();
-        if (r.success) {
+        const res = await fetch('/api/export/sheets', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
           showToast('Exported to Sheets!');
-          if (r.spreadsheet_url) window.open(r.spreadsheet_url, '_blank');
-        } else showToast(r.error || 'Export failed', true);
-      } catch (e) { showToast('Error exporting', true); }
+          if (data.spreadsheet_url) window.open(data.spreadsheet_url, '_blank');
+        } else {
+          showToast(data.error || 'Export failed', true);
+        }
+      } catch (e) {
+        showToast('Error exporting', true);
+      }
     }
   </script>
 </body>

@@ -2,140 +2,226 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% if is_new %}New Flight{% else %}Flight Details{% endif %} - Pilot Logbook</title>
-  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>{% if is_new %}New Flight{% else %}Edit Flight{% endif %} - Pilot Logbook</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #0d5d56;
+      --primary-light: #14b8a6;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-hover: #f1f5f9;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+      --success: #16a34a;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Courier Prime', 'Courier New', monospace;
-      background: #d4c4a8;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
       min-height: 100vh;
-      padding: 20px;
-    }
-
-    .page-container {
-      max-width: 700px;
-      margin: 0 auto;
-      background: #f8f4e8;
-      border: 3px solid #5a4a3a;
-      box-shadow: 4px 4px 15px rgba(0,0,0,0.3);
+      min-height: 100dvh;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
     }
 
     /* Header */
-    .page-header {
-      background: linear-gradient(to bottom, #2c4a1e 0%, #1a3010 100%);
-      color: #f5f0e1;
-      padding: 15px 25px;
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 3px solid #5a4a3a;
+      gap: 12px;
     }
 
-    .page-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-
-    .back-link {
-      color: #f5f0e1;
-      text-decoration: none;
+    .back-btn {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.85rem;
-      opacity: 0.9;
+      gap: 6px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: var(--radius);
+      transition: all 0.15s;
     }
 
-    .back-link:hover { opacity: 1; }
+    .back-btn:hover {
+      background: var(--surface-hover);
+      color: var(--text);
+    }
+
+    .header-title {
+      flex: 1;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .header-spacer { width: 80px; }
 
     /* Buttons */
     .btn {
-      padding: 10px 20px;
-      border: 2px solid;
-      border-radius: 3px;
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.85rem;
-      font-weight: 700;
+      padding: 10px 16px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
       cursor: pointer;
-      text-transform: uppercase;
-      text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      white-space: nowrap;
     }
 
-    .btn-primary { background: #2c4a1e; color: #f5f0e1; border-color: #1a3010; }
-    .btn-primary:hover { background: #3d6428; }
-    .btn-secondary { background: #f5f0e1; color: #5a4a3a; border-color: #8b7355; }
-    .btn-secondary:hover { background: #e8e0cc; }
-    .btn-danger { background: #8b3a3a; color: #f5f0e1; border-color: #6a2a2a; }
-    .btn-danger:hover { background: #a04545; }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-primary:active { transform: scale(0.98); }
 
-    /* Form */
-    .form-body {
-      padding: 25px;
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--surface-hover); }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+    .btn-danger:hover {
+      background: var(--danger);
+      color: white;
     }
 
-    .form-section {
-      margin-bottom: 25px;
+    .btn-lg {
+      padding: 14px 24px;
+      font-size: 1rem;
     }
 
-    .form-section-title {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #2c4a1e;
-      margin-bottom: 12px;
-      padding-bottom: 6px;
-      border-bottom: 2px solid #c9b896;
+    /* Main Content */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .form-container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* Sections */
+    .section {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section-header {
+      padding: 14px 16px 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
     }
 
-    .form-row {
+    .section-body {
+      padding: 0 16px 16px;
+    }
+
+    /* Form Grid */
+    .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 15px;
-      margin-bottom: 10px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
     }
 
-    .form-row-wide {
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    .form-grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .form-grid-5 {
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    @media (max-width: 480px) {
+      .form-grid-3 { grid-template-columns: repeat(2, 1fr); }
+      .form-grid-5 { grid-template-columns: repeat(3, 1fr); }
     }
 
     .form-group {
       display: flex;
       flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
     }
 
     .form-group label {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: #5a4a3a;
-      margin-bottom: 5px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
     }
 
     .form-group input,
     .form-group textarea {
-      padding: 10px 12px;
-      background: #fff;
-      border: 2px solid #c9b896;
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.95rem;
-      color: #3a2a1a;
-      border-radius: 2px;
+      padding: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--text);
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
 
     .form-group input:focus,
     .form-group textarea:focus {
       outline: none;
-      border-color: #2c4a1e;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: var(--text-muted);
     }
 
     .form-group textarea {
@@ -143,57 +229,58 @@
       min-height: 80px;
     }
 
-    .form-group.full-width {
-      grid-column: 1 / -1;
+    .form-group input[type="number"] {
+      text-align: center;
+      -moz-appearance: textfield;
     }
 
-    .form-group input[type="number"] {
-      text-align: right;
+    .form-group input[type="number"]::-webkit-outer-spin-button,
+    .form-group input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    /* Route Display */
+    .route-display {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .route-display .form-group { flex: 1; }
+
+    .route-arrow {
+      color: var(--text-muted);
+      padding-top: 20px;
     }
 
     /* Footer */
-    .form-footer {
-      padding: 20px 25px;
-      border-top: 2px solid #d4c4a8;
+    .footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #e8e0cc;
+      gap: 12px;
     }
 
-    .form-footer-left {
+    .footer-actions {
       display: flex;
-      gap: 10px;
+      gap: 12px;
+      flex: 1;
+      justify-content: flex-end;
     }
 
-    /* Toast */
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 12px 20px;
-      background: #2c4a1e;
-      color: #f5f0e1;
-      border: 2px solid #1a3010;
-      font-family: 'Courier Prime', monospace;
-      font-weight: 700;
-      font-size: 0.85rem;
-      z-index: 2000;
-      display: none;
-    }
-    .toast.error { background: #8b3a3a; border-color: #6a2a2a; }
-    .toast.show { display: block; }
-
-    /* Approach selector grid */
-    .approach-checkbox-grid {
+    /* Approach Selector */
+    .approach-grid {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      padding: 10px;
-      background: #fff;
-      border: 2px solid #c9b896;
-      border-radius: 2px;
-      max-height: 180px;
+      padding: 12px;
+      background: var(--bg);
+      border-radius: var(--radius);
+      max-height: 200px;
       overflow-y: auto;
     }
 
@@ -201,97 +288,141 @@
       display: flex;
       align-items: center;
       gap: 4px;
-      padding: 4px 8px;
-      background: #f5f0e1;
-      border: 1px solid #c9b896;
-      border-radius: 3px;
-      font-size: 0.75rem;
+      padding: 6px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8rem;
+      transition: all 0.15s;
     }
 
     .approach-item.has-count {
-      background: #2c4a1e;
-      color: #f5f0e1;
-      border-color: #1a3010;
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
     }
 
     .approach-name {
-      margin: 0 4px;
-      min-width: 100px;
+      min-width: 80px;
+      font-weight: 500;
     }
 
     .approach-count {
-      font-weight: 700;
+      font-weight: 600;
       min-width: 20px;
       text-align: center;
-      background: rgba(255,255,255,0.2);
       padding: 2px 6px;
-      border-radius: 2px;
+      border-radius: 4px;
+      background: rgba(0,0,0,0.1);
+    }
+
+    .approach-item.has-count .approach-count {
+      background: rgba(255,255,255,0.2);
     }
 
     .approach-btn {
-      width: 22px;
-      height: 22px;
+      width: 24px;
+      height: 24px;
       border: none;
-      border-radius: 2px;
-      font-size: 0.9rem;
-      font-weight: 700;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.1s ease;
+      background: var(--bg);
+      color: var(--text-secondary);
+      transition: all 0.1s;
     }
 
-    .approach-btn-minus {
-      background: #c9b896;
-      color: #5a4a3a;
+    .approach-btn:hover {
+      background: var(--text);
+      color: white;
     }
 
-    .approach-btn-minus:hover {
-      background: #8b3a3a;
-      color: #fff;
+    .approach-item.has-count .approach-btn {
+      background: rgba(255,255,255,0.2);
+      color: white;
     }
 
-    .approach-btn-plus {
-      background: #c9b896;
-      color: #5a4a3a;
-    }
-
-    .approach-btn-plus:hover {
-      background: #2c4a1e;
-      color: #fff;
-    }
-
-    .approach-item.has-count .approach-btn-minus {
+    .approach-item.has-count .approach-btn:hover {
       background: rgba(255,255,255,0.3);
-      color: #f5f0e1;
-    }
-
-    .approach-item.has-count .approach-btn-plus {
-      background: rgba(255,255,255,0.3);
-      color: #f5f0e1;
     }
 
     #approach-airport-label {
-      font-weight: normal;
-      color: #8b7355;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      padding: 12px 20px;
+      background: var(--text);
+      color: white;
+      border-radius: var(--radius-lg);
+      font-size: 0.875rem;
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      z-index: 2000;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast.error { background: var(--danger); }
+    .toast.success { background: var(--success); }
+
+    /* Desktop */
+    @media (min-width: 768px) {
+      .header { padding: 16px 24px; }
+      .form-container { padding: 24px; }
+      .section { border-radius: var(--radius-lg); }
+      .footer { padding: 20px 24px; }
+    }
+
+    /* Mobile Landscape */
+    @media (max-width: 767px) and (orientation: landscape) {
+      .header { padding: 8px 16px; }
+      .form-container { padding: 12px; }
+      .section { margin-bottom: 12px; }
+      .section-header { padding: 10px 12px 6px; }
+      .section-body { padding: 0 12px 12px; }
+      .form-group input,
+      .form-group textarea { padding: 10px; font-size: 0.9rem; }
+      .footer { padding: 12px 16px; }
     }
   </style>
 </head>
 <body>
-  <div class="page-container">
-    <header class="page-header">
-      <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to Logbook</a>
-      <h1 class="page-title">{% if is_new %}NEW FLIGHT ENTRY{% else %}{{ entry.date }} — {{ entry.route_from }}{% if entry.route_to %} → {{ entry.route_to }}{% endif %}{% endif %}</h1>
-    </header>
+  <header class="header">
+    <a href="/" class="back-btn">
+      <i class="fas fa-arrow-left"></i>
+      <span>Back</span>
+    </a>
+    <h1 class="header-title">
+      {% if is_new %}New Flight{% else %}Edit Flight{% endif %}
+    </h1>
+    <div class="header-spacer"></div>
+  </header>
 
-    <form id="entryForm">
+  <main class="main">
+    <form id="entryForm" class="form-container">
       <input type="hidden" id="entryId" value="{{ entry.id }}">
 
-      <div class="form-body">
-        <div class="form-section">
-          <div class="form-section-title">Flight Information</div>
-          <div class="form-row form-row-wide">
+      <!-- Flight Info -->
+      <div class="section">
+        <div class="section-header">Flight Information</div>
+        <div class="section-body">
+          <div class="form-grid form-grid-3">
             <div class="form-group">
               <label>Date</label>
               <input type="text" id="date" value="{{ entry.date }}" placeholder="MM/DD/YYYY" required>
@@ -305,28 +436,32 @@
               <input type="text" id="aircraft_ident" value="{{ entry.aircraft_ident }}" placeholder="N12345">
             </div>
           </div>
-          <div class="form-row">
+          <div class="route-display" style="margin-top: 12px;">
             <div class="form-group">
               <label>From</label>
               <input type="text" id="route_from" value="{{ entry.route_from }}" placeholder="KPAE">
             </div>
+            <span class="route-arrow"><i class="fas fa-arrow-right"></i></span>
             <div class="form-group">
               <label>To</label>
               <input type="text" id="route_to" value="{{ entry.route_to }}" placeholder="KSEA">
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="form-section">
-          <div class="form-section-title">Aircraft Category & Conditions</div>
-          <div class="form-row">
+      <!-- Time -->
+      <div class="section">
+        <div class="section-header">Flight Time</div>
+        <div class="section-body">
+          <div class="form-grid form-grid-5">
             <div class="form-group">
-              <label>Single Engine Land (SEL)</label>
-              <input type="number" id="sel" value="{{ entry.sel }}" step="0.1" min="0" placeholder="0.0">
+              <label>Total</label>
+              <input type="number" id="total_duration" value="{{ entry.total_duration }}" step="0.1" min="0" placeholder="0.0">
             </div>
             <div class="form-group">
-              <label>Multi Engine Land (MEL)</label>
-              <input type="number" id="mel" value="{{ entry.mel }}" step="0.1" min="0" placeholder="0.0">
+              <label>PIC</label>
+              <input type="number" id="pic" value="{{ entry.pic }}" step="0.1" min="0" placeholder="0.0">
             </div>
             <div class="form-group">
               <label>Day</label>
@@ -337,39 +472,62 @@
               <input type="number" id="night" value="{{ entry.night }}" step="0.1" min="0" placeholder="0.0">
             </div>
             <div class="form-group">
-              <label>Cross Country</label>
+              <label>Cross-Country</label>
               <input type="number" id="cross_country" value="{{ entry.cross_country }}" step="0.1" min="0" placeholder="0.0">
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="form-section">
-          <div class="form-section-title">Instrument</div>
-          <div class="form-row">
+      <!-- Aircraft Category -->
+      <div class="section">
+        <div class="section-header">Aircraft Category</div>
+        <div class="section-body">
+          <div class="form-grid">
             <div class="form-group">
-              <label>Actual Instrument</label>
-              <input type="number" id="actual_inst" value="{{ entry.actual_inst }}" step="0.1" min="0" placeholder="0.0">
+              <label>Single Engine Land</label>
+              <input type="number" id="sel" value="{{ entry.sel }}" step="0.1" min="0" placeholder="0.0">
             </div>
             <div class="form-group">
-              <label>Simulated Instrument</label>
-              <input type="number" id="simulated_inst" value="{{ entry.simulated_inst }}" step="0.1" min="0" placeholder="0.0">
-            </div>
-            <div class="form-group">
-              <label># of Approaches</label>
-              <input type="number" id="num_inst_app" value="{{ entry.num_inst_app }}" min="0" placeholder="0">
-            </div>
-          </div>
-          <div class="form-row" id="approach-selector-row" style="display: none;">
-            <div class="form-group" style="grid-column: 1 / -1;">
-              <label>Approach Type(s) <span id="approach-airport-label"></span></label>
-              <div id="approach-checkboxes" class="approach-checkbox-grid"></div>
+              <label>Multi Engine Land</label>
+              <input type="number" id="mel" value="{{ entry.mel }}" step="0.1" min="0" placeholder="0.0">
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="form-section">
-          <div class="form-section-title">Landings</div>
-          <div class="form-row">
+      <!-- Instrument -->
+      <div class="section">
+        <div class="section-header">Instrument</div>
+        <div class="section-body">
+          <div class="form-grid form-grid-3">
+            <div class="form-group">
+              <label>Actual IMC</label>
+              <input type="number" id="actual_inst" value="{{ entry.actual_inst }}" step="0.1" min="0" placeholder="0.0">
+            </div>
+            <div class="form-group">
+              <label>Simulated IMC</label>
+              <input type="number" id="simulated_inst" value="{{ entry.simulated_inst }}" step="0.1" min="0" placeholder="0.0">
+            </div>
+            <div class="form-group">
+              <label># Approaches</label>
+              <input type="number" id="num_inst_app" value="{{ entry.num_inst_app }}" min="0" placeholder="0">
+            </div>
+          </div>
+          <div id="approach-selector-row" style="display: none; margin-top: 12px;">
+            <div class="form-group full-width">
+              <label>Approach Types <span id="approach-airport-label"></span></label>
+              <div id="approach-checkboxes" class="approach-grid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Landings -->
+      <div class="section">
+        <div class="section-header">Landings</div>
+        <div class="section-body">
+          <div class="form-grid">
             <div class="form-group">
               <label>Day Landings</label>
               <input type="number" id="landings_day" value="{{ entry.landings_day }}" min="0" placeholder="0">
@@ -380,16 +538,15 @@
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="form-section">
-          <div class="form-section-title">Pilot Time</div>
-          <div class="form-row">
+      <!-- Pilot Function -->
+      <div class="section">
+        <div class="section-header">Pilot Function</div>
+        <div class="section-body">
+          <div class="form-grid form-grid-5">
             <div class="form-group">
-              <label>Pilot in Command (PIC)</label>
-              <input type="number" id="pic" value="{{ entry.pic }}" step="0.1" min="0" placeholder="0.0">
-            </div>
-            <div class="form-group">
-              <label>Second in Command (SIC)</label>
+              <label>SIC</label>
               <input type="number" id="sic" value="{{ entry.sic }}" step="0.1" min="0" placeholder="0.0">
             </div>
             <div class="form-group">
@@ -397,44 +554,44 @@
               <input type="number" id="dual_recd" value="{{ entry.dual_recd }}" step="0.1" min="0" placeholder="0.0">
             </div>
             <div class="form-group">
-              <label>Dual Given (CFI)</label>
+              <label>Dual Given</label>
               <input type="number" id="dual_given" value="{{ entry.dual_given }}" step="0.1" min="0" placeholder="0.0">
             </div>
             <div class="form-group">
               <label>Solo</label>
               <input type="number" id="solo" value="{{ entry.solo }}" step="0.1" min="0" placeholder="0.0">
             </div>
-            <div class="form-group">
-              <label>Total Flight Time{% if entry.duration_estimated %} *{% endif %}</label>
-              <input type="number" id="total_duration" value="{{ entry.total_duration }}" step="0.1" min="0" placeholder="0.0">
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <div class="form-section-title">Remarks & Endorsements</div>
-          <div class="form-row">
-            <div class="form-group full-width">
-              <label>Remarks</label>
-              <textarea id="remarks" placeholder="Instructor, route details, maneuvers, weather conditions...">{{ entry.remarks }}</textarea>
-            </div>
           </div>
         </div>
       </div>
 
-      <div class="form-footer">
-        <div class="form-footer-left">
-          {% if not is_new %}
-          <button type="button" class="btn btn-danger" onclick="deleteEntry()"><i class="fas fa-trash"></i> Delete</button>
-          {% endif %}
-        </div>
-        <div>
-          <a href="/" class="btn btn-secondary">Cancel</a>
-          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Flight</button>
+      <!-- Remarks -->
+      <div class="section">
+        <div class="section-header">Remarks</div>
+        <div class="section-body">
+          <div class="form-group full-width">
+            <textarea id="remarks" placeholder="Route details, maneuvers, weather...">{{ entry.remarks }}</textarea>
+          </div>
         </div>
       </div>
     </form>
-  </div>
+  </main>
+
+  <footer class="footer">
+    {% if not is_new %}
+    <button type="button" class="btn btn-danger" onclick="deleteEntry()">
+      <i class="fas fa-trash"></i> Delete
+    </button>
+    {% else %}
+    <div></div>
+    {% endif %}
+    <div class="footer-actions">
+      <a href="/" class="btn btn-secondary">Cancel</a>
+      <button type="submit" form="entryForm" class="btn btn-primary btn-lg">
+        <i class="fas fa-check"></i> Save
+      </button>
+    </div>
+  </footer>
 
   <div class="toast" id="toast"></div>
 
@@ -448,36 +605,22 @@
       'remarks'
     ];
 
-    // Default values for auto-fill on tab
     const defaults = {
       date: '{{ entry.date }}',
       aircraft_model: 'TBM7',
       aircraft_ident: 'N790TB',
       route_from: 'KPAE',
-      route_to: '',
       sel: '0',
       mel: '0',
-      day: '',
-      night: '',
-      cross_country: '',
-      actual_inst: '',
-      simulated_inst: '',
       num_inst_app: '0',
       landings_day: '1',
-      landings_night: '0',
-      pic: '',
-      sic: '',
-      dual_recd: '',
-      dual_given: '',
-      solo: '',
-      total_duration: '',
-      remarks: ''
+      landings_night: '0'
     };
 
-    // Approach counts: { "ILS14R KBFI": 2, "RNAV16R KPAE": 1 }
-      let approachCounts = {};
+    let approachCounts = {};
+    let currentApproachAirport = '';
 
-    // Auto-fill defaults on focus (tab into field)
+    // Auto-fill on focus
     fields.forEach(f => {
       const el = document.getElementById(f);
       if (el && defaults[f]) {
@@ -490,30 +633,24 @@
       }
     });
 
-    // Auto-copy total_duration to pic when tabbing out of total_duration
+    // Auto-copy total to PIC and Day
     document.getElementById('total_duration').addEventListener('blur', function() {
-      const picField = document.getElementById('pic');
-      const dayField = document.getElementById('day');
-      if (this.value && (!picField.value || picField.value === '0')) {
-        picField.value = this.value;
-      }
-      if (this.value && (!dayField.value || dayField.value === '0')) {
-        dayField.value = this.value;
-      }
+      const pic = document.getElementById('pic');
+      const day = document.getElementById('day');
+      if (this.value && (!pic.value || pic.value === '0')) pic.value = this.value;
+      if (this.value && (!day.value || day.value === '0')) day.value = this.value;
     });
 
-    // Load approaches when destination is set
+    // Approach handling
     async function loadApproaches(airportCode) {
-      if (!airportCode || airportCode.trim() === '') {
+      if (!airportCode?.trim()) {
         document.getElementById('approach-selector-row').style.display = 'none';
         return;
       }
-
       try {
         const res = await fetch(`/api/approaches/${airportCode}`);
         const data = await res.json();
-
-        if (data.success && data.approaches && data.approaches.length > 0) {
+        if (data.success && data.approaches?.length > 0) {
           renderApproachSelector(data.approaches, data.airport);
         }
       } catch (e) {
@@ -521,81 +658,45 @@
       }
     }
 
-    // Current airport for approach tracking
-      let currentApproachAirport = '';
+    function renderApproachSelector(approaches, airport) {
+      const container = document.getElementById('approach-checkboxes');
+      const label = document.getElementById('approach-airport-label');
+      const row = document.getElementById('approach-selector-row');
 
-      function renderApproachSelector(approaches, airport) {
-        const container = document.getElementById('approach-checkboxes');
-        const label = document.getElementById('approach-airport-label');
-        const row = document.getElementById('approach-selector-row');
+      currentApproachAirport = airport.replace('*', '');
+      label.textContent = `(${airport})`;
+      container.innerHTML = '';
 
-        // Store the airport (strip asterisk if present)
-        currentApproachAirport = airport.replace('*', '');
-        label.textContent = `(${airport})`;
-        container.innerHTML = '';
+      approaches.forEach(approach => {
+        const item = document.createElement('div');
+        item.className = 'approach-item';
+        item.dataset.approachId = approach.id;
 
-        approaches.forEach(approach => {
-          const item = document.createElement('div');
-          item.className = 'approach-item';
-          item.dataset.approachId = approach.id;
+        const approachKey = `${approach.id} ${currentApproachAirport}`;
+        const count = approachCounts[approachKey] || 0;
+        if (count > 0) item.classList.add('has-count');
 
-          // Key format: "ILS14R KBFI" (id + space + airport)
-          const approachKey = `${approach.id} ${currentApproachAirport}`;
-          const count = approachCounts[approachKey] || 0;
-          if (count > 0) {
-            item.classList.add('has-count');
-          }
+        item.innerHTML = `
+          <button type="button" class="approach-btn" onclick="adjustApproachCount('${approach.id}', -1)">−</button>
+          <span class="approach-name">${approach.name}</span>
+          <span class="approach-count" id="count-${approach.id}">${count}</span>
+          <button type="button" class="approach-btn" onclick="adjustApproachCount('${approach.id}', 1)">+</button>
+        `;
+        container.appendChild(item);
+      });
 
-          // Minus button
-          const minusBtn = document.createElement('button');
-          minusBtn.type = 'button';
-          minusBtn.className = 'approach-btn approach-btn-minus';
-          minusBtn.textContent = '−';
-          minusBtn.onclick = () => adjustApproachCount(approach.id, -1);
-
-          // Approach name (display the full name in UI)
-          const nameSpan = document.createElement('span');
-          nameSpan.className = 'approach-name';
-          nameSpan.textContent = approach.name;
-
-          // Count display
-          const countSpan = document.createElement('span');
-          countSpan.className = 'approach-count';
-          countSpan.id = `count-${approach.id}`;
-          countSpan.textContent = count;
-
-          // Plus button
-          const plusBtn = document.createElement('button');
-          plusBtn.type = 'button';
-          plusBtn.className = 'approach-btn approach-btn-plus';
-          plusBtn.textContent = '+';
-          plusBtn.onclick = () => adjustApproachCount(approach.id, 1);
-
-          item.appendChild(minusBtn);
-          item.appendChild(nameSpan);
-          item.appendChild(countSpan);
-          item.appendChild(plusBtn);
-          container.appendChild(item);
-        });
-
-        row.style.display = 'flex';
-      }
+      row.style.display = 'block';
+    }
 
     function adjustApproachCount(approachId, delta) {
-      // Key format: "ILS14R KBFI" (id + space + airport)
       const approachKey = `${approachId} ${currentApproachAirport}`;
       const current = approachCounts[approachKey] || 0;
       const newCount = Math.max(0, current + delta);
 
-      if (newCount === 0) {
-        delete approachCounts[approachKey];
-      } else {
-        approachCounts[approachKey] = newCount;
-      }
+      if (newCount === 0) delete approachCounts[approachKey];
+      else approachCounts[approachKey] = newCount;
 
-      // Update UI
-      const items = document.querySelectorAll('.approach-item');
-      items.forEach(item => {
+      document.querySelectorAll('.approach-item').forEach(item => {
         if (item.dataset.approachId === approachId) {
           const countSpan = item.querySelector('.approach-count');
           countSpan.textContent = newCount;
@@ -614,45 +715,30 @@
 
     function updateRemarksWithApproaches() {
       const remarksField = document.getElementById('remarks');
-
-      // Build approach text - keys are already in "ILS14R KBFI" format
       const approachList = [];
-      for (const [approachKey, count] of Object.entries(approachCounts)) {
+      for (const [key, count] of Object.entries(approachCounts)) {
         if (count > 0) {
-          if (count === 1) {
-            approachList.push(approachKey);
-          } else {
-            approachList.push(`${approachKey} x${count}`);
-          }
+          approachList.push(count === 1 ? key : `${key} x${count}`);
         }
       }
-
-      // Remarks contain ONLY approaches
       remarksField.value = approachList.join(', ');
     }
 
-    // No need to track user edits - remarks are managed by approach selector
-
-    // Show approach selector when num_inst_app field is focused
     document.getElementById('num_inst_app').addEventListener('focus', function() {
-      const destAirport = document.getElementById('route_to').value;
-      if (destAirport && destAirport.trim() !== '') {
-        loadApproaches(destAirport);
-      }
+      const dest = document.getElementById('route_to').value;
+      if (dest?.trim()) loadApproaches(dest);
     });
 
     document.getElementById('num_inst_app').addEventListener('change', function() {
-      const destAirport = document.getElementById('route_to').value;
-      if (this.value > 0 && destAirport) {
-        loadApproaches(destAirport);
-      } else if (this.value == 0) {
+      const dest = document.getElementById('route_to').value;
+      if (this.value > 0 && dest) loadApproaches(dest);
+      else if (this.value == 0) {
         document.getElementById('approach-selector-row').style.display = 'none';
         approachCounts = {};
         updateRemarksWithApproaches();
       }
     });
 
-    // Load approaches when destination airport changes
     document.getElementById('route_to').addEventListener('blur', function() {
       const numApp = document.getElementById('num_inst_app').value;
       if (numApp > 0 || document.getElementById('approach-selector-row').style.display !== 'none') {
@@ -660,34 +746,25 @@
       }
     });
 
-    // Parse existing remarks for approaches on page load
     function parseExistingApproaches() {
       const remarks = document.getElementById('remarks').value;
       if (!remarks) return;
-
-      // Parse new format: "ILS14R KBFI, RNAV16R KPAE x2"
       const entries = remarks.split(',');
       for (const entry of entries) {
-        const trimmed = entry.trim();
-        if (!trimmed) continue;
-
-        // Match pattern like "ILS14R KBFI" or "ILS14R KBFI x2"
-        const match = trimmed.match(/^([A-Z0-9-]+)\s+([A-Z]{4})\s*(?:x(\d+))?$/i);
+        const match = entry.trim().match(/^([A-Z0-9-]+)\s+([A-Z]{4})\s*(?:x(\d+))?$/i);
         if (match) {
           const approachKey = `${match[1]} ${match[2].toUpperCase()}`;
-          const count = match[3] ? parseInt(match[3]) : 1;
-          approachCounts[approachKey] = count;
+          approachCounts[approachKey] = match[3] ? parseInt(match[3]) : 1;
         }
       }
     }
 
-    // On page load, check if we should show approach selector
     document.addEventListener('DOMContentLoaded', function() {
       parseExistingApproaches();
       const numApp = document.getElementById('num_inst_app').value;
-      const destAirport = document.getElementById('route_to').value;
-      if ((numApp > 0 || Object.keys(approachCounts).length > 0) && destAirport) {
-        loadApproaches(destAirport);
+      const dest = document.getElementById('route_to').value;
+      if ((numApp > 0 || Object.keys(approachCounts).length > 0) && dest) {
+        loadApproaches(dest);
       }
     });
 
@@ -700,11 +777,9 @@
 
     document.getElementById('entryForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-
       const entryId = document.getElementById('entryId').value;
       const isEdit = Boolean(entryId);
       const data = {};
-
       fields.forEach(f => {
         const el = document.getElementById(f);
         if (el) data[f] = el.value;
@@ -720,7 +795,7 @@
 
         if (res.ok) {
           showToast(isEdit ? 'Flight updated!' : 'Flight saved!');
-          setTimeout(() => window.location = '/', 1000);
+          setTimeout(() => window.location = '/', 800);
         } else {
           const err = await res.json();
           showToast(err.error || 'Error saving', true);
@@ -731,14 +806,13 @@
     });
 
     async function deleteEntry() {
-      if (!confirm('Are you sure you want to delete this flight entry?')) return;
-
+      if (!confirm('Delete this flight?')) return;
       const entryId = document.getElementById('entryId').value;
       try {
         const res = await fetch(`/api/entries/${entryId}`, { method: 'DELETE' });
         if (res.ok) {
           showToast('Flight deleted');
-          setTimeout(() => window.location = '/', 1000);
+          setTimeout(() => window.location = '/', 800);
         } else {
           showToast('Error deleting', true);
         }
