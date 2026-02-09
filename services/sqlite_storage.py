@@ -140,15 +140,15 @@ class SQLiteStorage:
         with self._get_connection() as conn:
             if sort_by_date:
                 # Sort by date descending (most recent first)
-                # Handle MM/DD/YYYY format by converting to sortable format
+                # Handle M/D/YYYY or MM/DD/YYYY format by parsing with instr()
                 cursor = conn.execute("""
                     SELECT * FROM entries
                     ORDER BY
                         CASE
-                            WHEN date LIKE '__/__/____'
-                            THEN substr(date, 7, 4) || '-' ||
-                                 substr(date, 1, 2) || '-' ||
-                                 substr(date, 4, 2)
+                            WHEN date LIKE '%/%/%'
+                            THEN substr(date, instr(date, '/') + instr(substr(date, instr(date, '/') + 1), '/') + 1) || '-' ||
+                                 printf('%02d', CAST(substr(date, 1, instr(date, '/') - 1) AS INTEGER)) || '-' ||
+                                 printf('%02d', CAST(substr(date, instr(date, '/') + 1, instr(substr(date, instr(date, '/') + 1), '/') - 1) AS INTEGER))
                             ELSE date
                         END DESC
                 """)
@@ -257,10 +257,10 @@ class SQLiteStorage:
                 WHERE date != '' AND date IS NOT NULL
                 ORDER BY
                     CASE
-                        WHEN date LIKE '__/__/____'
-                        THEN substr(date, 7, 4) || '-' ||
-                             substr(date, 1, 2) || '-' ||
-                             substr(date, 4, 2)
+                        WHEN date LIKE '%/%/%'
+                        THEN substr(date, instr(date, '/') + instr(substr(date, instr(date, '/') + 1), '/') + 1) || '-' ||
+                             printf('%02d', CAST(substr(date, 1, instr(date, '/') - 1) AS INTEGER)) || '-' ||
+                             printf('%02d', CAST(substr(date, instr(date, '/') + 1, instr(substr(date, instr(date, '/') + 1), '/') - 1) AS INTEGER))
                         ELSE date
                     END DESC
                 LIMIT 1
