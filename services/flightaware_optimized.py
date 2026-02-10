@@ -337,10 +337,14 @@ class OptimizedFlightAwareService:
             }
         }
 
-    def enrich_batch(self, flights: list[dict]) -> list[dict]:
+    def enrich_batch(self, flights: list[dict], estimate_imc: bool = True) -> list[dict]:
         """
         Enrich a batch of flights with airport lookups and calculations.
         This is done AFTER streaming, not during.
+
+        Args:
+            flights: List of flight dicts from _fast_extract
+            estimate_imc: Whether to estimate IMC time from weather data (slower)
         """
         from services.airport_lookup import find_closest_airport
         from services.sun_calculator import estimate_night_hours, is_night_landing
@@ -392,6 +396,37 @@ class OptimizedFlightAwareService:
                         flight["landings_day"] = 0
                 except Exception:
                     pass
+
+            # IMC estimation from historical weather data
+            if estimate_imc:
+                try:
+                    from services.weather_service import estimate_imc as calc_imc
+
+                    orig_lat = raw.get("orig_lat")
+                    orig_lon = raw.get("orig_lon")
+
+                    if all([orig_lat, orig_lon, dest_lat, dest_lon, flight.get("date"), flight.get("total_duration")]):
+                        # Parse date to ISO format
+                        date_str = flight["date"]
+                        if "/" in date_str:
+                            dt = datetime.strptime(date_str, "%m/%d/%Y")
+                            iso_date = dt.strftime("%Y-%m-%d")
+                        else:
+                            iso_date = date_str
+
+                        imc = calc_imc(
+                            orig_lat, orig_lon,
+                            dest_lat, dest_lon,
+                            iso_date,
+                            flight["total_duration"],
+                            cruise_alt_ft=25000  # TBM typical cruise
+                        )
+                        if imc > 0:
+                            flight["actual_inst"] = imc
+                            flight["imc_estimated"] = True
+                except Exception as e:
+                    # Don't fail enrichment if weather API fails
+                    print(f"IMC estimation failed: {e}")
 
             # Remove raw data
             flight.pop("_raw", None)
