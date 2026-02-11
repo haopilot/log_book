@@ -60,6 +60,46 @@ def haversine_nm(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
 
 
+def calculate_bearing(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculate initial bearing from point 1 to point 2 in degrees (0-360)."""
+    lat1_r, lon1_r = math.radians(lat1), math.radians(lon1)
+    lat2_r, lon2_r = math.radians(lat2), math.radians(lon2)
+
+    dlon = lon2_r - lon1_r
+    x = math.sin(dlon) * math.cos(lat2_r)
+    y = math.cos(lat1_r) * math.sin(lat2_r) - math.sin(lat1_r) * math.cos(lat2_r) * math.cos(dlon)
+
+    bearing = math.degrees(math.atan2(x, y))
+    return (bearing + 360) % 360
+
+
+def determine_cruise_altitude(lat1: float, lon1: float, lat2: float, lon2: float) -> int:
+    """
+    Determine cruise altitude based on distance and direction per FAA hemispheric rule.
+
+    Rules:
+    - < 100nm: 8,000 ft
+    - 100-200nm: FL230 (eastbound) or FL240 (westbound)
+    - > 200nm: FL290 (eastbound) or FL300 (westbound)
+
+    FAA Hemispheric Rule:
+    - Eastbound (0-179°): Odd flight levels
+    - Westbound (180-359°): Even flight levels
+    """
+    distance = haversine_nm(lat1, lon1, lat2, lon2)
+    bearing = calculate_bearing(lat1, lon1, lat2, lon2)
+
+    # Determine if eastbound (0-179°) or westbound (180-359°)
+    is_eastbound = bearing < 180
+
+    if distance < 100:
+        return 8000
+    elif distance < 200:
+        return 23000 if is_eastbound else 24000
+    else:
+        return 29000 if is_eastbound else 30000
+
+
 def query_cloud_cover(lat: float, lon: float, date: str, timeout: float = 8.0) -> Optional[dict]:
     """
     Query Open-Meteo for cloud cover at a specific location and date.
@@ -110,7 +150,7 @@ def estimate_imc(
     arr_lon: float,
     flight_date: str,
     duration_hrs: float,
-    cruise_alt_ft: int = 18000
+    cruise_alt_ft: Optional[int] = None
 ) -> float:
     """
     Estimate actual IMC time for a flight by sampling weather along the route.
@@ -120,13 +160,17 @@ def estimate_imc(
         arr_lat, arr_lon: Arrival coordinates
         flight_date: Date in YYYY-MM-DD format
         duration_hrs: Flight duration in hours
-        cruise_alt_ft: Cruise altitude in feet (default 18000 for turboprop)
+        cruise_alt_ft: Cruise altitude in feet (None = auto-determine from distance/direction)
 
     Returns:
         Estimated IMC hours (0.0 if below MIN_IMC_HOURS threshold)
     """
     if duration_hrs <= 0:
         return 0.0
+
+    # Auto-determine cruise altitude if not provided
+    if cruise_alt_ft is None:
+        cruise_alt_ft = determine_cruise_altitude(dep_lat, dep_lon, arr_lat, arr_lon)
 
     # Calculate route distance and sampling density
     route_dist = haversine_nm(dep_lat, dep_lon, arr_lat, arr_lon)

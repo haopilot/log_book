@@ -430,8 +430,8 @@ class OptimizedFlightAwareService:
                             orig_lat, orig_lon,
                             dest_lat, dest_lon,
                             iso_date,
-                            flight["total_duration"],
-                            cruise_alt_ft=25000  # TBM typical cruise
+                            flight["total_duration"]
+                            # cruise_alt_ft auto-determined from distance/direction
                         )
                         if imc > 0:
                             flight["actual_inst"] = imc
