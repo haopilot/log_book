@@ -401,9 +401,21 @@ class OptimizedFlightAwareService:
             if estimate_imc:
                 try:
                     from services.weather_service import estimate_imc as calc_imc
+                    from services.airport_lookup import get_airport_coordinates
 
                     orig_lat = raw.get("orig_lat")
                     orig_lon = raw.get("orig_lon")
+
+                    # If coordinates not in raw data, look them up from airport codes
+                    if not (orig_lat and orig_lon):
+                        coords = get_airport_coordinates(flight.get("route_from", ""))
+                        if coords:
+                            orig_lat, orig_lon = coords
+
+                    if not (dest_lat and dest_lon):
+                        coords = get_airport_coordinates(flight.get("route_to", ""))
+                        if coords:
+                            dest_lat, dest_lon = coords
 
                     if all([orig_lat, orig_lon, dest_lat, dest_lon, flight.get("date"), flight.get("total_duration")]):
                         # Parse date to ISO format
