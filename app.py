@@ -566,19 +566,25 @@ def get_approaches(airport_code):
 @app.route("/api/flightaware/import", methods=["POST"])
 def import_flightaware():
     """Import selected flights from FlightAware into logbook."""
+    from services.flightaware_optimized import OptimizedFlightAwareService
+
     data = request.json
     flights = data.get("flights", [])
 
     if not flights:
         return jsonify({"success": False, "error": "No flights to import"}), 400
 
+    # Enrich flights with airport data, night hours, and IMC estimates
+    service = OptimizedFlightAwareService()
+    flights = service.enrich_batch(flights, estimate_imc=True)
+
     imported_count = 0
     for flight_data in flights:
-        # Remove the already_imported and fa_flight_id fields before creating entry
+        # Remove metadata fields that shouldn't be saved to database
         flight_data.pop("already_imported", None)
         flight_data.pop("fa_flight_id", None)
-        flight_data.pop("_raw", None)
         flight_data.pop("duration_estimated", None)
+        flight_data.pop("imc_estimated", None)
 
         entry = LogbookEntry(
             date=flight_data.get("date", ""),
