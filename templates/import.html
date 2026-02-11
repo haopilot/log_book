@@ -631,6 +631,12 @@
         <label>Tail Number</label>
         <input type="text" id="tailNumber" value="{{ tail_number }}" placeholder="N790TB">
       </div>
+      <div class="form-group">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="checkbox" id="estimateImc" checked style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer;">
+          <span style="font-size: 0.875rem; text-transform: none; color: var(--text-primary);">Estimate IMC time from weather data</span>
+        </label>
+      </div>
       <button type="submit" class="btn btn-primary btn-lg" id="searchBtn">
         <i class="fas fa-sync-alt"></i> Scan for New Flights
       </button>
@@ -975,6 +981,7 @@
       if (selectedIndices.length === 0) return;
 
       const selectedFlights = selectedIndices.map(i => flights[i]);
+      const estimateImc = document.getElementById('estimateImc').checked;
 
       this.disabled = true;
       this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
@@ -983,7 +990,10 @@
         const res = await fetch('/api/flightaware/import', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ flights: selectedFlights })
+          body: JSON.stringify({
+            flights: selectedFlights,
+            estimate_imc: estimateImc
+          })
         });
 
         const data = await res.json();

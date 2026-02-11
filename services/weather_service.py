@@ -15,6 +15,9 @@ import requests
 # Minimum IMC to record (below this, don't bother logging)
 MIN_IMC_HOURS = 0.1
 
+# Weather query cache: {(lat, lon, date): result}
+_weather_cache: dict[tuple[float, float, str], dict] = {}
+
 
 def great_circle_points(lat1: float, lon1: float, lat2: float, lon2: float, num_points: int) -> list[tuple[float, float]]:
     """Generate points along the great circle path between two coordinates."""
@@ -100,7 +103,7 @@ def determine_cruise_altitude(lat1: float, lon1: float, lat2: float, lon2: float
         return 29000 if is_eastbound else 30000
 
 
-def query_cloud_cover(lat: float, lon: float, date: str, timeout: float = 8.0) -> Optional[dict]:
+def query_cloud_cover(lat: float, lon: float, date: str, timeout: float = 3.0) -> Optional[dict]:
     """
     Query Open-Meteo for cloud cover at a specific location and date.
 
@@ -113,6 +116,13 @@ def query_cloud_cover(lat: float, lon: float, date: str, timeout: float = 8.0) -
     Returns:
         Dict with 'low', 'mid', 'high' cloud cover percentages, or None on error
     """
+    # Round coordinates to ~5nm grid to improve cache hits
+    cache_key = (round(lat, 1), round(lon, 1), date)
+
+    # Check cache first
+    if cache_key in _weather_cache:
+        return _weather_cache[cache_key]
+
     url = "https://archive-api.open-meteo.com/v1/archive"
     params = {
         "latitude": lat,
@@ -136,7 +146,10 @@ def query_cloud_cover(lat: float, lon: float, date: str, timeout: float = 8.0) -
             avg_mid = sum(mid[14:22]) / 8 if len(mid) >= 22 else 0
             avg_high = sum(high[14:22]) / 8 if len(high) >= 22 else 0
 
-            return {"low": avg_low, "mid": avg_mid, "high": avg_high}
+            result = {"low": avg_low, "mid": avg_mid, "high": avg_high}
+            # Cache the result
+            _weather_cache[cache_key] = result
+            return result
     except Exception:
         pass
 
