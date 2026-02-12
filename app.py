@@ -622,6 +622,133 @@ def import_flightaware():
     })
 
 
+@app.route("/scan")
+def scan_page():
+    """Render logbook scanning interface."""
+    return render_template("scan.html")
+
+
+@app.route("/api/logbook/scan/upload", methods=["POST"])
+def upload_scan():
+    """
+    Accept image upload, run OCR, parse logbook format.
+
+    Accepts multipart/form-data with 'image' file.
+    Returns extracted flight entries as JSON.
+    """
+    import uuid
+    from services.ocr_service import LogbookOCRService
+    from services.logbook_parser import LogbookParser
+
+    if 'image' not in request.files:
+        return jsonify({"success": False, "error": "No image file provided"}), 400
+
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({"success": False, "error": "No file selected"}), 400
+
+    try:
+        # Save temp file
+        temp_path = f"/tmp/logbook_{uuid.uuid4()}.jpg"
+        file.save(temp_path)
+
+        # OCR extraction
+        ocr_service = LogbookOCRService()
+        text = ocr_service.extract_text_from_image(temp_path)
+
+        if not text:
+            os.remove(temp_path)
+            return jsonify({
+                "success": False,
+                "error": "No text detected in image. Please ensure the image is clear and well-lit."
+            }), 400
+
+        # Parse entries
+        parser = LogbookParser()
+        entries = parser.parse_logbook_page(text)
+
+        # Cleanup
+        os.remove(temp_path)
+
+        if not entries:
+            return jsonify({
+                "success": False,
+                "error": "No flight entries detected. Please ensure the image shows a logbook page with the standard column headers.",
+                "raw_text": text[:500]  # First 500 chars for debugging
+            }), 400
+
+        return jsonify({
+            "success": True,
+            "entries": entries,
+            "count": len(entries),
+            "raw_text": text  # For debugging
+        })
+
+    except Exception as e:
+        # Cleanup on error
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/logbook/scan/import", methods=["POST"])
+def import_scanned():
+    """
+    Import scanned logbook entries into database.
+
+    Accepts JSON with 'entries' array.
+    Returns imported count and entry IDs for undo.
+    """
+    data = request.json
+    entries = data.get("entries", [])
+
+    if not entries:
+        return jsonify({"success": False, "error": "No entries to import"}), 400
+
+    entry_ids = []
+    for entry_data in entries:
+        # Remove metadata
+        entry_data.pop("_raw", None)
+
+        # Create entry
+        entry = LogbookEntry(
+            date=entry_data.get("date", ""),
+            aircraft_model=entry_data.get("aircraft_model", ""),
+            aircraft_ident=entry_data.get("aircraft_ident", "").upper(),
+            route_from=entry_data.get("route_from", "").upper(),
+            route_to=entry_data.get("route_to", "").upper(),
+            sel=parse_float(entry_data.get("sel")),
+            mel=parse_float(entry_data.get("mel")),
+            day=parse_float(entry_data.get("day")),
+            night=parse_float(entry_data.get("night")),
+            cross_country=parse_float(entry_data.get("cross_country")),
+            actual_inst=parse_float(entry_data.get("actual_inst")),
+            simulated_inst=parse_float(entry_data.get("simulated_inst")),
+            num_inst_app=parse_int(entry_data.get("num_inst_app")),
+            landings_day=parse_int(entry_data.get("landings_day")),
+            landings_night=parse_int(entry_data.get("landings_night")),
+            pic=parse_float(entry_data.get("pic")),
+            sic=parse_float(entry_data.get("sic")),
+            dual_recd=parse_float(entry_data.get("dual_recd")),
+            dual_given=parse_float(entry_data.get("dual_given")),
+            solo=parse_float(entry_data.get("solo")),
+            total_duration=parse_float(entry_data.get("total_duration")),
+            remarks=entry_data.get("remarks", ""),
+        )
+
+        entry_id = storage.add_entry(entry)
+        entry_ids.append(entry_id)
+
+    save_to_sheets()
+
+    return jsonify({
+        "success": True,
+        "imported": len(entry_ids),
+        "entry_ids": entry_ids,
+        "message": f"Imported {len(entry_ids)} flight(s) from scanned logbook"
+    })
+
+
 if __name__ == "__main__":
     print(f"Starting Pilot Logbook on http://{Config.HOST}:{Config.PORT}")
     app.run(host=Config.HOST, port=Config.PORT, debug=Config.DEBUG)
