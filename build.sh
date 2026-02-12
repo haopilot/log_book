@@ -3,6 +3,10 @@
 
 set -o errexit  # Exit on error
 
+# Install system dependencies (Tesseract OCR for logbook scanning)
+echo "Installing Tesseract OCR..."
+apt-get update && apt-get install -y tesseract-ocr || echo "Warning: Could not install Tesseract (may already be installed or need sudo)"
+
 # Install Python dependencies
 pip install -r requirements.txt
 
