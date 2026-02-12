@@ -570,14 +570,13 @@ def import_flightaware():
 
     data = request.json
     flights = data.get("flights", [])
-    estimate_imc = data.get("estimate_imc", True)  # Default to True for backwards compatibility
 
     if not flights:
         return jsonify({"success": False, "error": "No flights to import"}), 400
 
-    # Enrich flights with airport data, night hours, and optionally IMC estimates
+    # Enrich flights with airport data and night hours
     service = OptimizedFlightAwareService()
-    flights = service.enrich_batch(flights, estimate_imc=estimate_imc)
+    flights = service.enrich_batch(flights)
 
     imported_count = 0
     for flight_data in flights:
