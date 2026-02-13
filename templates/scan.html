@@ -436,41 +436,32 @@
       document.getElementById('imageInput').click();
     });
 
-    // Image selection
-    document.getElementById('imageInput').addEventListener('change', (e) => {
-      console.log('File input changed');
+    // Image selection - automatically extract when file is selected
+    document.getElementById('imageInput').addEventListener('change', async (e) => {
       const file = e.target.files[0];
-      console.log('Selected file:', file);
 
-      if (file) {
-        console.log('Reading file...');
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          console.log('File loaded, showing preview');
-          document.getElementById('previewImg').src = e.target.result;
-          document.getElementById('imagePreview').classList.remove('hidden');
-          document.getElementById('footerMessage').textContent = 'Image loaded - click "Extract Flight Data" to continue';
-        };
-        reader.onerror = (e) => {
-          console.error('FileReader error:', e);
-          showToast('Failed to load image', true);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        console.log('No file selected');
-      }
-    });
-
-    // Extract button
-    document.getElementById('extractBtn').addEventListener('click', async () => {
-      const file = document.getElementById('imageInput').files[0];
       if (!file) {
-        showToast('Please select an image first', true);
         return;
       }
 
+      // Show processing state immediately
       showState('processing');
+      document.getElementById('footerMessage').textContent = 'Processing image...';
 
+      // Load preview image
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById('previewImg').src = e.target.result;
+        document.getElementById('imagePreview').classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+
+      // Start extraction immediately
+      await extractFlightData(file);
+    });
+
+    // Extract flight data function
+    async function extractFlightData(file) {
       const formData = new FormData();
       formData.append('image', file);
 
@@ -486,19 +477,31 @@
           extractedEntries = data.entries;
           renderEntries(extractedEntries);
           showState('results');
-          document.getElementById('footerMessage').textContent = `${data.count} flight(s) extracted - review and import`;
+          document.getElementById('footerMessage').textContent = `${data.entries.length} flight(s) extracted - review and import`;
         } else {
           document.getElementById('errorTitle').textContent = 'Extraction Failed';
-          document.getElementById('errorMessage').textContent = data.error;
+          document.getElementById('errorMessage').textContent = data.error || 'Could not extract flight data from image';
           showState('error');
-          showToast(data.error, true);
+          showToast(data.error || 'Extraction failed', true);
         }
       } catch (e) {
         document.getElementById('errorTitle').textContent = 'Extraction Failed';
-        document.getElementById('errorMessage').textContent = e.message;
+        document.getElementById('errorMessage').textContent = 'Network error or server unavailable';
         showState('error');
         showToast('Failed to extract data', true);
       }
+    }
+
+    // Extract button (kept for manual retry if needed)
+    document.getElementById('extractBtn').addEventListener('click', async () => {
+      const file = document.getElementById('imageInput').files[0];
+      if (!file) {
+        showToast('Please select an image first', true);
+        return;
+      }
+
+      showState('processing');
+      await extractFlightData(file);
     });
 
     function renderEntries(entries) {
