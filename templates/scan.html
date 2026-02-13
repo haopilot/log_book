@@ -438,15 +438,26 @@
 
     // Image selection
     document.getElementById('imageInput').addEventListener('change', (e) => {
+      console.log('File input changed');
       const file = e.target.files[0];
+      console.log('Selected file:', file);
+
       if (file) {
+        console.log('Reading file...');
         const reader = new FileReader();
         reader.onload = (e) => {
+          console.log('File loaded, showing preview');
           document.getElementById('previewImg').src = e.target.result;
           document.getElementById('imagePreview').classList.remove('hidden');
           document.getElementById('footerMessage').textContent = 'Image loaded - click "Extract Flight Data" to continue';
         };
+        reader.onerror = (e) => {
+          console.error('FileReader error:', e);
+          showToast('Failed to load image', true);
+        };
         reader.readAsDataURL(file);
+      } else {
+        console.log('No file selected');
       }
     });
 
