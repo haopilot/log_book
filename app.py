@@ -652,9 +652,9 @@ def upload_scan():
         temp_path = f"/tmp/logbook_{uuid.uuid4()}.jpg"
         file.save(temp_path)
 
-        # OCR extraction
+        # OCR extraction using Google Vision API (better for handwriting)
         ocr_service = LogbookOCRService()
-        text = ocr_service.extract_text_from_image(temp_path)
+        text = ocr_service.extract_text_with_google_vision(temp_path)
 
         if not text:
             os.remove(temp_path)

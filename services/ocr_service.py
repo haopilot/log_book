@@ -5,6 +5,8 @@ Provides image preprocessing and text extraction capabilities optimized
 for pilot logbook pages (ASA/Jeppesen format).
 """
 
+from __future__ import annotations
+
 import os
 from typing import Optional
 
@@ -16,6 +18,14 @@ try:
 except ImportError as e:
     print(f"Warning: OCR dependencies not installed: {e}")
     print("Install with: pip install pytesseract pillow opencv-python")
+
+try:
+    from google.cloud import vision
+    VISION_AVAILABLE = True
+except ImportError:
+    VISION_AVAILABLE = False
+    print("Warning: Google Cloud Vision not installed")
+    print("Install with: pip install google-cloud-vision")
 
 
 class LogbookOCRService:
@@ -180,3 +190,46 @@ class LogbookOCRService:
         except Exception as e:
             print(f"Error extracting with confidence: {e}")
             return {'text': '', 'confidence': 0, 'data': {}}
+
+    def extract_text_with_google_vision(self, image_path: str) -> str:
+        """
+        Extract text using Google Cloud Vision API (supports handwriting).
+
+        This method uses Google's machine learning models which are much better
+        at recognizing handwritten text than Tesseract.
+
+        Args:
+            image_path: Path to input image
+
+        Returns:
+            Extracted text as string
+        """
+        if not VISION_AVAILABLE:
+            print("Google Cloud Vision not available, falling back to Tesseract")
+            return self.extract_text_from_image(image_path)
+
+        try:
+            # Initialize Vision API client
+            client = vision.ImageAnnotatorClient()
+
+            # Load image
+            with open(image_path, 'rb') as image_file:
+                content = image_file.read()
+
+            image = vision.Image(content=content)
+
+            # Perform document text detection (best for dense text like logbooks)
+            response = client.document_text_detection(image=image)
+
+            if response.error.message:
+                raise Exception(f"Vision API error: {response.error.message}")
+
+            # Extract full text
+            text = response.full_text_annotation.text if response.full_text_annotation else ""
+
+            return text.strip()
+
+        except Exception as e:
+            print(f"Error with Google Vision API: {e}")
+            print("Falling back to Tesseract OCR")
+            return self.extract_text_from_image(image_path)
