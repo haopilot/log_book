@@ -16,6 +16,8 @@ services:
         sync: false
       - key: GOOGLE_CREDENTIALS_FILE
         value: credentials.json
+      - key: GOOGLE_APPLICATION_CREDENTIALS
+        value: service-account.json
       - key: AIRCRAFT_TAIL_NUMBER
         value: N790TB
       - key: AIRCRAFT_MAKE

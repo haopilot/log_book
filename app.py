@@ -654,14 +654,19 @@ def upload_scan():
 
         # OCR extraction using Google Vision API (better for handwriting)
         # Use structured output for better table parsing
+        print(f"Starting OCR extraction for: {temp_path}")
         ocr_service = LogbookOCRService()
         text = ocr_service.extract_text_with_google_vision(temp_path, structured=True)
+
+        print(f"OCR extracted {len(text)} characters")
+        if text:
+            print(f"First 200 chars: {text[:200]}")
 
         if not text:
             os.remove(temp_path)
             return jsonify({
                 "success": False,
-                "error": "No text detected in image. Please ensure the image is clear and well-lit."
+                "error": "No text detected in image. Please ensure the image is clear and well-lit. Check server logs for details."
             }), 400
 
         # Parse entries

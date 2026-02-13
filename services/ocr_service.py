@@ -206,21 +206,35 @@ class LogbookOCRService:
             Extracted text as string, or structured data if requested
         """
         if not VISION_AVAILABLE:
-            print("Google Cloud Vision not available, falling back to Tesseract")
+            print("ERROR: Google Cloud Vision not available, falling back to Tesseract")
             return self.extract_text_from_image(image_path)
 
         try:
+            # Check for credentials
+            import os as os_module
+            creds_path = os_module.environ.get('GOOGLE_APPLICATION_CREDENTIALS', 'Not set')
+            print(f"GOOGLE_APPLICATION_CREDENTIALS: {creds_path}")
+            if creds_path != 'Not set' and os_module.path.exists(creds_path):
+                print(f"Credentials file exists: {creds_path}")
+            else:
+                print(f"WARNING: Credentials file not found or env var not set")
+
+            print(f"Initializing Google Vision API client for: {image_path}")
             # Initialize Vision API client
             client = vision.ImageAnnotatorClient()
+            print("Vision API client initialized successfully")
 
             # Load image
             with open(image_path, 'rb') as image_file:
                 content = image_file.read()
 
+            print(f"Image loaded: {len(content)} bytes")
             image = vision.Image(content=content)
 
             # Perform document text detection (best for dense text like logbooks)
+            print("Calling Vision API document_text_detection...")
             response = client.document_text_detection(image=image)
+            print("Vision API call completed")
 
             if response.error.message:
                 raise Exception(f"Vision API error: {response.error.message}")
