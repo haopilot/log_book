@@ -420,8 +420,14 @@
       document.getElementById('errorState').classList.add('hidden');
       document.getElementById('resultsContainer').classList.add('hidden');
 
+      // Hide image preview during processing to avoid confusion
+      if (state === 'processing') {
+        document.getElementById('imagePreview').classList.add('hidden');
+      }
+
       if (state === 'initial') {
         document.getElementById('initialState').classList.remove('hidden');
+        document.getElementById('imagePreview').classList.add('hidden');
       } else if (state === 'processing') {
         document.getElementById('processingState').classList.remove('hidden');
       } else if (state === 'error') {
@@ -446,13 +452,13 @@
 
       // Show processing state immediately
       showState('processing');
-      document.getElementById('footerMessage').textContent = 'Processing image...';
+      document.getElementById('footerMessage').textContent = 'Processing image with Google Vision AI...';
 
-      // Load preview image
+      // Load preview image (but keep it hidden during processing)
       const reader = new FileReader();
       reader.onload = (e) => {
         document.getElementById('previewImg').src = e.target.result;
-        document.getElementById('imagePreview').classList.remove('hidden');
+        // Don't show preview yet - wait until processing completes
       };
       reader.readAsDataURL(file);
 
