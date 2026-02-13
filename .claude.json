@@ -1,0 +1,5 @@
+{
+  "permissionMode": "dontAsk",
+  "allowedTools": ["Bash", "Read", "Edit", "Write", "Glob", "Grep", "Task", "WebFetch", "WebSearch"],
+  "dangerouslySkipPermissions": false
+}

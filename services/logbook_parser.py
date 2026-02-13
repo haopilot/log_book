@@ -56,21 +56,21 @@ class LogbookParser:
         # Split into lines
         lines = [line.strip() for line in text.split('\n') if line.strip()]
 
-        # Find header row
+        # Try column-based parsing first (for printed logbooks)
         header_idx, column_map = self._detect_columns(lines)
-        if header_idx is None or not column_map:
-            print("Warning: Could not detect logbook columns")
-            return []
+        if header_idx is not None and column_map:
+            # Extract entries from data rows using column positions
+            entries = []
+            for i in range(header_idx + 1, len(lines)):
+                entry = self._extract_row(lines[i], column_map)
+                if entry and entry.get('date'):  # Must have at least a date
+                    normalized = self._normalize_entry(entry)
+                    entries.append(normalized)
+            return entries
 
-        # Extract entries from data rows
-        entries = []
-        for i in range(header_idx + 1, len(lines)):
-            entry = self._extract_row(lines[i], column_map)
-            if entry and entry.get('date'):  # Must have at least a date
-                normalized = self._normalize_entry(entry)
-                entries.append(normalized)
-
-        return entries
+        # Fall back to pattern-based parsing (for handwritten/Vision API)
+        print("Using pattern-based parsing for handwritten text")
+        return self._parse_with_patterns(lines)
 
     def _detect_columns(self, lines: List[str]) -> Tuple[Optional[int], Dict]:
         """
@@ -266,3 +266,86 @@ class LogbookParser:
                 normalized[field] = 0
 
         return normalized
+
+    def _parse_with_patterns(self, lines: List[str]) -> List[Dict]:
+        """
+        Parse logbook entries using pattern matching (for handwritten text).
+
+        This method looks for date patterns and extracts flight data from
+        each line without relying on strict column positions.
+
+        Args:
+            lines: List of text lines from OCR
+
+        Returns:
+            List of flight entry dicts
+        """
+        entries = []
+
+        # Date pattern: M/D or MM/DD (digits/digits) at start of line
+        # Must be followed by aircraft type (letters, numbers, hyphens)
+        # Must have reasonable length (2-8 chars for aircraft type)
+        date_pattern = r'^(\d{1,2}/\d{1,2})\s+([A-Z]{1,}[A-Z0-9\s\-]{1,10})'
+
+        for line in lines:
+            # Look for lines starting with a date followed by aircraft
+            match = re.match(date_pattern, line, re.IGNORECASE)
+            if not match:
+                continue
+
+            date_str = match.group(1)
+            aircraft = match.group(2).strip()
+
+            # Validate: must have at least date and aircraft
+            if not aircraft or len(aircraft) < 2:
+                continue
+
+            rest = line[match.end():].strip()
+
+            # Extract data from the line
+            entry = {
+                'date': date_str,
+                'aircraft_model': aircraft
+            }
+
+            # Extract aircraft ident (tail number: N followed by alphanumeric) from full line
+            tail_match = re.search(r'\bN\d+[A-Z]*\b', rest, re.IGNORECASE)
+            if tail_match:
+                entry['aircraft_ident'] = tail_match.group().upper()
+
+            # Extract airports (3-4 letter codes, case insensitive)
+            # Look for patterns like BFF, PAE, KSEA etc
+            airport_pattern = r'\b[A-Z]{3,4}\b'
+            airport_matches = re.findall(airport_pattern, rest, re.IGNORECASE)
+            airports = []
+            for match in airport_matches:
+                code = match.upper()
+                # Filter out common non-airport words and tail numbers
+                if (len(code) in [3, 4] and
+                    not code.startswith('N') and
+                    code not in ['FROM', 'DATE', 'TIME', 'SOLO', 'INST', 'APPR']):
+                    airports.append(code)
+                    if len(airports) >= 2:
+                        break
+
+            if len(airports) >= 1:
+                entry['route_from'] = airports[0]
+            if len(airports) >= 2:
+                entry['route_to'] = airports[1]
+
+            # Extract flight times (decimal numbers like 1.4, 2.2)
+            time_matches = re.findall(r'\b(\d+\.\d+)\b', line)
+            if time_matches:
+                # Convert to floats for sorting
+                times = [float(t) for t in time_matches]
+                # Largest time is usually total duration
+                entry['total_duration'] = str(max(times))
+                # Assume PIC = total for now
+                entry['pic'] = str(max(times))
+
+            # Normalize and add entry
+            if entry.get('date'):  # Must have at least a date
+                normalized = self._normalize_entry(entry)
+                entries.append(normalized)
+
+        return entries

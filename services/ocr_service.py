@@ -191,7 +191,7 @@ class LogbookOCRService:
             print(f"Error extracting with confidence: {e}")
             return {'text': '', 'confidence': 0, 'data': {}}
 
-    def extract_text_with_google_vision(self, image_path: str) -> str:
+    def extract_text_with_google_vision(self, image_path: str, structured: bool = False) -> str:
         """
         Extract text using Google Cloud Vision API (supports handwriting).
 
@@ -200,9 +200,10 @@ class LogbookOCRService:
 
         Args:
             image_path: Path to input image
+            structured: If True, return structured data with word positions
 
         Returns:
-            Extracted text as string
+            Extracted text as string, or structured data if requested
         """
         if not VISION_AVAILABLE:
             print("Google Cloud Vision not available, falling back to Tesseract")
@@ -224,6 +225,10 @@ class LogbookOCRService:
             if response.error.message:
                 raise Exception(f"Vision API error: {response.error.message}")
 
+            if structured and response.full_text_annotation:
+                # Return structured data with word positions for table parsing
+                return self._extract_structured_data(response.full_text_annotation)
+
             # Extract full text
             text = response.full_text_annotation.text if response.full_text_annotation else ""
 
@@ -233,3 +238,42 @@ class LogbookOCRService:
             print(f"Error with Google Vision API: {e}")
             print("Falling back to Tesseract OCR")
             return self.extract_text_from_image(image_path)
+
+    def _extract_structured_data(self, annotation) -> dict:
+        """
+        Extract structured data with word positions from Vision API response.
+
+        This helps parse tabular data by understanding spatial layout.
+        """
+        rows = {}  # Group words by row (y-coordinate)
+
+        for page in annotation.pages:
+            for block in page.blocks:
+                for paragraph in block.paragraphs:
+                    for word in paragraph.words:
+                        # Get word text
+                        word_text = ''.join([symbol.text for symbol in word.symbols])
+
+                        # Get bounding box to determine position
+                        vertices = word.bounding_box.vertices
+                        y_pos = vertices[0].y  # Top y-coordinate
+
+                        # Group words by row (within 10 pixels tolerance)
+                        row_key = y_pos // 10 * 10
+                        if row_key not in rows:
+                            rows[row_key] = []
+
+                        rows[row_key].append({
+                            'text': word_text,
+                            'x': vertices[0].x,
+                            'y': y_pos
+                        })
+
+        # Sort rows by y-position and words within each row by x-position
+        sorted_rows = []
+        for y in sorted(rows.keys()):
+            words = sorted(rows[y], key=lambda w: w['x'])
+            row_text = ' '.join([w['text'] for w in words])
+            sorted_rows.append(row_text)
+
+        return '\n'.join(sorted_rows)

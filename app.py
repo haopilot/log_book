@@ -653,8 +653,9 @@ def upload_scan():
         file.save(temp_path)
 
         # OCR extraction using Google Vision API (better for handwriting)
+        # Use structured output for better table parsing
         ocr_service = LogbookOCRService()
-        text = ocr_service.extract_text_with_google_vision(temp_path)
+        text = ocr_service.extract_text_with_google_vision(temp_path, structured=True)
 
         if not text:
             os.remove(temp_path)
