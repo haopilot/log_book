@@ -57,8 +57,14 @@ Important:
 - The logbook is in standard ASA/Jeppesen format
 - Include ALL columns you can read - do not skip any time categories
 
-Return ONLY valid JSON array, no other text. Example:
-[{"date": "5/9/2004", "aircraft_model": "DA-20", "aircraft_ident": "N636DC", "route_from": "BFI", "route_to": "BFI", "remarks": "Stalls, slow flight", "total_duration": 1.4, "pic": 0, "sic": 0, "dual_recd": 1.4, "dual_given": 0, "solo": 0, "cross_country": 0, "night": 0, "actual_inst": 0, "simulated_inst": 0, "num_inst_app": 0, "landings_day": 3, "landings_night": 0}]"""
+Return a JSON object with two fields:
+1. "total_rows_visible": the total number of flight data rows you can see in the logbook (count every row that has ANY data written in it)
+2. "entries": the JSON array of extracted flight entries
+
+The length of "entries" MUST equal "total_rows_visible". If they don't match, you missed rows.
+
+Example:
+{"total_rows_visible": 1, "entries": [{"date": "5/9/2004", "aircraft_model": "DA-20", "aircraft_ident": "N636DC", "route_from": "BFI", "route_to": "BFI", "remarks": "Stalls, slow flight", "total_duration": 1.4, "pic": 0, "sic": 0, "dual_recd": 1.4, "dual_given": 0, "solo": 0, "cross_country": 0, "night": 0, "actual_inst": 0, "simulated_inst": 0, "num_inst_app": 0, "landings_day": 3, "landings_night": 0}]}"""
 
     def __init__(self):
         """Initialize OCR service."""
@@ -98,14 +104,14 @@ Return ONLY valid JSON array, no other text. Example:
             List of flight entry dicts, or empty list on failure
         """
         if not GEMINI_AVAILABLE:
-            print("ERROR: Vertex AI not available")
-            return []
+            print("ERROR: google-generativeai not available")
+            return [], 0, 0
 
         self._init_gemini()
 
         if not self._gemini_initialized:
             print("ERROR: Gemini not initialized")
-            return []
+            return [], 0, 0
 
         try:
             # Load image
@@ -147,11 +153,23 @@ Return ONLY valid JSON array, no other text. Example:
                 response_text = '\n'.join(lines)
 
             # Parse JSON
-            entries = json.loads(response_text)
+            parsed = json.loads(response_text)
 
-            if not isinstance(entries, list):
-                print(f"WARNING: Gemini returned non-list: {type(entries)}")
-                return []
+            # Handle both formats: object with total_rows_visible or plain list
+            if isinstance(parsed, dict):
+                expected_rows = parsed.get('total_rows_visible', 0)
+                entries = parsed.get('entries', [])
+                print(f"Gemini reports {expected_rows} rows visible, extracted {len(entries)} entries")
+
+                if expected_rows > len(entries):
+                    print(f"WARNING: Missing {expected_rows - len(entries)} rows! "
+                          f"Expected {expected_rows}, got {len(entries)}")
+            elif isinstance(parsed, list):
+                entries = parsed
+                expected_rows = len(entries)
+            else:
+                print(f"WARNING: Gemini returned unexpected type: {type(parsed)}")
+                return [], 0, 0
 
             print(f"Gemini extracted {len(entries)} flight entries")
 
@@ -160,15 +178,15 @@ Return ONLY valid JSON array, no other text. Example:
             for entry in entries:
                 normalized.append(self._normalize_entry(entry))
 
-            return normalized
+            return normalized, expected_rows, len(entries)
 
         except json.JSONDecodeError as e:
             print(f"Error parsing Gemini JSON response: {e}")
             print(f"Response was: {response_text[:500]}")
-            return []
+            return [], 0, 0
         except Exception as e:
             print(f"Error with Gemini extraction: {e}")
-            return []
+            return [], 0, 0
 
     def _normalize_entry(self, entry: dict) -> dict:
         """Normalize a flight entry to ensure all fields exist with proper types."""

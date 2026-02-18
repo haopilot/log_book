@@ -654,7 +654,7 @@ def upload_scan():
         # Extract flight data using Gemini AI (multimodal LLM)
         print(f"Starting Gemini extraction for: {temp_path}")
         ocr_service = LogbookOCRService()
-        entries = ocr_service.extract_flights_with_gemini(temp_path)
+        entries, expected_rows, actual_rows = ocr_service.extract_flights_with_gemini(temp_path)
 
         # Cleanup
         os.remove(temp_path)
@@ -665,9 +665,15 @@ def upload_scan():
                 "error": "No flight entries detected. Please ensure the image shows a logbook page with flight data."
             }), 400
 
-        print(f"Successfully extracted {len(entries)} entries")
+        # Build warning if rows are missing
+        warning = None
+        if expected_rows > actual_rows:
+            warning = f"Expected {expected_rows} rows but only extracted {actual_rows}. Some rows may be missing."
+
+        print(f"Successfully extracted {actual_rows} of {expected_rows} entries")
         return jsonify({
             "success": True,
+            "warning": warning,
             "entries": entries,
             "count": len(entries),
         })

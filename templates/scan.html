@@ -465,6 +465,7 @@
 
       showState('processing');
       let totalEntries = [];
+      let warnings = [];
       let errors = [];
 
       for (let i = 0; i < files.length; i++) {
@@ -481,11 +482,14 @@
           'Analyzing your logbook page with Gemini AI. This may take a few seconds per page.';
 
         try {
-          const entries = await extractFlightData(file);
-          if (entries.length > 0) {
-            totalEntries = totalEntries.concat(entries);
+          const result = await extractFlightData(file);
+          if (result.entries.length > 0) {
+            totalEntries = totalEntries.concat(result.entries);
           } else {
             errors.push(`Page ${pageNum}: no entries detected`);
+          }
+          if (result.warning) {
+            warnings.push(`Page ${pageNum}: ${result.warning}`);
           }
         } catch (err) {
           errors.push(`Page ${pageNum}: ${err.message}`);
@@ -497,6 +501,9 @@
         renderEntries(extractedEntries);
         showState('results');
         let msg = `${totalEntries.length} flight(s) extracted from ${files.length} page(s) - review and import`;
+        if (warnings.length) {
+          showToast(warnings.join('; '), true);
+        }
         if (errors.length) msg += ` (${errors.length} page(s) had issues)`;
         document.getElementById('footerMessage').textContent = msg;
       } else {
@@ -520,7 +527,7 @@
       const data = await res.json();
 
       if (data.success) {
-        return data.entries;
+        return { entries: data.entries, warning: data.warning || null };
       } else {
         throw new Error(data.error || 'Extraction failed');
       }
