@@ -19,11 +19,6 @@ except ImportError:
     GEMINI_AVAILABLE = False
     print("Warning: google-generativeai not installed. Install with: pip install google-generativeai")
 
-try:
-    from google.cloud import vision
-    VISION_AVAILABLE = True
-except ImportError:
-    VISION_AVAILABLE = False
 
 
 class LogbookOCRService:
@@ -37,8 +32,8 @@ Each flight entry should have these fields (use null if not readable):
 - date: string in "M/D/YYYY" or "MM/DD/YYYY" format. The year may be written once at the top of the page - apply it to all entries.
 - aircraft_model: aircraft type (e.g., "DA-20", "C-172", "PA-28", "TBM 700")
 - aircraft_ident: tail number (e.g., "N636DC", "N95225")
-- route_from: departure airport code (e.g., "BFI", "SEA", "PAE")
-- route_to: destination airport code (e.g., "BFI", "SEA", "PAE")
+- route_from: departure airport ICAO or FAA code (e.g., "BFI", "SEA", "PAE")
+- route_to: destination airport ICAO or FAA code (e.g., "BFI", "SEA", "PAE")
 - remarks: any remarks or endorsements text
 - total_duration: total flight time in decimal hours (e.g., 1.4, 2.2)
 - pic: pilot in command time in decimal hours
@@ -55,11 +50,12 @@ Each flight entry should have these fields (use null if not readable):
 - landings_night: number of night landings (integer)
 
 Important:
-- Read EVERY row of flight data, even if partially obscured
-- For airport codes, use standard FAA identifiers (3-4 letters)
+- Read EVERY row of flight data, even if partially obscured or hard to read
+- Airport codes MUST be valid real FAA or ICAO identifiers. If the handwriting is ambiguous, infer the most likely real airport code. For example, "BEE" is not a valid code but "BFI" (Boeing Field, Seattle) is. Common codes include: BFI, SEA, PAE, RNT, PWT, OLM, S43, S50, 0S9, HQM, BLI, etc.
 - If a route shows multiple stops like "BFI-PAE-BFI", set route_from to the first and route_to to the last
 - Set numeric fields to 0 if the cell is empty (not null)
 - The logbook is in standard ASA/Jeppesen format
+- Include ALL columns you can read - do not skip any time categories
 
 Return ONLY valid JSON array, no other text. Example:
 [{"date": "5/9/2004", "aircraft_model": "DA-20", "aircraft_ident": "N636DC", "route_from": "BFI", "route_to": "BFI", "remarks": "Stalls, slow flight", "total_duration": 1.4, "pic": 0, "sic": 0, "dual_recd": 1.4, "dual_given": 0, "solo": 0, "cross_country": 0, "night": 0, "actual_inst": 0, "simulated_inst": 0, "num_inst_app": 0, "landings_day": 3, "landings_night": 0}]"""

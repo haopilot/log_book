@@ -14,6 +14,7 @@
       --bg-dark: #0f172a;
       --bg-card: #1e293b;
       --bg-hover: #334155;
+      --bg-input: #0f172a;
       --text-primary: #f8fafc;
       --text-secondary: #94a3b8;
       --text-muted: #64748b;
@@ -82,7 +83,7 @@
     .upload-section {
       background: var(--bg-card);
       border-bottom: 1px solid var(--border);
-      padding: 20px;
+      padding: 16px 20px;
       flex-shrink: 0;
       text-align: center;
     }
@@ -90,7 +91,6 @@
     .file-input-wrapper {
       position: relative;
       display: inline-block;
-      margin-bottom: 16px;
     }
 
     #imageInput {
@@ -126,21 +126,14 @@
       transform: translateY(-1px);
     }
 
+    .btn-secondary {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
     .btn-lg {
       padding: 14px 28px;
       font-size: 0.9375rem;
-    }
-
-    #imagePreview {
-      max-width: 600px;
-      margin: 20px auto;
-      text-align: center;
-    }
-
-    #imagePreview img {
-      max-width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 8px;
     }
 
     .results-section {
@@ -170,10 +163,6 @@
     .state-icon.spinning {
       animation: spin 1s linear infinite;
       color: var(--primary-light);
-    }
-
-    .state-icon.success {
-      color: var(--success);
     }
 
     .state-icon.error {
@@ -211,6 +200,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
+      gap: 8px;
     }
 
     .results-count {
@@ -219,9 +209,14 @@
       color: var(--text-secondary);
     }
 
+    .results-actions {
+      display: flex;
+      gap: 8px;
+    }
+
     .entries-table {
       flex: 1;
-      overflow-y: auto;
+      overflow: auto;
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -230,6 +225,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
+      min-width: 900px;
     }
 
     th {
@@ -239,17 +235,16 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      padding: 12px 16px;
+      padding: 10px 4px;
       text-align: left;
       position: sticky;
       top: 0;
       border-bottom: 1px solid var(--border);
+      z-index: 1;
     }
 
     td {
-      padding: 14px 16px;
-      color: var(--text-primary);
-      font-size: 0.875rem;
+      padding: 2px;
       border-bottom: 1px solid var(--border);
     }
 
@@ -257,8 +252,44 @@
       border-bottom: none;
     }
 
-    tbody tr:hover {
-      background: var(--bg-hover);
+    /* Editable input cells */
+    td input {
+      width: 100%;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      border: 1px solid transparent;
+      border-radius: 4px;
+      padding: 8px 6px;
+      font-family: inherit;
+      font-size: 0.8125rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    td input:focus {
+      border-color: var(--primary-light);
+    }
+
+    td input.narrow {
+      width: 55px;
+      text-align: center;
+    }
+
+    td input.medium {
+      width: 75px;
+    }
+
+    td .delete-row {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      font-size: 0.75rem;
+    }
+
+    td .delete-row:hover {
+      color: var(--error);
     }
 
     .import-footer {
@@ -292,21 +323,10 @@
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
     }
 
-    .toast.success {
-      border-color: var(--success);
-    }
-
-    .toast.success i {
-      color: var(--success);
-    }
-
-    .toast.error {
-      border-color: var(--error);
-    }
-
-    .toast.error i {
-      color: var(--error);
-    }
+    .toast.success { border-color: var(--success); }
+    .toast.success i { color: var(--success); }
+    .toast.error { border-color: var(--error); }
+    .toast.error i { color: var(--error); }
 
     .toast.show {
       opacity: 1;
@@ -319,22 +339,15 @@
 <body>
   <header class="header">
     <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
-    <h1 class="page-title"><i class="fas fa-camera"></i> Scan Physical Logbook</h1>
+    <h1 class="page-title"><i class="fas fa-camera"></i> Scan Logbook</h1>
     <div class="header-spacer"></div>
   </header>
 
   <div class="upload-section">
     <div class="file-input-wrapper">
-      <input type="file" id="imageInput" accept="image/*">
+      <input type="file" id="imageInput" accept="image/*" multiple>
       <button class="btn btn-primary btn-lg" id="selectImageBtn">
-        <i class="fas fa-camera"></i> Take Photo / Select Image
-      </button>
-    </div>
-    <div id="imagePreview" class="hidden">
-      <img id="previewImg" alt="Logbook preview" />
-      <br><br>
-      <button class="btn btn-primary" id="extractBtn">
-        <i class="fas fa-text-height"></i> Extract Flight Data
+        <i class="fas fa-camera"></i> Select Photos
       </button>
     </div>
   </div>
@@ -344,17 +357,17 @@
     <div id="initialState" class="state-container">
       <i class="fas fa-book state-icon"></i>
       <p class="state-title">Ready to Scan</p>
-      <p class="state-subtitle">Take a photo or upload an image of your physical logbook page. The scanner will automatically extract flight entries from standard ASA/Jeppesen format logbooks.</p>
+      <p class="state-subtitle">Select one or more photos of your logbook pages. You can take new photos or choose existing ones. All entries are editable before import.</p>
     </div>
 
     <!-- Processing State -->
     <div id="processingState" class="state-container hidden">
       <i class="fas fa-spinner state-icon spinning"></i>
-      <p class="state-title">Extracting Flight Data...</p>
-      <p class="state-subtitle">Using OCR to read your logbook page. This may take a few seconds.</p>
+      <p class="state-title" id="processingTitle">Extracting Flight Data...</p>
+      <p class="state-subtitle" id="processingSubtitle">Analyzing your logbook page with Gemini AI. This may take a few seconds.</p>
     </div>
 
-    <!-- Empty/Error State -->
+    <!-- Error State -->
     <div id="errorState" class="state-container hidden">
       <i class="fas fa-exclamation-triangle state-icon error"></i>
       <p class="state-title" id="errorTitle">Something went wrong</p>
@@ -365,15 +378,21 @@
     <div id="resultsContainer" class="results-container hidden">
       <div class="results-header">
         <span class="results-count" id="resultsCount">0 flights extracted</span>
-        <button class="btn btn-primary" id="importBtn">
-          <i class="fas fa-download"></i> Import All
-        </button>
+        <div class="results-actions">
+          <button class="btn btn-secondary" id="addRowBtn">
+            <i class="fas fa-plus"></i> Add Row
+          </button>
+          <button class="btn btn-primary" id="importBtn">
+            <i class="fas fa-download"></i> Import All
+          </button>
+        </div>
       </div>
 
       <div class="entries-table">
         <table>
           <thead>
             <tr>
+              <th></th>
               <th>Date</th>
               <th>Aircraft</th>
               <th>Ident</th>
@@ -381,12 +400,15 @@
               <th>To</th>
               <th>Total</th>
               <th>PIC</th>
-              <th>Night</th>
+              <th>Dual</th>
+              <th>Solo</th>
               <th>XC</th>
+              <th>Night</th>
+              <th>Ldg</th>
+              <th>Remarks</th>
             </tr>
           </thead>
           <tbody id="entriesTableBody">
-            <!-- Populated via JS -->
           </tbody>
         </table>
       </div>
@@ -394,9 +416,9 @@
   </div>
 
   <div class="import-footer">
-    <span id="footerMessage">Upload a logbook image to begin</span>
+    <span id="footerMessage">Select logbook photos to begin</span>
     <button class="btn btn-primary hidden" id="undoBtn">
-      <i class="fas fa-undo"></i> Undo Last Import
+      <i class="fas fa-undo"></i> Undo Import
     </button>
   </div>
 
@@ -420,14 +442,8 @@
       document.getElementById('errorState').classList.add('hidden');
       document.getElementById('resultsContainer').classList.add('hidden');
 
-      // Hide image preview during processing to avoid confusion
-      if (state === 'processing') {
-        document.getElementById('imagePreview').classList.add('hidden');
-      }
-
       if (state === 'initial') {
         document.getElementById('initialState').classList.remove('hidden');
-        document.getElementById('imagePreview').classList.add('hidden');
       } else if (state === 'processing') {
         document.getElementById('processingState').classList.remove('hidden');
       } else if (state === 'error') {
@@ -442,100 +458,154 @@
       document.getElementById('imageInput').click();
     });
 
-    // Image selection - automatically extract when file is selected
+    // Multi-photo selection - process each sequentially
     document.getElementById('imageInput').addEventListener('change', async (e) => {
-      const file = e.target.files[0];
+      const files = Array.from(e.target.files);
+      if (!files.length) return;
 
-      if (!file) {
-        return;
+      showState('processing');
+      let totalEntries = [];
+      let errors = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const pageNum = i + 1;
+        const totalPages = files.length;
+
+        // Update progress
+        document.getElementById('processingTitle').textContent =
+          totalPages > 1
+            ? `Processing page ${pageNum} of ${totalPages}...`
+            : 'Extracting Flight Data...';
+        document.getElementById('processingSubtitle').textContent =
+          'Analyzing your logbook page with Gemini AI. This may take a few seconds per page.';
+
+        try {
+          const entries = await extractFlightData(file);
+          if (entries.length > 0) {
+            totalEntries = totalEntries.concat(entries);
+          } else {
+            errors.push(`Page ${pageNum}: no entries detected`);
+          }
+        } catch (err) {
+          errors.push(`Page ${pageNum}: ${err.message}`);
+        }
       }
 
-      // Show processing state immediately
-      showState('processing');
-      document.getElementById('footerMessage').textContent = 'Processing image with Google Vision AI...';
-
-      // Load preview image (but keep it hidden during processing)
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        document.getElementById('previewImg').src = e.target.result;
-        // Don't show preview yet - wait until processing completes
-      };
-      reader.readAsDataURL(file);
-
-      // Start extraction immediately
-      await extractFlightData(file);
+      if (totalEntries.length > 0) {
+        extractedEntries = totalEntries;
+        renderEntries(extractedEntries);
+        showState('results');
+        let msg = `${totalEntries.length} flight(s) extracted from ${files.length} page(s) - review and import`;
+        if (errors.length) msg += ` (${errors.length} page(s) had issues)`;
+        document.getElementById('footerMessage').textContent = msg;
+      } else {
+        document.getElementById('errorTitle').textContent = 'Extraction Failed';
+        document.getElementById('errorMessage').textContent =
+          errors.length ? errors.join('; ') : 'No flight entries detected in any page.';
+        showState('error');
+      }
     });
 
-    // Extract flight data function
+    // Extract flight data from a single image file
     async function extractFlightData(file) {
       const formData = new FormData();
       formData.append('image', file);
 
-      try {
-        const res = await fetch('/api/logbook/scan/upload', {
-          method: 'POST',
-          body: formData
-        });
+      const res = await fetch('/api/logbook/scan/upload', {
+        method: 'POST',
+        body: formData
+      });
 
-        const data = await res.json();
+      const data = await res.json();
 
-        if (data.success) {
-          extractedEntries = data.entries;
-          renderEntries(extractedEntries);
-          showState('results');
-          document.getElementById('footerMessage').textContent = `${data.entries.length} flight(s) extracted - review and import`;
-        } else {
-          document.getElementById('errorTitle').textContent = 'Extraction Failed';
-          document.getElementById('errorMessage').textContent = data.error || 'Could not extract flight data from image';
-          showState('error');
-          showToast(data.error || 'Extraction failed', true);
-        }
-      } catch (e) {
-        document.getElementById('errorTitle').textContent = 'Extraction Failed';
-        document.getElementById('errorMessage').textContent = 'Network error or server unavailable';
-        showState('error');
-        showToast('Failed to extract data', true);
+      if (data.success) {
+        return data.entries;
+      } else {
+        throw new Error(data.error || 'Extraction failed');
       }
     }
 
-    // Extract button (kept for manual retry if needed)
-    document.getElementById('extractBtn').addEventListener('click', async () => {
-      const file = document.getElementById('imageInput').files[0];
-      if (!file) {
-        showToast('Please select an image first', true);
-        return;
-      }
-
-      showState('processing');
-      await extractFlightData(file);
-    });
-
+    // Render editable entries table
     function renderEntries(entries) {
       const tbody = document.getElementById('entriesTableBody');
       tbody.innerHTML = '';
 
-      document.getElementById('resultsCount').textContent = `${entries.length} flight${entries.length !== 1 ? 's' : ''} extracted`;
+      document.getElementById('resultsCount').textContent =
+        `${entries.length} flight${entries.length !== 1 ? 's' : ''} extracted`;
 
-      entries.forEach(entry => {
+      entries.forEach((entry, idx) => {
         const row = document.createElement('tr');
+        row.dataset.index = idx;
         row.innerHTML = `
-          <td>${entry.date || ''}</td>
-          <td>${entry.aircraft_model || ''}</td>
-          <td>${entry.aircraft_ident || ''}</td>
-          <td>${entry.route_from || ''}</td>
-          <td>${entry.route_to || ''}</td>
-          <td>${entry.total_duration || '0.0'}</td>
-          <td>${entry.pic || '0.0'}</td>
-          <td>${entry.night || '0.0'}</td>
-          <td>${entry.cross_country || '0.0'}</td>
+          <td><button class="delete-row" onclick="deleteRow(${idx})" title="Remove"><i class="fas fa-times"></i></button></td>
+          <td><input type="text" value="${entry.date || ''}" data-field="date" class="medium"></td>
+          <td><input type="text" value="${entry.aircraft_model || ''}" data-field="aircraft_model" class="medium"></td>
+          <td><input type="text" value="${entry.aircraft_ident || ''}" data-field="aircraft_ident" class="medium"></td>
+          <td><input type="text" value="${entry.route_from || ''}" data-field="route_from" class="narrow"></td>
+          <td><input type="text" value="${entry.route_to || ''}" data-field="route_to" class="narrow"></td>
+          <td><input type="number" value="${entry.total_duration || 0}" data-field="total_duration" class="narrow" step="0.1"></td>
+          <td><input type="number" value="${entry.pic || 0}" data-field="pic" class="narrow" step="0.1"></td>
+          <td><input type="number" value="${entry.dual_recd || 0}" data-field="dual_recd" class="narrow" step="0.1"></td>
+          <td><input type="number" value="${entry.solo || 0}" data-field="solo" class="narrow" step="0.1"></td>
+          <td><input type="number" value="${entry.cross_country || 0}" data-field="cross_country" class="narrow" step="0.1"></td>
+          <td><input type="number" value="${entry.night || 0}" data-field="night" class="narrow" step="0.1"></td>
+          <td><input type="number" value="${entry.landings_day || 0}" data-field="landings_day" class="narrow" step="1"></td>
+          <td><input type="text" value="${entry.remarks || ''}" data-field="remarks"></td>
         `;
         tbody.appendChild(row);
       });
     }
 
+    // Delete a row
+    function deleteRow(idx) {
+      extractedEntries.splice(idx, 1);
+      renderEntries(extractedEntries);
+    }
+
+    // Add empty row
+    document.getElementById('addRowBtn').addEventListener('click', () => {
+      extractedEntries.push({
+        date: '', aircraft_model: '', aircraft_ident: '',
+        route_from: '', route_to: '', remarks: '',
+        total_duration: 0, pic: 0, sic: 0, dual_recd: 0,
+        dual_given: 0, solo: 0, cross_country: 0, night: 0,
+        actual_inst: 0, simulated_inst: 0, num_inst_app: 0,
+        landings_day: 0, landings_night: 0, sel: 0, mel: 0,
+      });
+      renderEntries(extractedEntries);
+      // Scroll to bottom
+      const table = document.querySelector('.entries-table');
+      table.scrollTop = table.scrollHeight;
+    });
+
+    // Read edited values from table before import
+    function readEntriesFromTable() {
+      const rows = document.querySelectorAll('#entriesTableBody tr');
+      const entries = [];
+
+      rows.forEach((row, idx) => {
+        const entry = { ...extractedEntries[idx] };
+        row.querySelectorAll('input').forEach(input => {
+          const field = input.dataset.field;
+          if (!field) return;
+          if (input.type === 'number') {
+            entry[field] = parseFloat(input.value) || 0;
+          } else {
+            entry[field] = input.value;
+          }
+        });
+        entries.push(entry);
+      });
+
+      return entries;
+    }
+
     // Import button
     document.getElementById('importBtn').addEventListener('click', async () => {
-      if (extractedEntries.length === 0) return;
+      // Read the latest values from the editable table
+      const entries = readEntriesFromTable();
+      if (entries.length === 0) return;
 
       document.getElementById('importBtn').disabled = true;
       document.getElementById('importBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
@@ -544,7 +614,7 @@
         const res = await fetch('/api/logbook/scan/import', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({entries: extractedEntries})
+          body: JSON.stringify({entries: entries})
         });
 
         const data = await res.json();
@@ -555,11 +625,9 @@
           document.getElementById('undoBtn').classList.remove('hidden');
           document.getElementById('footerMessage').textContent = `${data.imported} flights imported successfully`;
 
-          // Clear extracted entries
           extractedEntries = [];
           showState('initial');
           document.getElementById('imageInput').value = '';
-          document.getElementById('imagePreview').classList.add('hidden');
         } else {
           showToast(data.error || 'Import failed', true);
         }
@@ -590,7 +658,7 @@
           showToast(`Deleted ${data.deleted} entries`);
           importedEntryIds = [];
           document.getElementById('undoBtn').classList.add('hidden');
-          document.getElementById('footerMessage').textContent = 'Upload a logbook image to begin';
+          document.getElementById('footerMessage').textContent = 'Select logbook photos to begin';
         }
       } catch (e) {
         showToast('Failed to undo import', true);
