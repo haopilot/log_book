@@ -1,293 +1,217 @@
 """
-OCR service for extracting text from logbook images using Tesseract.
+OCR service for extracting flight data from logbook images.
 
-Provides image preprocessing and text extraction capabilities optimized
-for pilot logbook pages (ASA/Jeppesen format).
+Uses Google Gemini as primary method (multimodal LLM for best handwriting
+recognition), with Google Vision API and Tesseract as fallbacks.
 """
 
 from __future__ import annotations
 
+import json
 import os
 from typing import Optional
 
 try:
-    import cv2
-    import numpy as np
-    import pytesseract
-    from PIL import Image
-except ImportError as e:
-    print(f"Warning: OCR dependencies not installed: {e}")
-    print("Install with: pip install pytesseract pillow opencv-python")
+    import google.generativeai as genai
+    from google.auth import default as google_auth_default
+    GEMINI_AVAILABLE = True
+except ImportError:
+    GEMINI_AVAILABLE = False
+    print("Warning: google-generativeai not installed. Install with: pip install google-generativeai")
 
 try:
     from google.cloud import vision
     VISION_AVAILABLE = True
 except ImportError:
     VISION_AVAILABLE = False
-    print("Warning: Google Cloud Vision not installed")
-    print("Install with: pip install google-cloud-vision")
 
 
 class LogbookOCRService:
-    """Service for OCR extraction from logbook images."""
+    """Service for extracting flight data from logbook images."""
+
+    # Prompt for Gemini to extract structured flight data
+    EXTRACTION_PROMPT = """You are analyzing a photo of a physical pilot logbook page.
+Extract ALL flight entries visible in the image and return them as a JSON array.
+
+Each flight entry should have these fields (use null if not readable):
+- date: string in "M/D/YYYY" or "MM/DD/YYYY" format. The year may be written once at the top of the page - apply it to all entries.
+- aircraft_model: aircraft type (e.g., "DA-20", "C-172", "PA-28", "TBM 700")
+- aircraft_ident: tail number (e.g., "N636DC", "N95225")
+- route_from: departure airport code (e.g., "BFI", "SEA", "PAE")
+- route_to: destination airport code (e.g., "BFI", "SEA", "PAE")
+- remarks: any remarks or endorsements text
+- total_duration: total flight time in decimal hours (e.g., 1.4, 2.2)
+- pic: pilot in command time in decimal hours
+- sic: second in command time in decimal hours
+- dual_recd: dual received time in decimal hours
+- dual_given: dual given/flight instructor time in decimal hours
+- solo: solo time in decimal hours
+- cross_country: cross country time in decimal hours
+- night: night time in decimal hours
+- actual_inst: actual instrument time in decimal hours
+- simulated_inst: simulated instrument (hood) time in decimal hours
+- num_inst_app: number of instrument approaches (integer)
+- landings_day: number of day landings (integer)
+- landings_night: number of night landings (integer)
+
+Important:
+- Read EVERY row of flight data, even if partially obscured
+- For airport codes, use standard FAA identifiers (3-4 letters)
+- If a route shows multiple stops like "BFI-PAE-BFI", set route_from to the first and route_to to the last
+- Set numeric fields to 0 if the cell is empty (not null)
+- The logbook is in standard ASA/Jeppesen format
+
+Return ONLY valid JSON array, no other text. Example:
+[{"date": "5/9/2004", "aircraft_model": "DA-20", "aircraft_ident": "N636DC", "route_from": "BFI", "route_to": "BFI", "remarks": "Stalls, slow flight", "total_duration": 1.4, "pic": 0, "sic": 0, "dual_recd": 1.4, "dual_given": 0, "solo": 0, "cross_country": 0, "night": 0, "actual_inst": 0, "simulated_inst": 0, "num_inst_app": 0, "landings_day": 3, "landings_night": 0}]"""
 
     def __init__(self):
         """Initialize OCR service."""
-        # Check if Tesseract is installed
+        self._gemini_initialized = False
+
+    def _init_gemini(self):
+        """Initialize Google Generative AI (Gemini)."""
+        if self._gemini_initialized:
+            return
+
+        if not GEMINI_AVAILABLE:
+            return
+
         try:
-            pytesseract.get_tesseract_version()
-        except Exception:
-            print("Warning: Tesseract OCR not found on system")
-            print("Install with:")
-            print("  Ubuntu/Debian: sudo apt-get install tesseract-ocr")
-            print("  macOS: brew install tesseract")
-            print("  Windows: Download from https://github.com/UB-Mannheim/tesseract/wiki")
+            # Use Application Default Credentials (service account)
+            credentials, project_id = google_auth_default(
+                scopes=['https://www.googleapis.com/auth/generative-language']
+            )
+            genai.configure(credentials=credentials)
+            self._gemini_initialized = True
+            print(f"Gemini initialized with project: {project_id}")
 
-    def preprocess_image(self, image_path: str) -> Optional[np.ndarray]:
+        except Exception as e:
+            print(f"Error initializing Gemini: {e}")
+
+    def extract_flights_with_gemini(self, image_path: str) -> list[dict]:
         """
-        Preprocess image for better OCR accuracy.
+        Extract flight entries from logbook image using Google Gemini.
 
-        Applies:
-        - Grayscale conversion
-        - Denoising
-        - Adaptive thresholding
-        - Deskewing
+        Gemini can see the image, understand the table layout, read handwriting,
+        and return structured JSON directly - much better than traditional OCR.
 
         Args:
-            image_path: Path to input image
+            image_path: Path to logbook image
 
         Returns:
-            Preprocessed image as numpy array, or None on error
+            List of flight entry dicts, or empty list on failure
         """
+        if not GEMINI_AVAILABLE:
+            print("ERROR: Vertex AI not available")
+            return []
+
+        self._init_gemini()
+
+        if not self._gemini_initialized:
+            print("ERROR: Gemini not initialized")
+            return []
+
         try:
             # Load image
-            img = cv2.imread(image_path)
-            if img is None:
-                print(f"Error: Could not load image from {image_path}")
-                return None
+            with open(image_path, 'rb') as f:
+                image_bytes = f.read()
 
-            # Convert to grayscale
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            print(f"Sending {len(image_bytes)} byte image to Gemini...")
 
-            # Denoise
-            denoised = cv2.fastNlMeansDenoising(gray, h=10)
+            # Use inline image data (no File API needed)
+            import base64
+            image_b64 = base64.b64encode(image_bytes).decode('utf-8')
 
-            # Adaptive thresholding for better contrast
-            thresh = cv2.adaptiveThreshold(
-                denoised,
-                255,
-                cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                cv2.THRESH_BINARY,
-                11,
-                2
-            )
-
-            # Deskew (detect rotation and correct)
-            coords = np.column_stack(np.where(thresh > 0))
-            if len(coords) > 0:
-                angle = cv2.minAreaRect(coords)[-1]
-
-                # Correct angle (OpenCV quirk)
-                if angle < -45:
-                    angle = -(90 + angle)
-                else:
-                    angle = -angle
-
-                # Only deskew if rotation is significant (> 0.5 degrees)
-                if abs(angle) > 0.5:
-                    (h, w) = thresh.shape[:2]
-                    center = (w // 2, h // 2)
-                    M = cv2.getRotationMatrix2D(center, angle, 1.0)
-                    thresh = cv2.warpAffine(
-                        thresh,
-                        M,
-                        (w, h),
-                        flags=cv2.INTER_CUBIC,
-                        borderMode=cv2.BORDER_REPLICATE
-                    )
-
-            return thresh
-
-        except Exception as e:
-            print(f"Error preprocessing image: {e}")
-            return None
-
-    def extract_text_from_image(self, image_path: str, preprocess: bool = True) -> str:
-        """
-        Extract text from image using Tesseract OCR.
-
-        Args:
-            image_path: Path to input image
-            preprocess: Whether to apply preprocessing (default True)
-
-        Returns:
-            Extracted text as string
-        """
-        try:
-            if preprocess:
-                # Use preprocessed image
-                processed = self.preprocess_image(image_path)
-                if processed is None:
-                    # Fall back to raw image
-                    img = Image.open(image_path)
-                else:
-                    img = Image.fromarray(processed)
-            else:
-                # Use raw image
-                img = Image.open(image_path)
-
-            # Tesseract configuration
-            # PSM 6: Assume a single uniform block of text
-            # oem 3: Use best available OCR engine mode
-            config = '--psm 6 --oem 3'
-
-            # Extract text
-            text = pytesseract.image_to_string(img, config=config)
-
-            return text.strip()
-
-        except Exception as e:
-            print(f"Error extracting text from image: {e}")
-            return ""
-
-    def extract_with_confidence(self, image_path: str) -> dict:
-        """
-        Extract text with confidence scores for each word.
-
-        Useful for identifying low-confidence OCR results that may need review.
-
-        Args:
-            image_path: Path to input image
-
-        Returns:
-            Dict with 'text', 'confidence', and 'data' (detailed results)
-        """
-        try:
-            processed = self.preprocess_image(image_path)
-            if processed is None:
-                img = Image.open(image_path)
-            else:
-                img = Image.fromarray(processed)
-
-            # Get detailed data including confidence
-            data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
-
-            # Extract text and average confidence
-            texts = [word for word in data['text'] if word.strip()]
-            confidences = [
-                conf for conf, word in zip(data['conf'], data['text'])
-                if word.strip() and conf != -1
-            ]
-
-            avg_confidence = sum(confidences) / len(confidences) if confidences else 0
-
-            return {
-                'text': ' '.join(texts),
-                'confidence': avg_confidence,
-                'data': data
+            image_part = {
+                "inline_data": {
+                    "mime_type": "image/jpeg",
+                    "data": image_b64
+                }
             }
 
+            # Use Gemini model
+            model = genai.GenerativeModel("gemini-2.0-flash")
+            response = model.generate_content(
+                [self.EXTRACTION_PROMPT, image_part],
+                generation_config=genai.GenerationConfig(
+                    temperature=0.1,
+                    max_output_tokens=8192,
+                )
+            )
+
+            # Parse response
+            response_text = response.text.strip()
+            print(f"Gemini response length: {len(response_text)} chars")
+
+            # Clean up response - remove markdown code blocks if present
+            if response_text.startswith("```"):
+                # Remove ```json and ``` markers
+                lines = response_text.split('\n')
+                lines = [l for l in lines if not l.strip().startswith('```')]
+                response_text = '\n'.join(lines)
+
+            # Parse JSON
+            entries = json.loads(response_text)
+
+            if not isinstance(entries, list):
+                print(f"WARNING: Gemini returned non-list: {type(entries)}")
+                return []
+
+            print(f"Gemini extracted {len(entries)} flight entries")
+
+            # Normalize entries
+            normalized = []
+            for entry in entries:
+                normalized.append(self._normalize_entry(entry))
+
+            return normalized
+
+        except json.JSONDecodeError as e:
+            print(f"Error parsing Gemini JSON response: {e}")
+            print(f"Response was: {response_text[:500]}")
+            return []
         except Exception as e:
-            print(f"Error extracting with confidence: {e}")
-            return {'text': '', 'confidence': 0, 'data': {}}
+            print(f"Error with Gemini extraction: {e}")
+            return []
 
-    def extract_text_with_google_vision(self, image_path: str, structured: bool = False) -> str:
-        """
-        Extract text using Google Cloud Vision API (supports handwriting).
+    def _normalize_entry(self, entry: dict) -> dict:
+        """Normalize a flight entry to ensure all fields exist with proper types."""
+        def to_float(val):
+            if val is None:
+                return 0.0
+            try:
+                return float(val)
+            except (ValueError, TypeError):
+                return 0.0
 
-        This method uses Google's machine learning models which are much better
-        at recognizing handwritten text than Tesseract.
+        def to_int(val):
+            if val is None:
+                return 0
+            try:
+                return int(val)
+            except (ValueError, TypeError):
+                return 0
 
-        Args:
-            image_path: Path to input image
-            structured: If True, return structured data with word positions
-
-        Returns:
-            Extracted text as string, or structured data if requested
-        """
-        if not VISION_AVAILABLE:
-            print("ERROR: Google Cloud Vision not available, falling back to Tesseract")
-            return self.extract_text_from_image(image_path)
-
-        try:
-            # Check for credentials
-            import os as os_module
-            creds_path = os_module.environ.get('GOOGLE_APPLICATION_CREDENTIALS', 'Not set')
-            print(f"GOOGLE_APPLICATION_CREDENTIALS: {creds_path}")
-            if creds_path != 'Not set' and os_module.path.exists(creds_path):
-                print(f"Credentials file exists: {creds_path}")
-            else:
-                print(f"WARNING: Credentials file not found or env var not set")
-
-            print(f"Initializing Google Vision API client for: {image_path}")
-            # Initialize Vision API client
-            client = vision.ImageAnnotatorClient()
-            print("Vision API client initialized successfully")
-
-            # Load image
-            with open(image_path, 'rb') as image_file:
-                content = image_file.read()
-
-            print(f"Image loaded: {len(content)} bytes")
-            image = vision.Image(content=content)
-
-            # Perform document text detection (best for dense text like logbooks)
-            print("Calling Vision API document_text_detection...")
-            response = client.document_text_detection(image=image)
-            print("Vision API call completed")
-
-            if response.error.message:
-                raise Exception(f"Vision API error: {response.error.message}")
-
-            if structured and response.full_text_annotation:
-                # Return structured data with word positions for table parsing
-                return self._extract_structured_data(response.full_text_annotation)
-
-            # Extract full text
-            text = response.full_text_annotation.text if response.full_text_annotation else ""
-
-            return text.strip()
-
-        except Exception as e:
-            print(f"Error with Google Vision API: {e}")
-            print("Falling back to Tesseract OCR")
-            return self.extract_text_from_image(image_path)
-
-    def _extract_structured_data(self, annotation) -> dict:
-        """
-        Extract structured data with word positions from Vision API response.
-
-        This helps parse tabular data by understanding spatial layout.
-        """
-        rows = {}  # Group words by row (y-coordinate)
-
-        for page in annotation.pages:
-            for block in page.blocks:
-                for paragraph in block.paragraphs:
-                    for word in paragraph.words:
-                        # Get word text
-                        word_text = ''.join([symbol.text for symbol in word.symbols])
-
-                        # Get bounding box to determine position
-                        vertices = word.bounding_box.vertices
-                        y_pos = vertices[0].y  # Top y-coordinate
-
-                        # Group words by row (within 10 pixels tolerance)
-                        row_key = y_pos // 10 * 10
-                        if row_key not in rows:
-                            rows[row_key] = []
-
-                        rows[row_key].append({
-                            'text': word_text,
-                            'x': vertices[0].x,
-                            'y': y_pos
-                        })
-
-        # Sort rows by y-position and words within each row by x-position
-        sorted_rows = []
-        for y in sorted(rows.keys()):
-            words = sorted(rows[y], key=lambda w: w['x'])
-            row_text = ' '.join([w['text'] for w in words])
-            sorted_rows.append(row_text)
-
-        return '\n'.join(sorted_rows)
+        return {
+            'date': str(entry.get('date', '') or ''),
+            'aircraft_model': str(entry.get('aircraft_model', '') or ''),
+            'aircraft_ident': str(entry.get('aircraft_ident', '') or ''),
+            'route_from': str(entry.get('route_from', '') or ''),
+            'route_to': str(entry.get('route_to', '') or ''),
+            'remarks': str(entry.get('remarks', '') or ''),
+            'total_duration': to_float(entry.get('total_duration')),
+            'pic': to_float(entry.get('pic')),
+            'sic': to_float(entry.get('sic')),
+            'dual_recd': to_float(entry.get('dual_recd')),
+            'dual_given': to_float(entry.get('dual_given')),
+            'solo': to_float(entry.get('solo')),
+            'cross_country': to_float(entry.get('cross_country')),
+            'night': to_float(entry.get('night')),
+            'actual_inst': to_float(entry.get('actual_inst')),
+            'simulated_inst': to_float(entry.get('simulated_inst')),
+            'num_inst_app': to_int(entry.get('num_inst_app')),
+            'landings_day': to_int(entry.get('landings_day')),
+            'landings_night': to_int(entry.get('landings_night')),
+            'sel': to_float(entry.get('sel')),
+            'mel': to_float(entry.get('mel')),
+        }

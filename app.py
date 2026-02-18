@@ -631,14 +631,13 @@ def scan_page():
 @app.route("/api/logbook/scan/upload", methods=["POST"])
 def upload_scan():
     """
-    Accept image upload, run OCR, parse logbook format.
+    Accept image upload, extract flight entries using Gemini AI.
 
     Accepts multipart/form-data with 'image' file.
     Returns extracted flight entries as JSON.
     """
     import uuid
     from services.ocr_service import LogbookOCRService
-    from services.logbook_parser import LogbookParser
 
     if 'image' not in request.files:
         return jsonify({"success": False, "error": "No image file provided"}), 400
@@ -652,26 +651,10 @@ def upload_scan():
         temp_path = f"/tmp/logbook_{uuid.uuid4()}.jpg"
         file.save(temp_path)
 
-        # OCR extraction using Google Vision API (better for handwriting)
-        # Use structured output for better table parsing
-        print(f"Starting OCR extraction for: {temp_path}")
+        # Extract flight data using Gemini AI (multimodal LLM)
+        print(f"Starting Gemini extraction for: {temp_path}")
         ocr_service = LogbookOCRService()
-        text = ocr_service.extract_text_with_google_vision(temp_path, structured=True)
-
-        print(f"OCR extracted {len(text)} characters")
-        if text:
-            print(f"First 200 chars: {text[:200]}")
-
-        if not text:
-            os.remove(temp_path)
-            return jsonify({
-                "success": False,
-                "error": "No text detected in image. Please ensure the image is clear and well-lit. Check server logs for details."
-            }), 400
-
-        # Parse entries
-        parser = LogbookParser()
-        entries = parser.parse_logbook_page(text)
+        entries = ocr_service.extract_flights_with_gemini(temp_path)
 
         # Cleanup
         os.remove(temp_path)
@@ -679,15 +662,14 @@ def upload_scan():
         if not entries:
             return jsonify({
                 "success": False,
-                "error": "No flight entries detected. Please ensure the image shows a logbook page with the standard column headers.",
-                "raw_text": text[:500]  # First 500 chars for debugging
+                "error": "No flight entries detected. Please ensure the image shows a logbook page with flight data."
             }), 400
 
+        print(f"Successfully extracted {len(entries)} entries")
         return jsonify({
             "success": True,
             "entries": entries,
             "count": len(entries),
-            "raw_text": text  # For debugging
         })
 
     except Exception as e:
