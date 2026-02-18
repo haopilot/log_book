@@ -196,11 +196,15 @@ Example:
 
     def _is_flight_entry(self, entry: dict) -> bool:
         """Return True if this looks like an actual flight, not a totals/summary row."""
-        has_date = bool(entry.get('date', '').strip())
+        import re
+        date_str = entry.get('date', '').strip()
+        # Date must contain digits and a separator (/ or -) to be real
+        has_date = bool(date_str) and bool(re.search(r'\d+[/\-]\d+', date_str))
         has_aircraft = bool(entry.get('aircraft_model', '').strip()) or bool(entry.get('aircraft_ident', '').strip())
         has_route = bool(entry.get('route_from', '').strip()) or bool(entry.get('route_to', '').strip())
-        # A real flight must have at least a date or both aircraft and route info
-        return has_date or (has_aircraft and has_route)
+        # Require at least 2 of 3 indicators to be a real flight
+        score = sum([has_date, has_aircraft, has_route])
+        return score >= 2
 
     def _normalize_entry(self, entry: dict) -> dict:
         """Normalize a flight entry to ensure all fields exist with proper types."""
