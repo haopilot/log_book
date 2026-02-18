@@ -52,8 +52,9 @@ Each flight entry should have these fields (use null if not readable):
 Important:
 - You MUST output one entry for EVERY row of flight data visible in the logbook, even if you cannot read it well. Use empty strings for unreadable text fields and 0 for unreadable numbers. Never skip a row - the user needs a placeholder to fill in manually
 - Airport codes MUST be valid real FAA or ICAO identifiers. If the handwriting is ambiguous, infer the most likely real airport code. For example, "BEE" is not a valid code but "BFI" (Boeing Field, Seattle) is. Common codes include: BFI, SEA, PAE, RNT, PWT, OLM, S43, S50, 0S9, HQM, BLI, etc.
-- If a route shows multiple stops like "BFI-PAE-BFI", set route_from to the first and route_to to the last
+- If a route shows multiple stops like "BFI-PAE-BFI", set route_from to the first, route_to to the last, and put the full route (e.g., "BFI-PAE-BFI") at the BEGINNING of the remarks field, followed by any other remarks
 - Set numeric fields to 0 if the cell is empty (not null)
+- SKIP the "Totals" or summary row at the bottom of the page. This row contains column totals/sums and is NOT a flight entry. Only extract actual individual flight rows.
 - The logbook is in standard ASA/Jeppesen format
 - Include ALL columns you can read - do not skip any time categories
 
