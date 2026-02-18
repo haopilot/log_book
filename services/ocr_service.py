@@ -50,7 +50,7 @@ Each flight entry should have these fields (use null if not readable):
 - landings_night: number of night landings (integer)
 
 Important:
-- Read EVERY row of flight data, even if partially obscured or hard to read
+- You MUST output one entry for EVERY row of flight data visible in the logbook, even if you cannot read it well. Use empty strings for unreadable text fields and 0 for unreadable numbers. Never skip a row - the user needs a placeholder to fill in manually
 - Airport codes MUST be valid real FAA or ICAO identifiers. If the handwriting is ambiguous, infer the most likely real airport code. For example, "BEE" is not a valid code but "BFI" (Boeing Field, Seattle) is. Common codes include: BFI, SEA, PAE, RNT, PWT, OLM, S43, S50, 0S9, HQM, BLI, etc.
 - If a route shows multiple stops like "BFI-PAE-BFI", set route_from to the first and route_to to the last
 - Set numeric fields to 0 if the cell is empty (not null)
