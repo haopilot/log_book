@@ -665,15 +665,9 @@ def upload_scan():
                 "error": "No flight entries detected. Please ensure the image shows a logbook page with flight data."
             }), 400
 
-        # Build warning if rows are missing
-        warning = None
-        if expected_rows > actual_rows:
-            warning = f"Expected {expected_rows} rows but only extracted {actual_rows}. Some rows may be missing."
-
         print(f"Successfully extracted {actual_rows} of {expected_rows} entries")
         return jsonify({
             "success": True,
-            "warning": warning,
             "entries": entries,
             "count": len(entries),
         })

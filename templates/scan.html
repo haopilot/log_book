@@ -465,7 +465,6 @@
 
       showState('processing');
       let totalEntries = [];
-      let warnings = [];
       let errors = [];
 
       for (let i = 0; i < files.length; i++) {
@@ -488,9 +487,6 @@
           } else {
             errors.push(`Page ${pageNum}: no entries detected`);
           }
-          if (result.warning) {
-            warnings.push(`Page ${pageNum}: ${result.warning}`);
-          }
         } catch (err) {
           errors.push(`Page ${pageNum}: ${err.message}`);
         }
@@ -501,9 +497,6 @@
         renderEntries(extractedEntries);
         showState('results');
         let msg = `${totalEntries.length} flight(s) extracted from ${files.length} page(s) - review and import`;
-        if (warnings.length) {
-          showToast(warnings.join('; '), true);
-        }
         if (errors.length) msg += ` (${errors.length} page(s) had issues)`;
         document.getElementById('footerMessage').textContent = msg;
       } else {
@@ -527,7 +520,7 @@
       const data = await res.json();
 
       if (data.success) {
-        return { entries: data.entries, warning: data.warning || null };
+        return { entries: data.entries };
       } else {
         throw new Error(data.error || 'Extraction failed');
       }
