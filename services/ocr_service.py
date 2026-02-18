@@ -179,7 +179,12 @@ Example:
             for entry in entries:
                 normalized.append(self._normalize_entry(entry))
 
-            return normalized, expected_rows, len(entries)
+            # Filter out summary/totals rows that Gemini missed
+            filtered = [e for e in normalized if self._is_flight_entry(e)]
+            if len(filtered) < len(normalized):
+                print(f"Filtered out {len(normalized) - len(filtered)} summary/totals row(s)")
+
+            return filtered, expected_rows, len(filtered)
 
         except json.JSONDecodeError as e:
             print(f"Error parsing Gemini JSON response: {e}")
@@ -188,6 +193,14 @@ Example:
         except Exception as e:
             print(f"Error with Gemini extraction: {e}")
             return [], 0, 0
+
+    def _is_flight_entry(self, entry: dict) -> bool:
+        """Return True if this looks like an actual flight, not a totals/summary row."""
+        has_date = bool(entry.get('date', '').strip())
+        has_aircraft = bool(entry.get('aircraft_model', '').strip()) or bool(entry.get('aircraft_ident', '').strip())
+        has_route = bool(entry.get('route_from', '').strip()) or bool(entry.get('route_to', '').strip())
+        # A real flight must have at least a date or both aircraft and route info
+        return has_date or (has_aircraft and has_route)
 
     def _normalize_entry(self, entry: dict) -> dict:
         """Normalize a flight entry to ensure all fields exist with proper types."""
