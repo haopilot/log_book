@@ -54,7 +54,7 @@ Important:
 - Airport codes MUST be valid real FAA or ICAO identifiers. If the handwriting is ambiguous, infer the most likely real airport code. For example, "BEE" is not a valid code but "BFI" (Boeing Field, Seattle) is. Common codes include: BFI, SEA, PAE, RNT, PWT, OLM, S43, S50, 0S9, HQM, BLI, etc.
 - If a route shows multiple stops like "BFI-PAE-BFI", set route_from to the first, route_to to the last, and put the full route (e.g., "BFI-PAE-BFI") at the BEGINNING of the remarks field, followed by any other remarks
 - Set numeric fields to 0 if the cell is empty (not null)
-- SKIP the "Totals" or summary row at the bottom of the page. This row contains column totals/sums and is NOT a flight entry. Only extract actual individual flight rows.
+- Only extract ACTUAL FLIGHT entries. A real flight row has a date, aircraft, and airports. SKIP any summary/totals rows — these are rows that only contain numbers (column sums) without a date, aircraft type, or airport codes. They may be labeled "Totals", "Page Total", "Total this page", "Amounts forwarded", "Brought forward", etc., or they may just be an unlabeled row of numbers at the bottom of the page. These are NOT flights.
 - The logbook is in standard ASA/Jeppesen format
 - Include ALL columns you can read - do not skip any time categories
 
