@@ -324,6 +324,64 @@
       font-size: 0.75rem;
     }
 
+    /* Unreviewed entry highlight */
+    .flight-item.unreviewed {
+      border-left: 3px solid var(--warning);
+    }
+
+    .badge-unreviewed {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 1px 5px;
+      background: rgba(245, 158, 11, 0.15);
+      color: #d97706;
+      border-radius: 3px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+
+    .lock-icon {
+      color: var(--primary);
+      font-size: 0.65rem;
+      margin-left: 2px;
+    }
+
+    .entry-actions {
+      display: flex;
+      gap: 2px;
+      align-items: center;
+    }
+
+    .entry-action-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 5px;
+      border-radius: 4px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      transition: all 0.15s;
+    }
+    .entry-action-btn:hover {
+      background: var(--surface-hover);
+      color: var(--text);
+    }
+    .entry-action-btn.active {
+      color: var(--primary);
+    }
+
+    .batch-locked-warning {
+      color: #fbbf24;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
     /* List Header (Desktop) */
     .list-header {
       display: none;
@@ -617,7 +675,12 @@
   </div>
 
   <div class="batch-bar" id="batchBar">
-    <span class="batch-info"><span id="selectedCount">0</span> selected</span>
+    <div>
+      <span class="batch-info"><span id="selectedCount">0</span> selected</span>
+      <span class="batch-locked-warning" id="lockedWarning" style="display:none">
+        <i class="fas fa-lock"></i> <span id="lockedCount">0</span> locked (will be skipped)
+      </span>
+    </div>
     <div class="batch-actions">
       <button class="batch-btn batch-btn-clear" onclick="clearSelection()">
         <i class="fas fa-times"></i> Clear
@@ -642,7 +705,11 @@
     <div class="flight-list-container">
       <div class="flight-list">
         {% for entry in entries %}
-        <div class="flight-item" data-id="{{ entry.id }}" onclick="navigateToEntry('{{ entry.id }}', event)">
+        <div class="flight-item{% if not entry.reviewed %} unreviewed{% endif %}"
+             data-id="{{ entry.id }}"
+             data-locked="{{ 'true' if entry.locked else 'false' }}"
+             data-reviewed="{{ 'true' if entry.reviewed else 'false' }}"
+             onclick="navigateToEntry('{{ entry.id }}', event)">
           <input type="checkbox" class="flight-checkbox" data-id="{{ entry.id }}" onclick="onCheckboxChange(event)">
           <div class="flight-content">
             <div class="flight-main">
@@ -650,6 +717,8 @@
                 <span>{{ entry.route_from or '—' }}</span>
                 <i class="fas fa-arrow-right"></i>
                 <span>{{ entry.route_to or '—' }}</span>
+                {% if entry.locked %}<i class="fas fa-lock lock-icon" title="Locked"></i>{% endif %}
+                {% if not entry.reviewed %}<span class="badge-unreviewed"><i class="fas fa-eye-slash"></i> Review</span>{% endif %}
               </div>
               <div class="flight-meta">
                 <span class="flight-date">{{ entry.date }}</span>
@@ -660,6 +729,16 @@
             <span class="flight-duration{% if entry.duration_estimated %} estimated{% endif %}">
               {% if entry.total_duration %}{{ "%.1f"|format(entry.total_duration) }}h{% else %}—{% endif %}
             </span>
+            <div class="entry-actions" onclick="event.stopPropagation()">
+              <button class="entry-action-btn{% if entry.locked %} active{% endif %}"
+                      onclick="toggleLock('{{ entry.id }}', this)" title="{{ 'Unlock' if entry.locked else 'Lock' }}">
+                <i class="fas fa-{% if entry.locked %}lock{% else %}unlock{% endif %}"></i>
+              </button>
+              <button class="entry-action-btn{% if entry.reviewed %} active{% endif %}"
+                      onclick="toggleReview('{{ entry.id }}', this)" title="{{ 'Mark unreviewed' if entry.reviewed else 'Mark reviewed' }}">
+                <i class="fas fa-{% if entry.reviewed %}check-circle{% else %}circle{% endif %}"></i>
+              </button>
+            </div>
             <span class="flight-arrow"><i class="fas fa-chevron-right"></i></span>
           </div>
         </div>
@@ -722,10 +801,16 @@
       document.getElementById('selectedCount').textContent = ids.length;
       bar.classList.toggle('show', ids.length > 0);
 
+      let lockedCount = 0;
       document.querySelectorAll('.flight-item').forEach(item => {
         const cb = item.querySelector('.flight-checkbox');
         item.classList.toggle('selected', cb && cb.checked);
+        if (cb && cb.checked && item.dataset.locked === 'true') lockedCount++;
       });
+
+      const warning = document.getElementById('lockedWarning');
+      document.getElementById('lockedCount').textContent = lockedCount;
+      warning.style.display = lockedCount > 0 ? 'flex' : 'none';
 
       const allCbs = document.querySelectorAll('.flight-checkbox');
       const selectAll = document.getElementById('selectAllCheckbox');
@@ -756,7 +841,24 @@
       const ids = getSelectedIds();
       if (!ids.length) return;
 
-      const msg = ids.length === 1 ? 'Delete this flight?' : `Delete ${ids.length} flights?`;
+      let lockedCount = 0;
+      document.querySelectorAll('.flight-checkbox:checked').forEach(cb => {
+        const item = cb.closest('.flight-item');
+        if (item && item.dataset.locked === 'true') lockedCount++;
+      });
+
+      const deletable = ids.length - lockedCount;
+      if (deletable === 0) {
+        showToast('All selected entries are locked', true);
+        return;
+      }
+
+      let msg;
+      if (lockedCount > 0) {
+        msg = `Delete ${deletable} flight(s)? (${lockedCount} locked will be skipped)`;
+      } else {
+        msg = ids.length === 1 ? 'Delete this flight?' : `Delete ${ids.length} flights?`;
+      }
       if (!confirm(msg)) return;
 
       try {
@@ -768,13 +870,81 @@
         });
         const data = await res.json();
         if (data.success) {
-          showToast(`Deleted ${data.deleted} flight(s)`);
+          let toastMsg = `Deleted ${data.deleted} flight(s)`;
+          if (data.skipped_locked > 0) toastMsg += ` (${data.skipped_locked} locked skipped)`;
+          showToast(toastMsg);
           setTimeout(() => location.reload(), 500);
         } else {
           showToast(data.error || 'Delete failed', true);
         }
       } catch (e) {
         showToast('Error deleting', true);
+      }
+    }
+
+    async function toggleLock(entryId, btn) {
+      const item = btn.closest('.flight-item');
+      const isLocked = item.dataset.locked === 'true';
+      const newState = !isLocked;
+      try {
+        const res = await fetch(`/api/entries/${entryId}/lock`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ locked: newState })
+        });
+        const data = await res.json();
+        if (data.success) {
+          item.dataset.locked = String(newState);
+          btn.querySelector('i').className = newState ? 'fas fa-lock' : 'fas fa-unlock';
+          btn.classList.toggle('active', newState);
+          btn.title = newState ? 'Unlock' : 'Lock';
+          const routeDiv = item.querySelector('.flight-route');
+          const existingLock = routeDiv.querySelector('.lock-icon');
+          if (newState && !existingLock) {
+            const el = document.createElement('i');
+            el.className = 'fas fa-lock lock-icon';
+            el.title = 'Locked';
+            routeDiv.appendChild(el);
+          } else if (!newState && existingLock) {
+            existingLock.remove();
+          }
+          updateBatchBar();
+        }
+      } catch (e) {
+        showToast('Error toggling lock', true);
+      }
+    }
+
+    async function toggleReview(entryId, btn) {
+      const item = btn.closest('.flight-item');
+      const isReviewed = item.dataset.reviewed === 'true';
+      const newState = !isReviewed;
+      try {
+        const res = await fetch(`/api/entries/${entryId}/review`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reviewed: newState })
+        });
+        const data = await res.json();
+        if (data.success) {
+          item.dataset.reviewed = String(newState);
+          item.classList.toggle('unreviewed', !newState);
+          btn.querySelector('i').className = newState ? 'fas fa-check-circle' : 'fas fa-circle';
+          btn.classList.toggle('active', newState);
+          btn.title = newState ? 'Mark unreviewed' : 'Mark reviewed';
+          const routeDiv = item.querySelector('.flight-route');
+          const badge = routeDiv.querySelector('.badge-unreviewed');
+          if (!newState && !badge) {
+            const el = document.createElement('span');
+            el.className = 'badge-unreviewed';
+            el.innerHTML = '<i class="fas fa-eye-slash"></i> Review';
+            routeDiv.appendChild(el);
+          } else if (newState && badge) {
+            badge.remove();
+          }
+        }
+      } catch (e) {
+        showToast('Error toggling review', true);
       }
     }
 

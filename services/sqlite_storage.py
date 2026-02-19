@@ -79,6 +79,17 @@ class SQLiteStorage:
             )
             conn.commit()
 
+            # Migrate: add locked and reviewed columns if they don't exist
+            for col, col_def in [
+                ("locked", "INTEGER DEFAULT 0"),
+                ("reviewed", "INTEGER DEFAULT 1"),
+            ]:
+                try:
+                    conn.execute(f"ALTER TABLE entries ADD COLUMN {col} {col_def}")
+                    conn.commit()
+                except sqlite3.OperationalError:
+                    pass  # Column already exists
+
     def add_entry(self, entry: LogbookEntry) -> str:
         """Add a new entry to the database."""
         with self._get_connection() as conn:
@@ -91,8 +102,8 @@ class SQLiteStorage:
                     num_inst_app, landings_day, landings_night,
                     pic, sic, dual_recd, dual_given, solo,
                     total_duration, duration_estimated, remarks,
-                    created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    created_at, updated_at, locked, reviewed
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
                 (
                     entry.id,
@@ -121,6 +132,8 @@ class SQLiteStorage:
                     entry.remarks,
                     entry.created_at,
                     entry.updated_at,
+                    1 if entry.locked else 0,
+                    1 if entry.reviewed else 0,
                 ),
             )
             conn.commit()
@@ -169,7 +182,7 @@ class SQLiteStorage:
                     num_inst_app=?, landings_day=?, landings_night=?,
                     pic=?, sic=?, dual_recd=?, dual_given=?, solo=?,
                     total_duration=?, duration_estimated=?, remarks=?,
-                    updated_at=?
+                    updated_at=?, locked=?, reviewed=?
                 WHERE id=?
             """,
                 (
@@ -197,6 +210,8 @@ class SQLiteStorage:
                     1 if entry.duration_estimated else 0,
                     entry.remarks,
                     entry.updated_at,
+                    1 if entry.locked else 0,
+                    1 if entry.reviewed else 0,
                     entry.id,
                 ),
             )
@@ -204,23 +219,43 @@ class SQLiteStorage:
             return cursor.rowcount > 0
 
     def delete_entry(self, entry_id: str) -> bool:
-        """Delete an entry by ID."""
+        """Delete an entry by ID. Refuses to delete locked entries."""
         with self._get_connection() as conn:
-            cursor = conn.execute("DELETE FROM entries WHERE id = ?", (entry_id,))
+            cursor = conn.execute(
+                "DELETE FROM entries WHERE id = ? AND locked = 0", (entry_id,)
+            )
             conn.commit()
             return cursor.rowcount > 0
 
-    def delete_entries(self, entry_ids: list[str]) -> int:
-        """Delete multiple entries. Returns count deleted."""
+    def delete_entries(self, entry_ids: list[str]) -> dict:
+        """Delete multiple entries, skipping locked ones. Returns deletion details."""
         if not entry_ids:
-            return 0
+            return {"deleted": 0, "skipped_locked": 0}
         with self._get_connection() as conn:
             placeholders = ",".join("?" * len(entry_ids))
             cursor = conn.execute(
-                f"DELETE FROM entries WHERE id IN ({placeholders})", entry_ids
+                f"SELECT COUNT(*) as cnt FROM entries WHERE id IN ({placeholders}) AND locked = 1",
+                entry_ids,
+            )
+            skipped = cursor.fetchone()["cnt"]
+            cursor = conn.execute(
+                f"DELETE FROM entries WHERE id IN ({placeholders}) AND locked = 0",
+                entry_ids,
             )
             conn.commit()
-            return cursor.rowcount
+            return {"deleted": cursor.rowcount, "skipped_locked": skipped}
+
+    def toggle_entry_field(self, entry_id: str, field: str, value: bool) -> bool:
+        """Toggle a boolean field (locked/reviewed) on an entry."""
+        if field not in ("locked", "reviewed"):
+            raise ValueError(f"Cannot toggle field: {field}")
+        with self._get_connection() as conn:
+            cursor = conn.execute(
+                f"UPDATE entries SET {field} = ?, updated_at = ? WHERE id = ?",
+                (1 if value else 0, datetime.utcnow().isoformat(), entry_id),
+            )
+            conn.commit()
+            return cursor.rowcount > 0
 
     def get_totals(self) -> dict:
         """Calculate totals using SQL aggregation (fast!)."""
@@ -298,8 +333,8 @@ class SQLiteStorage:
                             num_inst_app, landings_day, landings_night,
                             pic, sic, dual_recd, dual_given, solo,
                             total_duration, duration_estimated, remarks,
-                            created_at, updated_at
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            created_at, updated_at, locked, reviewed
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                         (
                             entry.id,
@@ -328,6 +363,8 @@ class SQLiteStorage:
                             entry.remarks,
                             entry.created_at,
                             entry.updated_at,
+                            1 if entry.locked else 0,
+                            1 if entry.reviewed else 0,
                         ),
                     )
                     count += 1
@@ -377,4 +414,6 @@ class SQLiteStorage:
             remarks=row["remarks"] or "",
             created_at=row["created_at"] or "",
             updated_at=row["updated_at"] or "",
+            locked=bool(row["locked"]) if row["locked"] is not None else False,
+            reviewed=bool(row["reviewed"]) if row["reviewed"] is not None else True,
         )

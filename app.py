@@ -210,30 +210,61 @@ def update_entry(entry_id):
 
 @app.route("/api/entries/<entry_id>", methods=["DELETE"])
 def delete_entry(entry_id):
-    """Delete a logbook entry."""
+    """Delete a logbook entry. Refuses to delete locked entries."""
+    entry = storage.get_entry(entry_id)
+    if not entry:
+        return jsonify({"error": "Entry not found"}), 404
+    if entry.locked:
+        return jsonify({"error": "Entry is locked and cannot be deleted"}), 403
     if storage.delete_entry(entry_id):
         save_to_sheets()
         return jsonify({"message": "Entry deleted"})
-    return jsonify({"error": "Entry not found"}), 404
+    return jsonify({"error": "Delete failed"}), 500
 
 
 @app.route("/api/entries/batch", methods=["DELETE"])
 def batch_delete_entries():
-    """Delete multiple logbook entries in a batch."""
+    """Delete multiple logbook entries, skipping locked ones."""
     data = request.json
     entry_ids = data.get("entry_ids", [])
 
     if not entry_ids:
         return jsonify({"error": "No entry IDs provided"}), 400
 
-    deleted_count = storage.delete_entries(entry_ids)
-    save_to_sheets()
+    result = storage.delete_entries(entry_ids)
+    if result["deleted"] > 0:
+        save_to_sheets()
+
+    msg = f"Deleted {result['deleted']} entries"
+    if result["skipped_locked"]:
+        msg += f" ({result['skipped_locked']} locked entries skipped)"
 
     return jsonify({
         "success": True,
-        "deleted": deleted_count,
-        "message": f"Deleted {deleted_count} entries"
+        "deleted": result["deleted"],
+        "skipped_locked": result["skipped_locked"],
+        "message": msg,
     })
+
+
+@app.route("/api/entries/<entry_id>/lock", methods=["POST"])
+def toggle_lock(entry_id):
+    """Toggle the locked state of an entry."""
+    data = request.json or {}
+    locked = data.get("locked", True)
+    if storage.toggle_entry_field(entry_id, "locked", locked):
+        return jsonify({"success": True, "locked": locked})
+    return jsonify({"error": "Entry not found"}), 404
+
+
+@app.route("/api/entries/<entry_id>/review", methods=["POST"])
+def toggle_review(entry_id):
+    """Toggle the reviewed state of an entry."""
+    data = request.json or {}
+    reviewed = data.get("reviewed", True)
+    if storage.toggle_entry_field(entry_id, "reviewed", reviewed):
+        return jsonify({"success": True, "reviewed": reviewed})
+    return jsonify({"error": "Entry not found"}), 404
 
 
 @app.route("/api/totals", methods=["GET"])
@@ -609,6 +640,7 @@ def import_flightaware():
             solo=parse_float(flight_data.get("solo")),
             total_duration=parse_float(flight_data.get("total_duration")),
             remarks=flight_data.get("remarks", ""),
+            reviewed=False,
         )
 
         storage.add_entry(entry)
@@ -722,6 +754,7 @@ def import_scanned():
             solo=parse_float(entry_data.get("solo")),
             total_duration=parse_float(entry_data.get("total_duration")),
             remarks=entry_data.get("remarks", ""),
+            reviewed=False,
         )
 
         entry_id = storage.add_entry(entry)

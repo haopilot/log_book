@@ -56,6 +56,10 @@ class LogbookEntry:
     created_at: str = field(default_factory=lambda: datetime.utcnow().isoformat())
     updated_at: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
+    # Entry state (UI-only, not synced to Sheets)
+    locked: bool = False
+    reviewed: bool = True  # Manually created entries don't need review
+
     def to_dict(self) -> dict:
         return asdict(self)
 
