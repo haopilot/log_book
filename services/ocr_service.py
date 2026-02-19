@@ -200,9 +200,15 @@ Example:
 
     def _normalize_dates(self, entries: list[dict]) -> list[dict]:
         """Fix dates across all entries: normalize format, fix garbled years, propagate missing years."""
-        # First pass: normalize each date individually
+        # First pass: normalize each date individually, preserve date ranges in remarks
         for entry in entries:
-            entry['date'] = self._normalize_date(entry.get('date', ''))
+            raw_date = entry.get('date', '')
+            normalized, date_range = self._normalize_date(raw_date)
+            entry['date'] = normalized
+            if date_range:
+                remarks = entry.get('remarks', '').strip()
+                entry['remarks'] = f"{date_range} {remarks}".strip() if remarks else date_range
+                print(f"Date range '{raw_date}' → date='{normalized}', added range to remarks")
 
         # Second pass: propagate years to entries missing them
         # Find the most common year from entries that have one
@@ -224,37 +230,48 @@ Example:
 
         return entries
 
-    def _normalize_date(self, date_str: str) -> str:
-        """Normalize a single date string to M/D/YYYY format."""
+    def _normalize_date(self, date_str: str) -> tuple[str, str | None]:
+        """Normalize a single date string to M/D/YYYY format.
+
+        Returns:
+            (normalized_date, date_range_or_None) — date_range is the original
+            range string (e.g. "3/26-3/28/2023") if the date was a range, else None.
+        """
         date_str = date_str.strip()
         if not date_str:
-            return ''
+            return '', None
 
-        # Handle date ranges like "3/26-3/28/2023" or "3/26-28/2023" — use first date
-        range_match = re.match(r'^(\d{1,2})/(\d{1,2})\s*-\s*\d{1,2}/(\d{1,2})/(\d{1,4})$', date_str)
+        date_range = None
+
+        # Handle date ranges like "3/26-3/28/2023" — use first date, save range
+        range_match = re.match(r'^(\d{1,2})/(\d{1,2})\s*-\s*(\d{1,2})/(\d{1,2})/(\d{1,4})$', date_str)
         if range_match:
-            month, day, _, year = range_match.groups()
+            date_range = date_str
+            month, day = range_match.group(1), range_match.group(2)
+            year = range_match.group(5)
             date_str = f"{month}/{day}/{year}"
         else:
             # "3/26-28/2023" format (same month)
             range_match2 = re.match(r'^(\d{1,2})/(\d{1,2})\s*-\s*(\d{1,2})/(\d{1,4})$', date_str)
             if range_match2:
-                month, day, _, year = range_match2.groups()
+                date_range = date_str
+                month, day = range_match2.group(1), range_match2.group(2)
+                year = range_match2.group(4)
                 date_str = f"{month}/{day}/{year}"
 
         # Now parse M/D/YYYY or M/D
         m = re.match(r'^(\d{1,2})/(\d{1,2})(?:/(\d{1,4}))?$', date_str)
         if not m:
-            return date_str  # Can't parse, return as-is
+            return date_str, date_range  # Can't parse, return as-is
 
         month, day, year = m.group(1), m.group(2), m.group(3)
 
         if year:
             year = self._fix_year(year)
-            return f"{int(month)}/{int(day)}/{year}"
+            return f"{int(month)}/{int(day)}/{year}", date_range
         else:
             # No year — return M/D, will be fixed in second pass
-            return f"{int(month)}/{int(day)}"
+            return f"{int(month)}/{int(day)}", date_range
 
     def _fix_year(self, year_str: str) -> str:
         """Fix garbled year strings to valid 4-digit years."""
