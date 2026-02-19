@@ -324,24 +324,8 @@
       font-size: 0.75rem;
     }
 
-    /* Unreviewed entry highlight */
-    .flight-item.unreviewed {
-      border-left: 3px solid var(--warning);
-    }
-
-    .badge-unreviewed {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      padding: 1px 5px;
-      background: rgba(245, 158, 11, 0.15);
-      color: #d97706;
-      border-radius: 3px;
-      font-size: 0.6rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-      white-space: nowrap;
+    .flight-item.locked {
+      opacity: 0.7;
     }
 
     .lock-icon {
@@ -350,13 +334,7 @@
       margin-left: 2px;
     }
 
-    .entry-actions {
-      display: flex;
-      gap: 2px;
-      align-items: center;
-    }
-
-    .entry-action-btn {
+    .lock-toggle {
       background: none;
       border: none;
       cursor: pointer;
@@ -366,15 +344,15 @@
       font-size: 0.75rem;
       transition: all 0.15s;
     }
-    .entry-action-btn:hover {
+    .lock-toggle:hover {
       background: var(--surface-hover);
       color: var(--text);
     }
-    .entry-action-btn.active {
+    .lock-toggle.active {
       color: var(--primary);
     }
 
-    .batch-locked-warning {
+    .batch-locked-info {
       color: #fbbf24;
       font-size: 0.75rem;
       display: flex;
@@ -518,13 +496,13 @@
 
       .list-header {
         display: grid;
-        grid-template-columns: 32px 1fr 100px 100px 100px 80px 32px;
+        grid-template-columns: 32px 1fr 100px 100px 100px 80px 32px 32px;
         padding: 12px 24px;
       }
 
       .flight-item {
         display: grid;
-        grid-template-columns: 32px 1fr 100px 100px 100px 80px 32px;
+        grid-template-columns: 32px 1fr 100px 100px 100px 80px 32px 32px;
         padding: 16px 24px;
         gap: 16px;
       }
@@ -677,13 +655,19 @@
   <div class="batch-bar" id="batchBar">
     <div>
       <span class="batch-info"><span id="selectedCount">0</span> selected</span>
-      <span class="batch-locked-warning" id="lockedWarning" style="display:none">
-        <i class="fas fa-lock"></i> <span id="lockedCount">0</span> locked (will be skipped)
+      <span class="batch-locked-info" id="lockedInfo" style="display:none">
+        <i class="fas fa-lock"></i> <span id="lockedCount">0</span> locked
       </span>
     </div>
     <div class="batch-actions">
       <button class="batch-btn batch-btn-clear" onclick="clearSelection()">
         <i class="fas fa-times"></i> Clear
+      </button>
+      <button class="batch-btn batch-btn-clear" onclick="batchLock(true)">
+        <i class="fas fa-lock"></i> Lock
+      </button>
+      <button class="batch-btn batch-btn-clear" onclick="batchLock(false)">
+        <i class="fas fa-unlock"></i> Unlock
       </button>
       <button class="batch-btn batch-btn-delete" onclick="deleteSelected()">
         <i class="fas fa-trash"></i> Delete
@@ -701,14 +685,14 @@
       <span>Tail</span>
       <span>Duration</span>
       <span></span>
+      <span></span>
     </div>
     <div class="flight-list-container">
       <div class="flight-list">
         {% for entry in entries %}
-        <div class="flight-item{% if not entry.reviewed %} unreviewed{% endif %}"
+        <div class="flight-item{% if entry.locked %} locked{% endif %}"
              data-id="{{ entry.id }}"
              data-locked="{{ 'true' if entry.locked else 'false' }}"
-             data-reviewed="{{ 'true' if entry.reviewed else 'false' }}"
              onclick="navigateToEntry('{{ entry.id }}', event)">
           <input type="checkbox" class="flight-checkbox" data-id="{{ entry.id }}" onclick="onCheckboxChange(event)">
           <div class="flight-content">
@@ -718,7 +702,6 @@
                 <i class="fas fa-arrow-right"></i>
                 <span>{{ entry.route_to or '—' }}</span>
                 {% if entry.locked %}<i class="fas fa-lock lock-icon" title="Locked"></i>{% endif %}
-                {% if not entry.reviewed %}<span class="badge-unreviewed"><i class="fas fa-eye-slash"></i> Review</span>{% endif %}
               </div>
               <div class="flight-meta">
                 <span class="flight-date">{{ entry.date }}</span>
@@ -729,16 +712,11 @@
             <span class="flight-duration{% if entry.duration_estimated %} estimated{% endif %}">
               {% if entry.total_duration %}{{ "%.1f"|format(entry.total_duration) }}h{% else %}—{% endif %}
             </span>
-            <div class="entry-actions" onclick="event.stopPropagation()">
-              <button class="entry-action-btn{% if entry.locked %} active{% endif %}"
-                      onclick="toggleLock('{{ entry.id }}', this)" title="{{ 'Unlock' if entry.locked else 'Lock' }}">
-                <i class="fas fa-{% if entry.locked %}lock{% else %}unlock{% endif %}"></i>
-              </button>
-              <button class="entry-action-btn{% if entry.reviewed %} active{% endif %}"
-                      onclick="toggleReview('{{ entry.id }}', this)" title="{{ 'Mark unreviewed' if entry.reviewed else 'Mark reviewed' }}">
-                <i class="fas fa-{% if entry.reviewed %}check-circle{% else %}circle{% endif %}"></i>
-              </button>
-            </div>
+            <button class="lock-toggle{% if entry.locked %} active{% endif %}"
+                    onclick="event.stopPropagation(); toggleLock('{{ entry.id }}', this)"
+                    title="{{ 'Unlock' if entry.locked else 'Lock' }}">
+              <i class="fas fa-{% if entry.locked %}lock{% else %}unlock{% endif %}"></i>
+            </button>
             <span class="flight-arrow"><i class="fas fa-chevron-right"></i></span>
           </div>
         </div>
@@ -808,9 +786,9 @@
         if (cb && cb.checked && item.dataset.locked === 'true') lockedCount++;
       });
 
-      const warning = document.getElementById('lockedWarning');
+      const info = document.getElementById('lockedInfo');
       document.getElementById('lockedCount').textContent = lockedCount;
-      warning.style.display = lockedCount > 0 ? 'flex' : 'none';
+      info.style.display = lockedCount > 0 ? 'flex' : 'none';
 
       const allCbs = document.querySelectorAll('.flight-checkbox');
       const selectAll = document.getElementById('selectAllCheckbox');
@@ -895,6 +873,7 @@
         const data = await res.json();
         if (data.success) {
           item.dataset.locked = String(newState);
+          item.classList.toggle('locked', newState);
           btn.querySelector('i').className = newState ? 'fas fa-lock' : 'fas fa-unlock';
           btn.classList.toggle('active', newState);
           btn.title = newState ? 'Unlock' : 'Lock';
@@ -915,36 +894,22 @@
       }
     }
 
-    async function toggleReview(entryId, btn) {
-      const item = btn.closest('.flight-item');
-      const isReviewed = item.dataset.reviewed === 'true';
-      const newState = !isReviewed;
+    async function batchLock(lock) {
+      const ids = getSelectedIds();
+      if (!ids.length) return;
       try {
-        const res = await fetch(`/api/entries/${entryId}/review`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reviewed: newState })
-        });
-        const data = await res.json();
-        if (data.success) {
-          item.dataset.reviewed = String(newState);
-          item.classList.toggle('unreviewed', !newState);
-          btn.querySelector('i').className = newState ? 'fas fa-check-circle' : 'fas fa-circle';
-          btn.classList.toggle('active', newState);
-          btn.title = newState ? 'Mark unreviewed' : 'Mark reviewed';
-          const routeDiv = item.querySelector('.flight-route');
-          const badge = routeDiv.querySelector('.badge-unreviewed');
-          if (!newState && !badge) {
-            const el = document.createElement('span');
-            el.className = 'badge-unreviewed';
-            el.innerHTML = '<i class="fas fa-eye-slash"></i> Review';
-            routeDiv.appendChild(el);
-          } else if (newState && badge) {
-            badge.remove();
-          }
-        }
+        const promises = ids.map(id =>
+          fetch(`/api/entries/${id}/lock`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ locked: lock })
+          }).then(r => r.json())
+        );
+        await Promise.all(promises);
+        showToast(lock ? `Locked ${ids.length} entry(s)` : `Unlocked ${ids.length} entry(s)`);
+        setTimeout(() => location.reload(), 500);
       } catch (e) {
-        showToast('Error toggling review', true);
+        showToast('Error updating locks', true);
       }
     }
 

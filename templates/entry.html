@@ -418,6 +418,13 @@
     <form id="entryForm" class="form-container">
       <input type="hidden" id="entryId" value="{{ entry.id }}">
 
+      {% if entry.locked %}
+      <div style="background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 0.85rem;">
+        <i class="fas fa-lock" style="color: var(--primary);"></i>
+        This entry is locked. Unlock from the logbook to edit.
+      </div>
+      {% endif %}
+
       <!-- Flight Info -->
       <div class="section">
         <div class="section-header">Flight Information</div>
@@ -579,28 +586,17 @@
 
   <footer class="footer">
     {% if not is_new %}
-    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-      <button type="button" class="btn btn-danger" id="deleteBtn" onclick="deleteEntry()"
-              {% if entry.locked %}disabled title="Unlock to delete"{% endif %}>
-        <i class="fas fa-trash"></i> Delete
-      </button>
-      <button type="button" class="btn btn-secondary" id="lockToggle" onclick="toggleEntryLock()"
-              style="font-size: 0.8rem; padding: 6px 10px;">
-        <i class="fas fa-{% if entry.locked %}lock{% else %}unlock{% endif %}"></i>
-        {{ 'Locked' if entry.locked else 'Unlocked' }}
-      </button>
-      <button type="button" class="btn btn-secondary" id="reviewToggle" onclick="toggleEntryReview()"
-              style="font-size: 0.8rem; padding: 6px 10px;">
-        <i class="fas fa-{% if entry.reviewed %}check-circle{% else %}circle{% endif %}"></i>
-        {{ 'Reviewed' if entry.reviewed else 'Needs Review' }}
-      </button>
-    </div>
+    <button type="button" class="btn btn-danger" id="deleteBtn" onclick="deleteEntry()"
+            {% if entry.locked %}disabled title="Unlock to delete"{% endif %}>
+      <i class="fas fa-trash"></i> Delete
+    </button>
     {% else %}
     <div></div>
     {% endif %}
     <div class="footer-actions">
       <a href="/" class="btn btn-secondary">Cancel</a>
-      <button type="submit" form="entryForm" class="btn btn-primary btn-lg">
+      <button type="submit" form="entryForm" class="btn btn-primary btn-lg"
+              {% if entry.locked %}disabled title="Entry is locked"{% endif %}>
         <i class="fas fa-check"></i> Save
       </button>
     </div>
@@ -835,59 +831,12 @@
       }
     }
 
-    let entryLocked = {{ 'true' if entry.locked else 'false' }};
-    let entryReviewed = {{ 'true' if entry.reviewed else 'false' }};
-
-    async function toggleEntryLock() {
-      const newState = !entryLocked;
-      const entryId = document.getElementById('entryId').value;
-      try {
-        const res = await fetch(`/api/entries/${entryId}/lock`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ locked: newState })
-        });
-        const data = await res.json();
-        if (data.success) {
-          entryLocked = newState;
-          const btn = document.getElementById('lockToggle');
-          btn.innerHTML = newState
-            ? '<i class="fas fa-lock"></i> Locked'
-            : '<i class="fas fa-unlock"></i> Unlocked';
-          const delBtn = document.getElementById('deleteBtn');
-          if (delBtn) {
-            delBtn.disabled = newState;
-            delBtn.title = newState ? 'Unlock to delete' : '';
-          }
-          showToast(newState ? 'Entry locked' : 'Entry unlocked');
-        }
-      } catch (e) {
-        showToast('Error toggling lock', true);
-      }
-    }
-
-    async function toggleEntryReview() {
-      const newState = !entryReviewed;
-      const entryId = document.getElementById('entryId').value;
-      try {
-        const res = await fetch(`/api/entries/${entryId}/review`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reviewed: newState })
-        });
-        const data = await res.json();
-        if (data.success) {
-          entryReviewed = newState;
-          const btn = document.getElementById('reviewToggle');
-          btn.innerHTML = newState
-            ? '<i class="fas fa-check-circle"></i> Reviewed'
-            : '<i class="fas fa-circle"></i> Needs Review';
-          showToast(newState ? 'Marked as reviewed' : 'Marked as unreviewed');
-        }
-      } catch (e) {
-        showToast('Error toggling review', true);
-      }
-    }
+    // Disable all form fields when entry is locked
+    {% if entry.locked %}
+    document.querySelectorAll('#entryForm input, #entryForm textarea').forEach(el => {
+      el.disabled = true;
+    });
+    {% endif %}
   </script>
 </body>
 </html>
