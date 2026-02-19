@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from typing import Optional
 
 try:
@@ -184,6 +185,9 @@ Example:
             if len(filtered) < len(normalized):
                 print(f"Filtered out {len(normalized) - len(filtered)} summary/totals row(s)")
 
+            # Fix dates: normalize format, fix garbled years, propagate missing years
+            filtered = self._normalize_dates(filtered)
+
             return filtered, expected_rows, len(filtered)
 
         except json.JSONDecodeError as e:
@@ -194,9 +198,95 @@ Example:
             print(f"Error with Gemini extraction: {e}")
             return [], 0, 0
 
+    def _normalize_dates(self, entries: list[dict]) -> list[dict]:
+        """Fix dates across all entries: normalize format, fix garbled years, propagate missing years."""
+        # First pass: normalize each date individually
+        for entry in entries:
+            entry['date'] = self._normalize_date(entry.get('date', ''))
+
+        # Second pass: propagate years to entries missing them
+        # Find the most common year from entries that have one
+        years = []
+        for entry in entries:
+            m = re.match(r'(\d{1,2})/(\d{1,2})/(\d{4})$', entry['date'])
+            if m:
+                years.append(m.group(3))
+
+        default_year = max(set(years), key=years.count) if years else None
+
+        for entry in entries:
+            date = entry['date']
+            # If date is just M/D with no year, add the default year
+            m = re.match(r'^(\d{1,2})/(\d{1,2})$', date)
+            if m and default_year:
+                entry['date'] = f"{m.group(1)}/{m.group(2)}/{default_year}"
+                print(f"Date fix: '{date}' → '{entry['date']}' (added year)")
+
+        return entries
+
+    def _normalize_date(self, date_str: str) -> str:
+        """Normalize a single date string to M/D/YYYY format."""
+        date_str = date_str.strip()
+        if not date_str:
+            return ''
+
+        # Handle date ranges like "3/26-3/28/2023" or "3/26-28/2023" — use first date
+        range_match = re.match(r'^(\d{1,2})/(\d{1,2})\s*-\s*\d{1,2}/(\d{1,2})/(\d{1,4})$', date_str)
+        if range_match:
+            month, day, _, year = range_match.groups()
+            date_str = f"{month}/{day}/{year}"
+        else:
+            # "3/26-28/2023" format (same month)
+            range_match2 = re.match(r'^(\d{1,2})/(\d{1,2})\s*-\s*(\d{1,2})/(\d{1,4})$', date_str)
+            if range_match2:
+                month, day, _, year = range_match2.groups()
+                date_str = f"{month}/{day}/{year}"
+
+        # Now parse M/D/YYYY or M/D
+        m = re.match(r'^(\d{1,2})/(\d{1,2})(?:/(\d{1,4}))?$', date_str)
+        if not m:
+            return date_str  # Can't parse, return as-is
+
+        month, day, year = m.group(1), m.group(2), m.group(3)
+
+        if year:
+            year = self._fix_year(year)
+            return f"{int(month)}/{int(day)}/{year}"
+        else:
+            # No year — return M/D, will be fixed in second pass
+            return f"{int(month)}/{int(day)}"
+
+    def _fix_year(self, year_str: str) -> str:
+        """Fix garbled year strings to valid 4-digit years."""
+        year_str = year_str.strip()
+        n = int(year_str)
+
+        if 1950 <= n <= 2099:
+            return str(n)
+
+        # 1-2 digit: assume 2000s (e.g., "4" → "2004", "23" → "2023")
+        if n <= 99:
+            return str(2000 + n) if n <= 50 else str(1900 + n)
+
+        # 3-digit garbled year: e.g., "206" → "2006", "202" → "2020"?
+        # Most likely a dropped digit from a 200x year
+        s = year_str
+        if len(s) == 3:
+            # Try inserting a '0' at each position to make a valid 4-digit year
+            for i in range(len(s) + 1):
+                candidate = s[:i] + '0' + s[i:]
+                cn = int(candidate)
+                if 1990 <= cn <= 2099:
+                    print(f"Year fix: '{year_str}' → '{candidate}'")
+                    return candidate
+            # Fallback: prepend '2' if starts with '0'
+            if s.startswith('0'):
+                return '2' + s
+
+        return year_str  # Can't fix, return as-is
+
     def _is_flight_entry(self, entry: dict) -> bool:
         """Return True if this looks like an actual flight, not a totals/summary row."""
-        import re
         date_str = entry.get('date', '').strip()
         # Date must contain digits and a separator (/ or -) to be real
         has_date = bool(date_str) and bool(re.search(r'\d+[/\-]\d+', date_str))
