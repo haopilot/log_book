@@ -225,7 +225,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 900px;
+      min-width: 960px;
     }
 
     th {
@@ -276,7 +276,7 @@
     }
 
     td input.medium {
-      width: 75px;
+      width: 95px;
     }
 
     td .delete-row {
@@ -396,14 +396,14 @@
               <th>Date</th>
               <th>Aircraft</th>
               <th>Ident</th>
-              <th>From</th>
-              <th>To</th>
+              <th>Route</th>
               <th>Total</th>
               <th>PIC</th>
               <th>Dual</th>
               <th>Solo</th>
               <th>XC</th>
               <th>Night</th>
+              <th>Sim</th>
               <th>Ldg</th>
               <th>Remarks</th>
             </tr>
@@ -537,19 +537,21 @@
       entries.forEach((entry, idx) => {
         const row = document.createElement('tr');
         row.dataset.index = idx;
+        // Build route display: use route_via if available, otherwise from-to
+        const routeDisplay = entry.route_via || ((entry.route_from || '') + (entry.route_to ? '-' + entry.route_to : ''));
         row.innerHTML = `
           <td><button class="delete-row" onclick="deleteRow(${idx})" title="Remove"><i class="fas fa-times"></i></button></td>
           <td><input type="text" value="${entry.date || ''}" data-field="date" class="medium"></td>
           <td><input type="text" value="${entry.aircraft_model || ''}" data-field="aircraft_model" class="medium"></td>
           <td><input type="text" value="${entry.aircraft_ident || ''}" data-field="aircraft_ident" class="medium"></td>
-          <td><input type="text" value="${entry.route_from || ''}" data-field="route_from" class="narrow"></td>
-          <td><input type="text" value="${entry.route_to || ''}" data-field="route_to" class="narrow"></td>
+          <td><input type="text" value="${routeDisplay}" data-field="route_via" class="medium"></td>
           <td><input type="number" value="${entry.total_duration || 0}" data-field="total_duration" class="narrow" step="0.1"></td>
           <td><input type="number" value="${entry.pic || 0}" data-field="pic" class="narrow" step="0.1"></td>
           <td><input type="number" value="${entry.dual_recd || 0}" data-field="dual_recd" class="narrow" step="0.1"></td>
           <td><input type="number" value="${entry.solo || 0}" data-field="solo" class="narrow" step="0.1"></td>
           <td><input type="number" value="${entry.cross_country || 0}" data-field="cross_country" class="narrow" step="0.1"></td>
           <td><input type="number" value="${entry.night || 0}" data-field="night" class="narrow" step="0.1"></td>
+          <td><input type="number" value="${entry.sim || 0}" data-field="sim" class="narrow" step="0.1"></td>
           <td><input type="number" value="${entry.landings_day || 0}" data-field="landings_day" class="narrow" step="1"></td>
           <td><input type="text" value="${entry.remarks || ''}" data-field="remarks"></td>
         `;
@@ -567,11 +569,11 @@
     document.getElementById('addRowBtn').addEventListener('click', () => {
       extractedEntries.push({
         date: '', aircraft_model: '', aircraft_ident: '',
-        route_from: '', route_to: '', remarks: '',
+        route_from: '', route_to: '', route_via: '', remarks: '',
         total_duration: 0, pic: 0, sic: 0, dual_recd: 0,
         dual_given: 0, solo: 0, cross_country: 0, night: 0,
         actual_inst: 0, simulated_inst: 0, num_inst_app: 0,
-        landings_day: 0, landings_night: 0, sel: 0, mel: 0,
+        landings_day: 0, landings_night: 0, sel: 0, mel: 0, sim: 0,
       });
       renderEntries(extractedEntries);
       // Scroll to bottom
@@ -595,6 +597,14 @@
             entry[field] = input.value;
           }
         });
+        // Parse route_via back into route_from/route_to
+        if (entry.route_via) {
+          const legs = entry.route_via.split('-').map(s => s.trim()).filter(Boolean);
+          if (legs.length >= 2) {
+            entry.route_from = legs[0];
+            entry.route_to = legs[legs.length - 1];
+          }
+        }
         entries.push(entry);
       });
 

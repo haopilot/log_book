@@ -79,10 +79,12 @@ class SQLiteStorage:
             )
             conn.commit()
 
-            # Migrate: add locked and reviewed columns if they don't exist
+            # Migrate: add columns if they don't exist
             for col, col_def in [
                 ("locked", "INTEGER DEFAULT 0"),
                 ("reviewed", "INTEGER DEFAULT 1"),
+                ("sim", "REAL DEFAULT 0"),
+                ("route_via", "TEXT DEFAULT ''"),
             ]:
                 try:
                     conn.execute(f"ALTER TABLE entries ADD COLUMN {col} {col_def}")
@@ -97,13 +99,13 @@ class SQLiteStorage:
                 """
                 INSERT INTO entries (
                     id, date, aircraft_model, aircraft_ident,
-                    route_from, route_to, sel, mel, day, night,
+                    route_from, route_to, route_via, sel, mel, day, night,
                     cross_country, actual_inst, simulated_inst,
                     num_inst_app, landings_day, landings_night,
-                    pic, sic, dual_recd, dual_given, solo,
+                    pic, sic, dual_recd, dual_given, solo, sim,
                     total_duration, duration_estimated, remarks,
                     created_at, updated_at, locked, reviewed
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
                 (
                     entry.id,
@@ -112,6 +114,7 @@ class SQLiteStorage:
                     entry.aircraft_ident,
                     entry.route_from,
                     entry.route_to,
+                    entry.route_via,
                     entry.sel,
                     entry.mel,
                     entry.day,
@@ -127,6 +130,7 @@ class SQLiteStorage:
                     entry.dual_recd,
                     entry.dual_given,
                     entry.solo,
+                    entry.sim,
                     entry.total_duration,
                     1 if entry.duration_estimated else 0,
                     entry.remarks,
@@ -177,10 +181,11 @@ class SQLiteStorage:
                 """
                 UPDATE entries SET
                     date=?, aircraft_model=?, aircraft_ident=?,
-                    route_from=?, route_to=?, sel=?, mel=?, day=?, night=?,
+                    route_from=?, route_to=?, route_via=?,
+                    sel=?, mel=?, day=?, night=?,
                     cross_country=?, actual_inst=?, simulated_inst=?,
                     num_inst_app=?, landings_day=?, landings_night=?,
-                    pic=?, sic=?, dual_recd=?, dual_given=?, solo=?,
+                    pic=?, sic=?, dual_recd=?, dual_given=?, solo=?, sim=?,
                     total_duration=?, duration_estimated=?, remarks=?,
                     updated_at=?, locked=?, reviewed=?
                 WHERE id=?
@@ -191,6 +196,7 @@ class SQLiteStorage:
                     entry.aircraft_ident,
                     entry.route_from,
                     entry.route_to,
+                    entry.route_via,
                     entry.sel,
                     entry.mel,
                     entry.day,
@@ -206,6 +212,7 @@ class SQLiteStorage:
                     entry.dual_recd,
                     entry.dual_given,
                     entry.solo,
+                    entry.sim,
                     entry.total_duration,
                     1 if entry.duration_estimated else 0,
                     entry.remarks,
@@ -277,6 +284,7 @@ class SQLiteStorage:
                     COALESCE(SUM(dual_recd), 0) as dual_recd,
                     COALESCE(SUM(dual_given), 0) as dual_given,
                     COALESCE(SUM(solo), 0) as solo,
+                    COALESCE(SUM(sim), 0) as sim,
                     COALESCE(SUM(total_duration), 0) as total_duration,
                     COUNT(*) as flights
                 FROM entries
@@ -328,13 +336,13 @@ class SQLiteStorage:
                         """
                         INSERT OR REPLACE INTO entries (
                             id, date, aircraft_model, aircraft_ident,
-                            route_from, route_to, sel, mel, day, night,
+                            route_from, route_to, route_via, sel, mel, day, night,
                             cross_country, actual_inst, simulated_inst,
                             num_inst_app, landings_day, landings_night,
-                            pic, sic, dual_recd, dual_given, solo,
+                            pic, sic, dual_recd, dual_given, solo, sim,
                             total_duration, duration_estimated, remarks,
                             created_at, updated_at, locked, reviewed
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                         (
                             entry.id,
@@ -343,6 +351,7 @@ class SQLiteStorage:
                             entry.aircraft_ident,
                             entry.route_from,
                             entry.route_to,
+                            entry.route_via,
                             entry.sel,
                             entry.mel,
                             entry.day,
@@ -358,6 +367,7 @@ class SQLiteStorage:
                             entry.dual_recd,
                             entry.dual_given,
                             entry.solo,
+                            entry.sim,
                             entry.total_duration,
                             1 if entry.duration_estimated else 0,
                             entry.remarks,
@@ -394,6 +404,7 @@ class SQLiteStorage:
             aircraft_ident=row["aircraft_ident"] or "",
             route_from=row["route_from"] or "",
             route_to=row["route_to"] or "",
+            route_via=row["route_via"] or "" if "route_via" in row.keys() else "",
             sel=float(row["sel"] or 0),
             mel=float(row["mel"] or 0),
             day=float(row["day"] or 0),
@@ -409,6 +420,7 @@ class SQLiteStorage:
             dual_recd=float(row["dual_recd"] or 0),
             dual_given=float(row["dual_given"] or 0),
             solo=float(row["solo"] or 0),
+            sim=float(row["sim"] or 0),
             total_duration=float(row["total_duration"] or 0),
             duration_estimated=bool(row["duration_estimated"]),
             remarks=row["remarks"] or "",

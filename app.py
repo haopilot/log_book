@@ -106,6 +106,7 @@ def new_entry():
         "dual_recd": "",
         "dual_given": "",
         "solo": "",
+        "sim": "",
         "total_duration": "",
         "remarks": "",
     }
@@ -147,6 +148,7 @@ def create_entry():
         aircraft_ident=data.get("aircraft_ident", "").upper(),
         route_from=data.get("route_from", "").upper(),
         route_to=data.get("route_to", "").upper(),
+        route_via=data.get("route_via", "").upper(),
         sel=parse_float(data.get("sel")),
         mel=parse_float(data.get("mel")),
         day=parse_float(data.get("day")),
@@ -162,6 +164,7 @@ def create_entry():
         dual_recd=parse_float(data.get("dual_recd")),
         dual_given=parse_float(data.get("dual_given")),
         solo=parse_float(data.get("solo")),
+        sim=parse_float(data.get("sim")),
         total_duration=parse_float(data.get("total_duration")),
         remarks=data.get("remarks", ""),
     )
@@ -185,6 +188,7 @@ def update_entry(entry_id):
     entry.aircraft_ident = data.get("aircraft_ident", entry.aircraft_ident).upper()
     entry.route_from = data.get("route_from", entry.route_from).upper()
     entry.route_to = data.get("route_to", entry.route_to).upper()
+    entry.route_via = data.get("route_via", entry.route_via).upper()
     entry.sel = parse_float(data.get("sel"), entry.sel)
     entry.mel = parse_float(data.get("mel"), entry.mel)
     entry.day = parse_float(data.get("day"), entry.day)
@@ -200,6 +204,7 @@ def update_entry(entry_id):
     entry.dual_recd = parse_float(data.get("dual_recd"), entry.dual_recd)
     entry.dual_given = parse_float(data.get("dual_given"), entry.dual_given)
     entry.solo = parse_float(data.get("solo"), entry.solo)
+    entry.sim = parse_float(data.get("sim"), entry.sim)
     entry.total_duration = parse_float(data.get("total_duration"), entry.total_duration)
     entry.remarks = data.get("remarks", entry.remarks)
 
@@ -638,6 +643,7 @@ def import_flightaware():
             dual_recd=parse_float(flight_data.get("dual_recd")),
             dual_given=parse_float(flight_data.get("dual_given")),
             solo=parse_float(flight_data.get("solo")),
+            sim=parse_float(flight_data.get("sim")),
             total_duration=parse_float(flight_data.get("total_duration")),
             remarks=flight_data.get("remarks", ""),
             reviewed=False,
@@ -683,16 +689,23 @@ def upload_scan():
         temp_path = f"/tmp/logbook_{uuid.uuid4()}.jpg"
         file.save(temp_path)
 
-        # Gather known aircraft idents and models from existing entries for OCR correction
+        # Gather known aircraft idents, models, and airports from existing entries for OCR correction
         existing = storage.get_all_entries(sort_by_date=False)
         known_idents = {e.aircraft_ident for e in existing if e.aircraft_ident}
         known_models = {e.aircraft_model for e in existing if e.aircraft_model}
+        known_airports = set()
+        for e in existing:
+            if e.route_from:
+                known_airports.add(e.route_from)
+            if e.route_to:
+                known_airports.add(e.route_to)
 
         # Extract flight data using Gemini AI (multimodal LLM)
         print(f"Starting Gemini extraction for: {temp_path}")
         ocr_service = LogbookOCRService()
         entries, expected_rows, actual_rows = ocr_service.extract_flights_with_gemini(
-            temp_path, known_idents=known_idents, known_models=known_models
+            temp_path, known_idents=known_idents, known_models=known_models,
+            known_airports=known_airports
         )
 
         # Cleanup
@@ -744,6 +757,7 @@ def import_scanned():
             aircraft_ident=entry_data.get("aircraft_ident", "").upper(),
             route_from=entry_data.get("route_from", "").upper(),
             route_to=entry_data.get("route_to", "").upper(),
+            route_via=entry_data.get("route_via", "").upper(),
             sel=parse_float(entry_data.get("sel")),
             mel=parse_float(entry_data.get("mel")),
             day=parse_float(entry_data.get("day")),
@@ -759,6 +773,7 @@ def import_scanned():
             dual_recd=parse_float(entry_data.get("dual_recd")),
             dual_given=parse_float(entry_data.get("dual_given")),
             solo=parse_float(entry_data.get("solo")),
+            sim=parse_float(entry_data.get("sim")),
             total_duration=parse_float(entry_data.get("total_duration")),
             remarks=entry_data.get("remarks", ""),
             reviewed=False,

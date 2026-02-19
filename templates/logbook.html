@@ -650,6 +650,12 @@
       <span class="stat-value">{{ "%.1f"|format(totals.actual_inst) }}h</span>
     </div>
     {% endif %}
+    {% if totals.sim %}
+    <div class="stat">
+      <span class="stat-label">Sim/FTD</span>
+      <span class="stat-value">{{ "%.1f"|format(totals.sim) }}h</span>
+    </div>
+    {% endif %}
   </div>
 
   <div class="batch-bar" id="batchBar">
@@ -698,9 +704,13 @@
           <div class="flight-content">
             <div class="flight-main">
               <div class="flight-route">
+                {% if entry.route_via %}
+                <span>{{ entry.route_via }}</span>
+                {% else %}
                 <span>{{ entry.route_from or '—' }}</span>
                 <i class="fas fa-arrow-right"></i>
                 <span>{{ entry.route_to or '—' }}</span>
+                {% endif %}
                 {% if entry.locked %}<i class="fas fa-lock lock-icon" title="Locked"></i>{% endif %}
               </div>
               <div class="flight-meta">

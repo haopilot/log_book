@@ -19,6 +19,7 @@ class LogbookEntry:
     aircraft_ident: str = ""  # N-number
     route_from: str = ""  # Departure
     route_to: str = ""  # Arrival
+    route_via: str = ""  # Full multi-leg route (e.g., "BFI-PAE-BFI"), empty for simple flights
 
     # Aircraft Category
     sel: float = 0.0  # Single Engine Land
@@ -44,6 +45,7 @@ class LogbookEntry:
     dual_recd: float = 0.0  # Dual Received
     dual_given: float = 0.0  # Dual Given (CFI)
     solo: float = 0.0
+    sim: float = 0.0  # Simulator / FTD time
 
     # Total Duration
     total_duration: float = 0.0
@@ -86,6 +88,7 @@ class LogbookEntry:
             self.aircraft_ident,
             self.route_from,
             self.route_to,
+            self.route_via or "",
             self.sel or "",
             self.mel or "",
             self.day or "",
@@ -101,6 +104,7 @@ class LogbookEntry:
             self.dual_recd or "",
             self.dual_given or "",
             self.solo or "",
+            self.sim or "",
             self.total_duration or "",
             self.remarks,
         ]
@@ -113,6 +117,7 @@ class LogbookEntry:
             "Aircraft Ident",
             "From",
             "To",
+            "Route",
             "SEL",
             "MEL",
             "Day",
@@ -128,6 +133,7 @@ class LogbookEntry:
             "Dual Recd",
             "Dual Given",
             "Solo",
+            "Sim/FTD",
             "Total",
             "Remarks",
         ]
@@ -212,6 +218,7 @@ class Logbook:
             "dual_recd": 0.0,
             "dual_given": 0.0,
             "solo": 0.0,
+            "sim": 0.0,
             "total_duration": 0.0,
             "flights": len(self.entries),
         }
@@ -231,6 +238,7 @@ class Logbook:
             totals["dual_recd"] += entry.dual_recd
             totals["dual_given"] += entry.dual_given
             totals["solo"] += entry.solo
+            totals["sim"] += entry.sim
             totals["total_duration"] += entry.total_duration
         return totals
 

@@ -116,6 +116,7 @@ class GoogleSheetsService:
                 "",
                 "",
                 "",
+                "",  # route_via
                 round(totals["sel"], 1) if totals["sel"] else "",
                 round(totals["mel"], 1) if totals["mel"] else "",
                 round(totals["day"], 1) if totals["day"] else "",
@@ -131,6 +132,7 @@ class GoogleSheetsService:
                 round(totals["dual_recd"], 1) if totals["dual_recd"] else "",
                 round(totals["dual_given"], 1) if totals["dual_given"] else "",
                 round(totals["solo"], 1) if totals["solo"] else "",
+                round(totals["sim"], 1) if totals.get("sim") else "",
                 round(totals["total_duration"], 1) if totals["total_duration"] else "",
                 f"{totals['flights']} flights",
             ]
@@ -142,7 +144,7 @@ class GoogleSheetsService:
             self._ensure_sheet_exists(sheet_name)
 
             # Clear existing data
-            range_name = f"{sheet_name}!A1:V1000"
+            range_name = f"{sheet_name}!A1:X1000"
             service.spreadsheets().values().clear(
                 spreadsheetId=self.spreadsheet_id,
                 range=range_name,
@@ -290,7 +292,7 @@ class GoogleSheetsService:
             service = self._get_service()
 
             # Read data from sheet
-            range_name = f"{sheet_name}!A2:V1000"  # Skip header row
+            range_name = f"{sheet_name}!A1:X1000"  # Include header row for format detection
             result = (
                 service.spreadsheets()
                 .values()
@@ -302,41 +304,84 @@ class GoogleSheetsService:
             if not rows:
                 return {"success": True, "entries": [], "message": "No data in sheet"}
 
+            # Detect format from header row
+            header = rows[0] if rows else []
+            has_route_col = "Route" in header
+            data_rows = rows[1:]  # Skip header
+
             # Convert rows to logbook entries
             entries = []
-            for row in rows:
+            for row in data_rows:
                 # Skip totals row
                 if row and row[0] == "TOTALS":
                     continue
 
-                # Pad row with empty values if needed
-                while len(row) < 22:
+                # Pad row with empty values
+                while len(row) < 24:
                     row.append("")
 
                 try:
+                    if has_route_col:
+                        # New format (24 cols): Date, Aircraft, Ident, From, To, Route, SEL..Solo, Sim, Total, Remarks
+                        route_via_val = row[5]
+                        sel_offset = 6
+                    else:
+                        # Old format (no Route column): Date, Aircraft, Ident, From, To, SEL...
+                        route_via_val = ""
+                        sel_offset = 5
+
+                    # Detect sim column presence (same logic as before, offset adjusted)
+                    sim_idx = sel_offset + 15  # solo + 1
+                    total_idx = sim_idx + 1
+                    remarks_idx = total_idx + 1
+
+                    has_sim_col = True
+                    if not has_route_col:
+                        # Old format detection for sim column
+                        try:
+                            float(row[sel_offset + 15]) if row[sel_offset + 15] else None
+                            try:
+                                float(row[sel_offset + 16]) if row[sel_offset + 16] else None
+                                has_sim_col = True
+                            except (ValueError, TypeError):
+                                has_sim_col = False
+                        except (ValueError, TypeError):
+                            has_sim_col = False
+
+                    if has_sim_col:
+                        sim_val = float(row[sim_idx]) if row[sim_idx] else 0.0
+                        total_val = float(row[total_idx]) if row[total_idx] else 0.0
+                        remarks_val = row[remarks_idx] if len(row) > remarks_idx else ""
+                    else:
+                        sim_val = 0.0
+                        total_val = float(row[sel_offset + 15]) if row[sel_offset + 15] else 0.0
+                        remarks_val = row[sel_offset + 16] if len(row) > sel_offset + 16 else ""
+
                     entry_data = {
                         "date": row[0],
                         "aircraft_model": row[1],
                         "aircraft_ident": row[2],
                         "route_from": row[3],
                         "route_to": row[4],
-                        "sel": float(row[5]) if row[5] else 0.0,
-                        "mel": float(row[6]) if row[6] else 0.0,
-                        "day": float(row[7]) if row[7] else 0.0,
-                        "night": float(row[8]) if row[8] else 0.0,
-                        "cross_country": float(row[9]) if row[9] else 0.0,
-                        "actual_inst": float(row[10]) if row[10] else 0.0,
-                        "simulated_inst": float(row[11]) if row[11] else 0.0,
-                        "num_inst_app": int(row[12]) if row[12] else 0,
-                        "landings_day": int(row[13]) if row[13] else 0,
-                        "landings_night": int(row[14]) if row[14] else 0,
-                        "pic": float(row[15]) if row[15] else 0.0,
-                        "sic": float(row[16]) if row[16] else 0.0,
-                        "dual_recd": float(row[17]) if row[17] else 0.0,
-                        "dual_given": float(row[18]) if row[18] else 0.0,
-                        "solo": float(row[19]) if row[19] else 0.0,
-                        "total_duration": float(row[20]) if row[20] else 0.0,
-                        "remarks": row[21] if len(row) > 21 else "",
+                        "route_via": route_via_val,
+                        "sel": float(row[sel_offset]) if row[sel_offset] else 0.0,
+                        "mel": float(row[sel_offset + 1]) if row[sel_offset + 1] else 0.0,
+                        "day": float(row[sel_offset + 2]) if row[sel_offset + 2] else 0.0,
+                        "night": float(row[sel_offset + 3]) if row[sel_offset + 3] else 0.0,
+                        "cross_country": float(row[sel_offset + 4]) if row[sel_offset + 4] else 0.0,
+                        "actual_inst": float(row[sel_offset + 5]) if row[sel_offset + 5] else 0.0,
+                        "simulated_inst": float(row[sel_offset + 6]) if row[sel_offset + 6] else 0.0,
+                        "num_inst_app": int(row[sel_offset + 7]) if row[sel_offset + 7] else 0,
+                        "landings_day": int(row[sel_offset + 8]) if row[sel_offset + 8] else 0,
+                        "landings_night": int(row[sel_offset + 9]) if row[sel_offset + 9] else 0,
+                        "pic": float(row[sel_offset + 10]) if row[sel_offset + 10] else 0.0,
+                        "sic": float(row[sel_offset + 11]) if row[sel_offset + 11] else 0.0,
+                        "dual_recd": float(row[sel_offset + 12]) if row[sel_offset + 12] else 0.0,
+                        "dual_given": float(row[sel_offset + 13]) if row[sel_offset + 13] else 0.0,
+                        "solo": float(row[sel_offset + 14]) if row[sel_offset + 14] else 0.0,
+                        "sim": sim_val,
+                        "total_duration": total_val,
+                        "remarks": remarks_val,
                     }
 
                     # Only add entries with valid dates

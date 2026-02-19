@@ -1,0 +1,324 @@
+{
+  "total_photos": 45,
+  "total_raw_entries": 522,
+  "total_processed_entries": 516,
+  "total_filtered_out": 6,
+  "errors": [],
+  "per_photo": {
+    "IMG_5045.JPEG": {
+      "expected_rows": 14,
+      "raw": 14,
+      "processed": 14,
+      "filtered": 0,
+      "elapsed": 21.8
+    },
+    "IMG_5046.JPEG": {
+      "expected_rows": 11,
+      "raw": 11,
+      "processed": 11,
+      "filtered": 0,
+      "elapsed": 18.9
+    },
+    "IMG_5047.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 15.8
+    },
+    "IMG_5048.JPEG": {
+      "expected_rows": 13,
+      "raw": 13,
+      "processed": 13,
+      "filtered": 0,
+      "elapsed": 16.6
+    },
+    "IMG_5049.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 19.7
+    },
+    "IMG_5050.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 20.1
+    },
+    "IMG_5051.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 21.2
+    },
+    "IMG_5052.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 19.3
+    },
+    "IMG_5053.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 19.4
+    },
+    "IMG_5054.JPEG": {
+      "expected_rows": 11,
+      "raw": 11,
+      "processed": 11,
+      "filtered": 0,
+      "elapsed": 18.4
+    },
+    "IMG_5055.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 19.7
+    },
+    "IMG_5056.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 15.7
+    },
+    "IMG_5057.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 16.2
+    },
+    "IMG_5058.JPEG": {
+      "expected_rows": 14,
+      "raw": 14,
+      "processed": 13,
+      "filtered": 1,
+      "elapsed": 18.3
+    },
+    "IMG_5059.JPEG": {
+      "expected_rows": 13,
+      "raw": 13,
+      "processed": 13,
+      "filtered": 0,
+      "elapsed": 20.5
+    },
+    "IMG_5060.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 19.2
+    },
+    "IMG_5061.JPEG": {
+      "expected_rows": 14,
+      "raw": 14,
+      "processed": 13,
+      "filtered": 1,
+      "elapsed": 19.7
+    },
+    "IMG_5062.JPEG": {
+      "expected_rows": 16,
+      "raw": 16,
+      "processed": 13,
+      "filtered": 3,
+      "elapsed": 24.0
+    },
+    "IMG_5063.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 18.8
+    },
+    "IMG_5064.JPEG": {
+      "expected_rows": 11,
+      "raw": 11,
+      "processed": 11,
+      "filtered": 0,
+      "elapsed": 18.4
+    },
+    "IMG_5065.JPEG": {
+      "expected_rows": 11,
+      "raw": 11,
+      "processed": 11,
+      "filtered": 0,
+      "elapsed": 16.9
+    },
+    "IMG_5066.JPEG": {
+      "expected_rows": 13,
+      "raw": 13,
+      "processed": 13,
+      "filtered": 0,
+      "elapsed": 16.6
+    },
+    "IMG_5067.JPEG": {
+      "expected_rows": 11,
+      "raw": 11,
+      "processed": 11,
+      "filtered": 0,
+      "elapsed": 16.9
+    },
+    "IMG_5068.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 15.7
+    },
+    "IMG_5069.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 19.1
+    },
+    "IMG_5070.JPEG": {
+      "expected_rows": 11,
+      "raw": 11,
+      "processed": 11,
+      "filtered": 0,
+      "elapsed": 13.3
+    },
+    "IMG_5071.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 13.8
+    },
+    "IMG_5072.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 18.3
+    },
+    "IMG_5073.JPEG": {
+      "expected_rows": 11,
+      "raw": 11,
+      "processed": 11,
+      "filtered": 0,
+      "elapsed": 17.0
+    },
+    "IMG_5074.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 18.5
+    },
+    "IMG_5075.JPEG": {
+      "expected_rows": 11,
+      "raw": 11,
+      "processed": 11,
+      "filtered": 0,
+      "elapsed": 13.4
+    },
+    "IMG_5076.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 18.0
+    },
+    "IMG_5077.JPEG": {
+      "expected_rows": 13,
+      "raw": 13,
+      "processed": 13,
+      "filtered": 0,
+      "elapsed": 18.3
+    },
+    "IMG_5078.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 18.1
+    },
+    "IMG_5079.JPEG": {
+      "expected_rows": 13,
+      "raw": 13,
+      "processed": 13,
+      "filtered": 0,
+      "elapsed": 18.2
+    },
+    "IMG_5080.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 13.6
+    },
+    "IMG_5081.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 18.1
+    },
+    "IMG_5082.JPEG": {
+      "expected_rows": 12,
+      "raw": 12,
+      "processed": 12,
+      "filtered": 0,
+      "elapsed": 18.6
+    },
+    "IMG_5083.JPEG": {
+      "expected_rows": 11,
+      "raw": 11,
+      "processed": 11,
+      "filtered": 0,
+      "elapsed": 15.4
+    },
+    "IMG_5084.JPEG": {
+      "expected_rows": 13,
+      "raw": 13,
+      "processed": 13,
+      "filtered": 0,
+      "elapsed": 19.3
+    },
+    "IMG_5085.JPEG": {
+      "expected_rows": 6,
+      "raw": 6,
+      "processed": 6,
+      "filtered": 0,
+      "elapsed": 7.9
+    },
+    "IMG_5086.JPEG": {
+      "expected_rows": 7,
+      "raw": 7,
+      "processed": 7,
+      "filtered": 0,
+      "elapsed": 11.3
+    },
+    "IMG_5087.JPEG": {
+      "expected_rows": 7,
+      "raw": 7,
+      "processed": 7,
+      "filtered": 0,
+      "elapsed": 9.4
+    },
+    "IMG_5088.JPEG": {
+      "expected_rows": 8,
+      "raw": 8,
+      "processed": 7,
+      "filtered": 1,
+      "elapsed": 9.1
+    },
+    "IMG_5089.JPEG": {
+      "expected_rows": 7,
+      "raw": 7,
+      "processed": 7,
+      "filtered": 0,
+      "elapsed": 9.0
+    }
+  }
+}
