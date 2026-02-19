@@ -30,7 +30,7 @@ class LogbookOCRService:
 Extract ALL flight entries visible in the image and return them as a JSON array.
 
 Each flight entry should have these fields (use null if not readable):
-- date: string in "M/D/YYYY" or "MM/DD/YYYY" format. The year may be written once at the top of the page - apply it to all entries.
+- date: MUST always be in "M/D/YYYY" format with a 4-digit year. In handwritten logbooks, the year is often written only once at the top of the page or column, or only on the first entry — you MUST apply that year to every entry on the page. If the year is not visible anywhere on this page, infer it from context: the dates should be sequential and realistic for a pilot logbook (typically 2000-2025). If a date spans multiple days (e.g., "3/26-28"), use the first date. Every date you output MUST have a 4-digit year — never output just "3/10", always "3/10/2004".
 - aircraft_model: aircraft type (e.g., "DA-20", "C-172", "PA-28", "TBM 700")
 - aircraft_ident: tail number (e.g., "N636DC", "N95225")
 - route_from: departure airport ICAO or FAA code (e.g., "BFI", "SEA", "PAE")
