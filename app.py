@@ -683,10 +683,17 @@ def upload_scan():
         temp_path = f"/tmp/logbook_{uuid.uuid4()}.jpg"
         file.save(temp_path)
 
+        # Gather known aircraft idents and models from existing entries for OCR correction
+        existing = storage.get_all_entries(sort_by_date=False)
+        known_idents = {e.aircraft_ident for e in existing if e.aircraft_ident}
+        known_models = {e.aircraft_model for e in existing if e.aircraft_model}
+
         # Extract flight data using Gemini AI (multimodal LLM)
         print(f"Starting Gemini extraction for: {temp_path}")
         ocr_service = LogbookOCRService()
-        entries, expected_rows, actual_rows = ocr_service.extract_flights_with_gemini(temp_path)
+        entries, expected_rows, actual_rows = ocr_service.extract_flights_with_gemini(
+            temp_path, known_idents=known_idents, known_models=known_models
+        )
 
         # Cleanup
         os.remove(temp_path)
