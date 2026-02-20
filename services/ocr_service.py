@@ -39,7 +39,7 @@ Each flight entry should have these fields (use null if not readable):
 - aircraft_ident: tail number (e.g., "N636DC", "N95225"). If the same tail number appears on multiple rows, ensure consistency — handwriting OCR often confuses Y/7, T/7, O/0, I/1, S/5, B/8. Pick the most likely real tail number.
 - route_from: departure airport ICAO or FAA code (e.g., "BFI", "SEA", "PAE")
 - route_to: destination airport ICAO or FAA code (e.g., "BFI", "SEA", "PAE")
-- remarks: any remarks or endorsements text
+- remarks: any remarks or endorsements text. These are aviation shorthand — preserve them as written or use standard aviation abbreviations. Common examples: "ldg" (landing), "appro" or "appr" (approach), "ILS" (instrument landing system), "VOR", "Rwy" (runway), "T&G" or "TnG" (touch and go), "XC" (cross country), "NDB", "GPS", "LOC" (localizer), "RNAV", "steep trns" (steep turns). Do NOT replace aviation terms with non-aviation English words
 - total_duration: total flight time in decimal hours (e.g., 1.4, 2.2)
 - pic: pilot in command time in decimal hours
 - sic: second in command time in decimal hours
