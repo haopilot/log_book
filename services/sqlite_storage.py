@@ -316,47 +316,29 @@ class SQLiteStorage:
                     pass
         return None
 
-    def get_hours_year_calibration(self) -> list[tuple[float, float]]:
-        """Build (cumulative_hours, fractional_year) calibration from existing entries.
+    def get_known_values(self) -> tuple[set[str], set[str], set[str]]:
+        """Get known aircraft idents, models, and airports using fast DISTINCT queries.
 
-        Returns sorted list used to estimate what year a page belongs to
-        based on its amt_forwarded (cumulative hours at page start).
+        Returns (known_idents, known_models, known_airports) without loading
+        full entry objects — much faster than get_all_entries() for this purpose.
         """
         with self._get_connection() as conn:
-            cursor = conn.execute("""
-                SELECT date, total_duration FROM entries
-                WHERE date LIKE '%/%/%' AND total_duration > 0
-                ORDER BY
-                    CASE
-                        WHEN date LIKE '%/%/%'
-                        THEN substr(date, instr(date, '/') + instr(substr(date, instr(date, '/') + 1), '/') + 1) || '-' ||
-                             printf('%02d', CAST(substr(date, 1, instr(date, '/') - 1) AS INTEGER)) || '-' ||
-                             printf('%02d', CAST(substr(date, instr(date, '/') + 1, instr(substr(date, instr(date, '/') + 1), '/') - 1) AS INTEGER))
-                        ELSE date
-                    END ASC
-            """)
+            idents = {row[0] for row in conn.execute(
+                "SELECT DISTINCT aircraft_ident FROM entries WHERE aircraft_ident != '' AND aircraft_ident IS NOT NULL"
+            ).fetchall()}
 
-            calibration = []
-            cumulative = 0.0
-            last_quarter = None
+            models = {row[0] for row in conn.execute(
+                "SELECT DISTINCT aircraft_model FROM entries WHERE aircraft_model != '' AND aircraft_model IS NOT NULL"
+            ).fetchall()}
 
-            for row in cursor.fetchall():
-                date_str = row["date"]
-                try:
-                    dt = datetime.strptime(date_str, "%m/%d/%Y")
-                except ValueError:
-                    continue
+            airports = set()
+            for row in conn.execute(
+                "SELECT DISTINCT route_from FROM entries WHERE route_from != '' AND route_from IS NOT NULL "
+                "UNION SELECT DISTINCT route_to FROM entries WHERE route_to != '' AND route_to IS NOT NULL"
+            ).fetchall():
+                airports.add(row[0])
 
-                cumulative += float(row["total_duration"])
-                frac_year = dt.year + (dt.month - 1) / 12.0
-
-                # One calibration point per quarter to smooth noise
-                quarter_key = (dt.year, dt.month // 4)
-                if quarter_key != last_quarter:
-                    calibration.append((cumulative, frac_year))
-                    last_quarter = quarter_key
-
-            return calibration
+            return idents, models, airports
 
     def get_existing_keys(self) -> set[str]:
         """Get set of date|from|to keys for duplicate detection."""

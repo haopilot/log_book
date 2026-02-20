@@ -6,6 +6,7 @@ Uses SQLite for local storage with Google Sheets as backup.
 """
 
 import os
+import time
 from datetime import datetime
 
 from config import Config
@@ -689,27 +690,23 @@ def upload_scan():
         temp_path = f"/tmp/logbook_{uuid.uuid4()}.jpg"
         file.save(temp_path)
 
-        # Gather known aircraft idents, models, and airports from existing entries for OCR correction
-        existing = storage.get_all_entries(sort_by_date=False)
-        known_idents = {e.aircraft_ident for e in existing if e.aircraft_ident}
-        known_models = {e.aircraft_model for e in existing if e.aircraft_model}
-        known_airports = set()
-        for e in existing:
-            if e.route_from:
-                known_airports.add(e.route_from)
-            if e.route_to:
-                known_airports.add(e.route_to)
+        t0 = time.time()
 
-        # Build hours→year calibration from existing entries for date correction
-        calibration = storage.get_hours_year_calibration()
+        # Gather known aircraft idents, models, and airports for OCR correction
+        known_idents, known_models, known_airports = storage.get_known_values()
+
+        t1 = time.time()
 
         # Extract flight data using Gemini AI (multimodal LLM)
         print(f"Starting Gemini extraction for: {temp_path}")
         ocr_service = LogbookOCRService()
-        entries, expected_rows, actual_rows, page_totals = ocr_service.extract_flights_with_gemini(
+        entries, expected_rows, actual_rows = ocr_service.extract_flights_with_gemini(
             temp_path, known_idents=known_idents, known_models=known_models,
-            known_airports=known_airports, calibration=calibration
+            known_airports=known_airports
         )
+
+        t2 = time.time()
+        print(f"Scan timing: db_queries={t1-t0:.2f}s, gemini+postprocess={t2-t1:.2f}s, total={t2-t0:.2f}s")
 
         # Cleanup
         os.remove(temp_path)
@@ -721,14 +718,11 @@ def upload_scan():
             }), 400
 
         print(f"Successfully extracted {actual_rows} of {expected_rows} entries")
-        result = {
+        return jsonify({
             "success": True,
             "entries": entries,
             "count": len(entries),
-        }
-        if page_totals:
-            result["page_totals"] = page_totals
-        return jsonify(result)
+        })
 
     except Exception as e:
         # Cleanup on error
@@ -755,8 +749,6 @@ def import_scanned():
     for entry_data in entries:
         # Remove metadata
         entry_data.pop("_raw", None)
-        entry_data.pop("_date_corrected", None)
-        entry_data.pop("_original_ocr_year", None)
 
         # Create entry
         entry = LogbookEntry(
