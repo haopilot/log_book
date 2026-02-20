@@ -700,12 +700,15 @@ def upload_scan():
             if e.route_to:
                 known_airports.add(e.route_to)
 
+        # Build hours→year calibration from existing entries for date correction
+        calibration = storage.get_hours_year_calibration()
+
         # Extract flight data using Gemini AI (multimodal LLM)
         print(f"Starting Gemini extraction for: {temp_path}")
         ocr_service = LogbookOCRService()
-        entries, expected_rows, actual_rows = ocr_service.extract_flights_with_gemini(
+        entries, expected_rows, actual_rows, page_totals = ocr_service.extract_flights_with_gemini(
             temp_path, known_idents=known_idents, known_models=known_models,
-            known_airports=known_airports
+            known_airports=known_airports, calibration=calibration
         )
 
         # Cleanup
@@ -718,11 +721,14 @@ def upload_scan():
             }), 400
 
         print(f"Successfully extracted {actual_rows} of {expected_rows} entries")
-        return jsonify({
+        result = {
             "success": True,
             "entries": entries,
             "count": len(entries),
-        })
+        }
+        if page_totals:
+            result["page_totals"] = page_totals
+        return jsonify(result)
 
     except Exception as e:
         # Cleanup on error
@@ -749,6 +755,8 @@ def import_scanned():
     for entry_data in entries:
         # Remove metadata
         entry_data.pop("_raw", None)
+        entry_data.pop("_date_corrected", None)
+        entry_data.pop("_original_ocr_year", None)
 
         # Create entry
         entry = LogbookEntry(

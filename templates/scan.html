@@ -279,6 +279,11 @@
       width: 95px;
     }
 
+    td input.date-corrected {
+      background: #422006;
+      border-color: var(--warning);
+    }
+
     td .delete-row {
       background: none;
       border: none;
@@ -539,9 +544,11 @@
         row.dataset.index = idx;
         // Build route display: use route_via if available, otherwise from-to
         const routeDisplay = entry.route_via || ((entry.route_from || '') + (entry.route_to ? '-' + entry.route_to : ''));
+        const dateClass = entry._date_corrected ? 'medium date-corrected' : 'medium';
+        const dateTitle = entry._date_corrected ? `Year corrected from ${entry._original_ocr_year}` : '';
         row.innerHTML = `
           <td><button class="delete-row" onclick="deleteRow(${idx})" title="Remove"><i class="fas fa-times"></i></button></td>
-          <td><input type="text" value="${entry.date || ''}" data-field="date" class="medium"></td>
+          <td><input type="text" value="${entry.date || ''}" data-field="date" class="${dateClass}" title="${dateTitle}"></td>
           <td><input type="text" value="${entry.aircraft_model || ''}" data-field="aircraft_model" class="medium"></td>
           <td><input type="text" value="${entry.aircraft_ident || ''}" data-field="aircraft_ident" class="medium"></td>
           <td><input type="text" value="${routeDisplay}" data-field="route_via" class="medium"></td>

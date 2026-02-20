@@ -316,6 +316,48 @@ class SQLiteStorage:
                     pass
         return None
 
+    def get_hours_year_calibration(self) -> list[tuple[float, float]]:
+        """Build (cumulative_hours, fractional_year) calibration from existing entries.
+
+        Returns sorted list used to estimate what year a page belongs to
+        based on its amt_forwarded (cumulative hours at page start).
+        """
+        with self._get_connection() as conn:
+            cursor = conn.execute("""
+                SELECT date, total_duration FROM entries
+                WHERE date LIKE '%/%/%' AND total_duration > 0
+                ORDER BY
+                    CASE
+                        WHEN date LIKE '%/%/%'
+                        THEN substr(date, instr(date, '/') + instr(substr(date, instr(date, '/') + 1), '/') + 1) || '-' ||
+                             printf('%02d', CAST(substr(date, 1, instr(date, '/') - 1) AS INTEGER)) || '-' ||
+                             printf('%02d', CAST(substr(date, instr(date, '/') + 1, instr(substr(date, instr(date, '/') + 1), '/') - 1) AS INTEGER))
+                        ELSE date
+                    END ASC
+            """)
+
+            calibration = []
+            cumulative = 0.0
+            last_quarter = None
+
+            for row in cursor.fetchall():
+                date_str = row["date"]
+                try:
+                    dt = datetime.strptime(date_str, "%m/%d/%Y")
+                except ValueError:
+                    continue
+
+                cumulative += float(row["total_duration"])
+                frac_year = dt.year + (dt.month - 1) / 12.0
+
+                # One calibration point per quarter to smooth noise
+                quarter_key = (dt.year, dt.month // 4)
+                if quarter_key != last_quarter:
+                    calibration.append((cumulative, frac_year))
+                    last_quarter = quarter_key
+
+            return calibration
+
     def get_existing_keys(self) -> set[str]:
         """Get set of date|from|to keys for duplicate detection."""
         keys = set()

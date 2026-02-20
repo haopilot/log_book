@@ -60,18 +60,23 @@ Important:
 - Airport codes MUST be valid real FAA or ICAO identifiers. If the handwriting is ambiguous, infer the most likely real airport code. For example, "BEE" is not a valid code but "BFI" (Boeing Field, Seattle) is. Common codes include: BFI, SEA, PAE, RNT, PWT, OLM, S43, S50, 0S9, HQM, BLI, etc.
 - If a route shows multiple stops like "BFI-PAE-BFI", set route_from to the first, route_to to the last, and put the full route (e.g., "BFI-PAE-BFI") at the BEGINNING of the remarks field, followed by any other remarks
 - Set numeric fields to 0 if the cell is empty (not null)
-- Only extract ACTUAL FLIGHT entries. A real flight row has a date, aircraft, and airports. SKIP any summary/totals rows — these are rows that only contain numbers (column sums) without a date, aircraft type, or airport codes. They may be labeled "Totals", "Page Total", "Total this page", "Amounts forwarded", "Brought forward", etc., or they may just be an unlabeled row of numbers at the bottom of the page. These are NOT flights.
+- Only extract ACTUAL FLIGHT entries. A real flight row has a date, aircraft, and airports. SKIP any summary/totals rows — these are rows that only contain numbers (column sums) without a date, aircraft type, or airport codes. They may be labeled "Totals", "Page Total", "Total this page", "Amounts forwarded", "Brought forward", etc., or they may just be an unlabeled row of numbers at the bottom of the page. These are NOT flights — but DO report their values in "page_totals" (see below).
 - The logbook is in standard ASA/Jeppesen format
 - Include ALL columns you can read - do not skip any time categories
 
-Return a JSON object with two fields:
+Return a JSON object with these fields:
 1. "total_rows_visible": the total number of flight data rows you can see in the logbook (count every row that has ANY data written in it)
 2. "entries": the JSON array of extracted flight entries
+3. "page_totals": an object with the numeric totals from the summary rows at the bottom of the page (the rows you are NOT including in "entries"). Most ASA/Jeppesen logbook pages have up to three summary rows at the bottom:
+   - "totals_this_page": the sum of flight times on this page (row labeled "Totals This Page" or "Page Total")
+   - "amt_forwarded": cumulative hours carried from previous pages (row labeled "Amount Forwarded", "Amt Fwd", or "Brought Forward")
+   - "totals_to_date": running career total (row labeled "Totals To Date")
+   Read the value from the "Total Duration" or rightmost time column. Use null for any not visible. Set page_totals to null if no summary rows exist.
 
 The length of "entries" MUST equal "total_rows_visible". If they don't match, you missed rows.
 
 Example:
-{"total_rows_visible": 1, "entries": [{"date": "05/09/2004", "aircraft_model": "DA20", "aircraft_ident": "N636DC", "route_from": "BFI", "route_to": "BFI", "remarks": "Stalls, slow flight", "total_duration": 1.4, "pic": 0, "sic": 0, "dual_recd": 1.4, "dual_given": 0, "solo": 0, "cross_country": 0, "night": 0, "actual_inst": 0, "simulated_inst": 0, "num_inst_app": 0, "landings_day": 3, "landings_night": 0}]}"""
+{"total_rows_visible": 1, "entries": [{"date": "05/09/2004", "aircraft_model": "DA20", "aircraft_ident": "N636DC", "route_from": "BFI", "route_to": "BFI", "remarks": "Stalls, slow flight", "total_duration": 1.4, "pic": 0, "sic": 0, "dual_recd": 1.4, "dual_given": 0, "solo": 0, "cross_country": 0, "night": 0, "actual_inst": 0, "simulated_inst": 0, "num_inst_app": 0, "landings_day": 3, "landings_night": 0}], "page_totals": {"totals_this_page": 1.4, "amt_forwarded": 112.7, "totals_to_date": 114.1}}"""
 
     def __init__(self):
         """Initialize OCR service."""
@@ -100,30 +105,31 @@ Example:
     def extract_flights_with_gemini(self, image_path: str,
                                      known_idents: set[str] | None = None,
                                      known_models: set[str] | None = None,
-                                     known_airports: set[str] | None = None) -> list[dict]:
+                                     known_airports: set[str] | None = None,
+                                     calibration: list[tuple[float, float]] | None = None,
+                                     ) -> tuple[list[dict], int, int, dict | None]:
         """
         Extract flight entries from logbook image using Google Gemini.
 
-        Gemini can see the image, understand the table layout, read handwriting,
-        and return structured JSON directly - much better than traditional OCR.
-
         Args:
             image_path: Path to logbook image
-            known_idents: Known aircraft tail numbers from existing entries (for correction)
-            known_models: Known aircraft types from existing entries (for correction)
+            known_idents: Known aircraft tail numbers from existing entries
+            known_models: Known aircraft types from existing entries
+            known_airports: Known airport codes from existing entries
+            calibration: (cumulative_hours, fractional_year) pairs for date correction
 
         Returns:
-            Tuple of (entries list, expected_rows, actual_rows)
+            Tuple of (entries, expected_rows, actual_rows, page_totals)
         """
         if not GEMINI_AVAILABLE:
             print("ERROR: google-generativeai not available")
-            return [], 0, 0
+            return [], 0, 0, None
 
         self._init_gemini()
 
         if not self._gemini_initialized:
             print("ERROR: Gemini not initialized")
-            return [], 0, 0
+            return [], 0, 0, None
 
         try:
             # Load image
@@ -168,10 +174,16 @@ Example:
             parsed = json.loads(response_text)
 
             # Handle both formats: object with total_rows_visible or plain list
+            page_totals = None
             if isinstance(parsed, dict):
                 expected_rows = parsed.get('total_rows_visible', 0)
                 entries = parsed.get('entries', [])
+                page_totals = parsed.get('page_totals')
                 print(f"Gemini reports {expected_rows} rows visible, extracted {len(entries)} entries")
+                if page_totals:
+                    print(f"Page totals: fwd={page_totals.get('amt_forwarded')}, "
+                          f"this_page={page_totals.get('totals_this_page')}, "
+                          f"to_date={page_totals.get('totals_to_date')}")
 
                 if expected_rows > len(entries):
                     print(f"WARNING: Missing {expected_rows - len(entries)} rows! "
@@ -181,7 +193,7 @@ Example:
                 expected_rows = len(entries)
             else:
                 print(f"WARNING: Gemini returned unexpected type: {type(parsed)}")
-                return [], 0, 0
+                return [], 0, 0, None
 
             print(f"Gemini extracted {len(entries)} flight entries")
 
@@ -197,6 +209,9 @@ Example:
 
             # Fix dates: normalize format, fix garbled years, propagate missing years
             filtered = self._normalize_dates(filtered)
+
+            # Correct date years using page totals + calibration from existing entries
+            filtered = self._correct_date_years(filtered, page_totals, calibration or [])
 
             # Fix aircraft identifiers using frequency analysis + known idents
             filtered = self._fix_aircraft_idents(filtered, known_idents)
@@ -222,15 +237,15 @@ Example:
             # Clean up garbled remarks
             filtered = self._clean_remarks(filtered)
 
-            return filtered, expected_rows, len(filtered)
+            return filtered, expected_rows, len(filtered), page_totals
 
         except json.JSONDecodeError as e:
             print(f"Error parsing Gemini JSON response: {e}")
             print(f"Response was: {response_text[:500]}")
-            return [], 0, 0
+            return [], 0, 0, None
         except Exception as e:
             print(f"Error with Gemini extraction: {e}")
-            return [], 0, 0
+            return [], 0, 0, None
 
     def _normalize_dates(self, entries: list[dict]) -> list[dict]:
         """Fix dates across all entries: normalize format, fix garbled years, propagate missing years."""
@@ -261,6 +276,120 @@ Example:
             if m and default_year:
                 entry['date'] = f"{int(m.group(1)):02d}/{int(m.group(2)):02d}/{default_year}"
                 print(f"Date fix: '{date}' → '{entry['date']}' (added year)")
+
+        return entries
+
+    # Year correction threshold: only correct when OCR year differs from
+    # calibration estimate by more than this many years. Must be large enough
+    # to tolerate section mismatch (SEL vs MEL totals) but small enough to
+    # catch the common Gemini error of reading "04" as "2024" (20-year gap).
+    YEAR_CORRECTION_THRESHOLD = 5
+
+    def _correct_date_years(self, entries: list[dict],
+                             page_totals: dict | None,
+                             calibration: list[tuple[float, float]]) -> list[dict]:
+        """Correct OCR'd years using page totals and existing-entry calibration.
+
+        Uses amt_forwarded (cumulative hours at page start) to estimate what
+        year this page belongs to. If OCR year is way off, override it.
+        """
+        if not calibration or len(calibration) < 3:
+            return entries  # Not enough data to calibrate
+
+        if not page_totals:
+            return entries  # No page totals extracted
+
+        amt_fwd = page_totals.get('amt_forwarded')
+        if amt_fwd is None or amt_fwd < 0:
+            return entries
+
+        # Estimate year from calibration curve
+        estimated_year = self._interpolate_year(amt_fwd, calibration)
+        if estimated_year is None:
+            return entries
+
+        # Get dominant OCR year from entries
+        ocr_years = []
+        for entry in entries:
+            m = re.match(r'\d{1,2}/\d{1,2}/(\d{4})$', entry.get('date', ''))
+            if m:
+                ocr_years.append(int(m.group(1)))
+        if not ocr_years:
+            return entries
+
+        ocr_year = max(set(ocr_years), key=ocr_years.count)
+        estimated_int = round(estimated_year)
+
+        if abs(ocr_year - estimated_int) <= self.YEAR_CORRECTION_THRESHOLD:
+            return entries  # OCR year is close enough, trust it
+
+        # OCR year is significantly off — correct it
+        print(f"Year correction: OCR says {ocr_year}, estimated {estimated_int} "
+              f"(amt_fwd={amt_fwd:.1f}h, threshold={self.YEAR_CORRECTION_THRESHOLD}y)")
+
+        return self._apply_year_with_rollover(entries, estimated_int)
+
+    @staticmethod
+    def _interpolate_year(hours: float,
+                           calibration: list[tuple[float, float]]) -> float | None:
+        """Interpolate fractional year from cumulative hours using calibration curve."""
+        if not calibration:
+            return None
+        if hours <= calibration[0][0]:
+            return calibration[0][1]
+        if hours >= calibration[-1][0]:
+            return calibration[-1][1]
+
+        for i in range(len(calibration) - 1):
+            h0, y0 = calibration[i]
+            h1, y1 = calibration[i + 1]
+            if h0 <= hours <= h1:
+                if h1 == h0:
+                    return y0
+                frac = (hours - h0) / (h1 - h0)
+                return y0 + frac * (y1 - y0)
+
+        return calibration[-1][1]
+
+    @staticmethod
+    def _apply_year_with_rollover(entries: list[dict], base_year: int) -> list[dict]:
+        """Set all entries to base_year with conservative single Dec→Jan rollover."""
+        # Extract months
+        entry_months = []
+        for e in entries:
+            m = re.match(r'(\d{1,2})/\d{1,2}/\d{4}', e.get('date', ''))
+            entry_months.append(int(m.group(1)) if m else None)
+
+        # Find a single Dec→Jan rollover point
+        rollover_idx = None
+        valid = [(i, m) for i, m in enumerate(entry_months) if m is not None]
+
+        for j in range(len(valid) - 1):
+            idx_a, month_a = valid[j]
+            idx_b, month_b = valid[j + 1]
+            if month_a >= 10 and month_b <= 3:
+                if rollover_idx is None:
+                    rollover_idx = idx_b
+                else:
+                    rollover_idx = None  # Multiple rollovers → don't do any
+                    break
+
+        for idx, entry in enumerate(entries):
+            m = re.match(r'(\d{1,2})/(\d{1,2})/(\d{4})', entry.get('date', ''))
+            if not m:
+                continue
+
+            month = int(m.group(1))
+            day = int(m.group(2))
+            old_year = int(m.group(3))
+
+            year = base_year + 1 if (rollover_idx is not None and idx >= rollover_idx) else base_year
+            new_date = f"{month:02d}/{day:02d}/{year}"
+
+            if new_date != entry['date']:
+                entry['_original_ocr_year'] = old_year
+                entry['_date_corrected'] = True
+                entry['date'] = new_date
 
         return entries
 
