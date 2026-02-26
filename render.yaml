@@ -12,12 +12,10 @@ services:
         value: 3.12.0
       - key: FLIGHTAWARE_API_KEY
         sync: false
-      - key: GOOGLE_SHEETS_ID
+      - key: GOOGLE_OAUTH_CLIENT_ID
         sync: false
-      - key: GOOGLE_CREDENTIALS_FILE
-        value: credentials.json
-      - key: GOOGLE_APPLICATION_CREDENTIALS
-        value: service-account.json
+      - key: GOOGLE_OAUTH_CLIENT_SECRET
+        sync: false
       - key: AIRCRAFT_TAIL_NUMBER
         value: N790TB
       - key: AIRCRAFT_MAKE

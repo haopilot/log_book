@@ -14,15 +14,13 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "your-secret-key-change-in-production")
     DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 
+    # Google OAuth
+    GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "")
+    GOOGLE_OAUTH_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET", "")
+
     # FlightAware API
     FLIGHTAWARE_API_KEY = os.environ.get("FLIGHTAWARE_API_KEY", "")
     FLIGHTAWARE_API_URL = "https://aeroapi.flightaware.com/aeroapi"
-
-    # Google Sheets
-    GOOGLE_SHEETS_ID = os.environ.get("GOOGLE_SHEETS_ID", "")
-    GOOGLE_CREDENTIALS_FILE = os.environ.get(
-        "GOOGLE_CREDENTIALS_FILE", "credentials.json"
-    )
 
     # Default aircraft settings
     DEFAULT_TAIL_NUMBER = os.environ.get("AIRCRAFT_TAIL_NUMBER", "N790TB")

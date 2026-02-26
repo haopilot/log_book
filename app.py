@@ -1,57 +1,52 @@
 """
 Pilot Logbook - Web Application
 
-A web-based pilot logbook using ASA Standard format.
-Uses SQLite for local storage with Google Sheets as backup.
+A web-based pilot logbook using ASA Standard format with SQLite storage.
 """
 
 import os
 import time
 from datetime import datetime
 
+from authlib.integrations.flask_client import OAuth
 from config import Config
 from flask import Flask, jsonify, redirect, render_template, request, send_file, url_for
+from flask_login import LoginManager, current_user, login_required
 from models.logbook_entry import Logbook, LogbookEntry
 from services.sqlite_storage import SQLiteStorage
-from services.sync_service import SyncService
 
 app = Flask(__name__)
 app.secret_key = Config.SECRET_KEY
 
+storage = SQLiteStorage(db_path=Config.SQLITE_DB_PATH)
 
-def init_storage():
-    """Initialize SQLite storage and sync from Google Sheets."""
-    storage = SQLiteStorage(db_path=Config.SQLITE_DB_PATH)
-    sync_service = SyncService(storage)
-
-    # On startup, load from Google Sheets (the authoritative source on Render.com)
-    if Config.GOOGLE_SHEETS_ID:
-        result = sync_service.load_from_sheets()
-        if result.get("success"):
-            print(f"✓ Loaded {result.get('count', 0)} entries from Google Sheets into SQLite")
-        else:
-            error_msg = result.get("error", "Unknown error")
-            print(f"Warning: Could not load from Sheets: {error_msg}")
-            # Continue with empty or existing SQLite data
-    else:
-        print("Google Sheets not configured, using local SQLite only")
-
-    return storage, sync_service
+# ── Auth setup ─────────────────────────────────────────────────
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "auth.login"
 
 
-# Global storage instances
-storage, sync_service = init_storage()
+@login_manager.user_loader
+def load_user(user_id):
+    return storage.get_user(user_id)
 
 
-def save_to_sheets():
-    """Sync local SQLite data to Google Sheets (backup)."""
-    if Config.GOOGLE_SHEETS_ID:
-        result = sync_service.export_to_sheets()
-        if result.get("success"):
-            print(f"✓ Synced to Google Sheets")
-        else:
-            error_msg = result.get("error", "Unknown error")
-            print(f"Warning: Sheets sync failed: {error_msg}")
+# Google OAuth (only if credentials are configured)
+oauth = OAuth(app)
+if Config.GOOGLE_OAUTH_CLIENT_ID:
+    oauth.register(
+        name="google",
+        client_id=Config.GOOGLE_OAUTH_CLIENT_ID,
+        client_secret=Config.GOOGLE_OAUTH_CLIENT_SECRET,
+        server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+        client_kwargs={"scope": "openid email profile"},
+    )
+
+# Register auth blueprint
+from auth import auth_bp, bcrypt  # noqa: E402
+
+bcrypt.init_app(app)
+app.register_blueprint(auth_bp)
 
 
 def parse_float(value, default=0.0):
@@ -71,10 +66,12 @@ def parse_int(value, default=0):
 
 
 @app.route("/")
+@login_required
 def index():
     """Main logbook view - summary list."""
-    entries = storage.get_all_entries(sort_by_date=True)
-    totals = storage.get_totals()
+    uid = current_user.id
+    entries = storage.get_all_entries(user_id=uid, sort_by_date=True)
+    totals = storage.get_totals(user_id=uid)
     return render_template(
         "logbook.html",
         entries=entries,
@@ -83,14 +80,15 @@ def index():
 
 
 @app.route("/entry/new")
+@login_required
 def new_entry():
     """New flight entry page with defaults."""
     defaults = {
         "id": "",
         "date": datetime.now().strftime("%m/%d/%Y"),
-        "aircraft_model": Config.DEFAULT_AIRCRAFT_TYPE,
-        "aircraft_ident": Config.DEFAULT_TAIL_NUMBER,
-        "route_from": Config.DEFAULT_DEPARTURE,
+        "aircraft_model": current_user.default_aircraft_type or Config.DEFAULT_AIRCRAFT_TYPE,
+        "aircraft_ident": current_user.default_tail_number or Config.DEFAULT_TAIL_NUMBER,
+        "route_from": current_user.default_departure or Config.DEFAULT_DEPARTURE,
         "route_to": "",
         "sel": "",
         "mel": "",
@@ -115,31 +113,35 @@ def new_entry():
 
 
 @app.route("/entry/<entry_id>")
+@login_required
 def view_entry(entry_id):
     """View/edit a specific flight entry."""
-    entry = storage.get_entry(entry_id)
+    entry = storage.get_entry(entry_id, user_id=current_user.id)
     if not entry:
         return redirect(url_for("index"))
     return render_template("entry.html", entry=entry.to_dict(), is_new=False)
 
 
 @app.route("/api/entries", methods=["GET"])
+@login_required
 def get_entries():
     """Get all logbook entries."""
-    entries = storage.get_all_entries(sort_by_date=True)
+    entries = storage.get_all_entries(user_id=current_user.id, sort_by_date=True)
     return jsonify([e.to_dict() for e in entries])
 
 
 @app.route("/api/entries/<entry_id>", methods=["GET"])
+@login_required
 def get_entry(entry_id):
     """Get a specific logbook entry."""
-    entry = storage.get_entry(entry_id)
+    entry = storage.get_entry(entry_id, user_id=current_user.id)
     if entry:
         return jsonify(entry.to_dict())
     return jsonify({"error": "Entry not found"}), 404
 
 
 @app.route("/api/entries", methods=["POST"])
+@login_required
 def create_entry():
     """Create a new logbook entry."""
     data = request.json
@@ -170,15 +172,16 @@ def create_entry():
         remarks=data.get("remarks", ""),
     )
 
-    storage.add_entry(entry)
-    save_to_sheets()
+    storage.add_entry(entry, user_id=current_user.id)
     return jsonify({"id": entry.id, "message": "Entry created"}), 201
 
 
 @app.route("/api/entries/<entry_id>", methods=["PUT"])
+@login_required
 def update_entry(entry_id):
     """Update an existing logbook entry."""
-    entry = storage.get_entry(entry_id)
+    uid = current_user.id
+    entry = storage.get_entry(entry_id, user_id=uid)
     if not entry:
         return jsonify({"error": "Entry not found"}), 404
 
@@ -209,26 +212,27 @@ def update_entry(entry_id):
     entry.total_duration = parse_float(data.get("total_duration"), entry.total_duration)
     entry.remarks = data.get("remarks", entry.remarks)
 
-    storage.update_entry(entry)
-    save_to_sheets()
+    storage.update_entry(entry, user_id=uid)
     return jsonify({"message": "Entry updated"})
 
 
 @app.route("/api/entries/<entry_id>", methods=["DELETE"])
+@login_required
 def delete_entry(entry_id):
     """Delete a logbook entry. Refuses to delete locked entries."""
-    entry = storage.get_entry(entry_id)
+    uid = current_user.id
+    entry = storage.get_entry(entry_id, user_id=uid)
     if not entry:
         return jsonify({"error": "Entry not found"}), 404
     if entry.locked:
         return jsonify({"error": "Entry is locked and cannot be deleted"}), 403
-    if storage.delete_entry(entry_id):
-        save_to_sheets()
+    if storage.delete_entry(entry_id, user_id=uid):
         return jsonify({"message": "Entry deleted"})
     return jsonify({"error": "Delete failed"}), 500
 
 
 @app.route("/api/entries/batch", methods=["DELETE"])
+@login_required
 def batch_delete_entries():
     """Delete multiple logbook entries, skipping locked ones."""
     data = request.json
@@ -237,10 +241,7 @@ def batch_delete_entries():
     if not entry_ids:
         return jsonify({"error": "No entry IDs provided"}), 400
 
-    result = storage.delete_entries(entry_ids)
-    if result["deleted"] > 0:
-        save_to_sheets()
-
+    result = storage.delete_entries(entry_ids, user_id=current_user.id)
     msg = f"Deleted {result['deleted']} entries"
     if result["skipped_locked"]:
         msg += f" ({result['skipped_locked']} locked entries skipped)"
@@ -254,37 +255,40 @@ def batch_delete_entries():
 
 
 @app.route("/api/entries/<entry_id>/lock", methods=["POST"])
+@login_required
 def toggle_lock(entry_id):
     """Toggle the locked state of an entry."""
     data = request.json or {}
     locked = data.get("locked", True)
-    if storage.toggle_entry_field(entry_id, "locked", locked):
+    if storage.toggle_entry_field(entry_id, "locked", locked, user_id=current_user.id):
         return jsonify({"success": True, "locked": locked})
     return jsonify({"error": "Entry not found"}), 404
 
 
 @app.route("/api/entries/<entry_id>/review", methods=["POST"])
+@login_required
 def toggle_review(entry_id):
     """Toggle the reviewed state of an entry."""
     data = request.json or {}
     reviewed = data.get("reviewed", True)
-    if storage.toggle_entry_field(entry_id, "reviewed", reviewed):
+    if storage.toggle_entry_field(entry_id, "reviewed", reviewed, user_id=current_user.id):
         return jsonify({"success": True, "reviewed": reviewed})
     return jsonify({"error": "Entry not found"}), 404
 
 
 @app.route("/api/totals", methods=["GET"])
+@login_required
 def get_totals():
     """Get logbook totals."""
-    return jsonify(storage.get_totals())
+    return jsonify(storage.get_totals(user_id=current_user.id))
 
 
 @app.route("/api/export/json", methods=["GET"])
+@login_required
 def export_json():
     """Export logbook as JSON file."""
-    # Build Logbook object for JSON export
     logbook = Logbook()
-    for entry in storage.get_all_entries():
+    for entry in storage.get_all_entries(user_id=current_user.id):
         logbook.entries[entry.id] = entry
 
     json_data = logbook.to_json()
@@ -302,12 +306,13 @@ def export_json():
 
 
 @app.route("/api/export/csv", methods=["GET"])
+@login_required
 def export_csv():
     """Export logbook as CSV file."""
     import csv
     from io import StringIO
 
-    entries = storage.get_all_entries(sort_by_date=True)
+    entries = storage.get_all_entries(user_id=current_user.id, sort_by_date=True)
 
     output = StringIO()
     writer = csv.writer(output)
@@ -334,6 +339,7 @@ def export_csv():
 
 
 @app.route("/api/import/json", methods=["POST"])
+@login_required
 def import_json():
     """Import logbook entries from JSON."""
     if "file" not in request.files:
@@ -347,11 +353,9 @@ def import_json():
         content = file.read().decode("utf-8")
         imported = Logbook.from_json(content)
 
-        # Add all entries to SQLite
         for entry in imported.entries.values():
-            storage.add_entry(entry)
+            storage.add_entry(entry, user_id=current_user.id)
 
-        save_to_sheets()
         return jsonify(
             {"message": f"Imported {len(imported.entries)} entries", "success": True}
         )
@@ -359,50 +363,21 @@ def import_json():
         return jsonify({"error": str(e)}), 400
 
 
-@app.route("/api/export/sheets", methods=["POST"])
-def export_to_sheets():
-    """Export logbook to Google Sheets."""
-    if not Config.GOOGLE_SHEETS_ID:
-        return (
-            jsonify(
-                {"success": False, "error": "Google Sheets ID not configured in .env"}
-            ),
-            400,
-        )
-
-    result = sync_service.export_to_sheets()
-    if result.get("success"):
-        return jsonify(result)
-    else:
-        return jsonify(result), 500
-
-
-@app.route("/api/sync/status", methods=["GET"])
-def get_sync_status():
-    """Get current sync status."""
-    return jsonify(sync_service.get_sync_status())
-
-
-@app.route("/api/sync/reload", methods=["POST"])
-def reload_from_sheets():
-    """Force reload data from Google Sheets."""
-    result = sync_service.load_from_sheets()
-    return jsonify(result)
-
-
 # ============== FlightAware Integration ==============
 
 
 @app.route("/import")
+@login_required
 def import_page():
     """FlightAware import page."""
     return render_template(
         "import.html",
-        tail_number=Config.DEFAULT_TAIL_NUMBER,
+        tail_number=current_user.default_tail_number or Config.DEFAULT_TAIL_NUMBER,
     )
 
 
 @app.route("/api/flightaware/search", methods=["POST"])
+@login_required
 def search_flightaware():
     """Search FlightAware for flights by tail number."""
     from services.flightaware import FlightAwareService
@@ -414,7 +389,7 @@ def search_flightaware():
         }), 400
 
     data = request.json or {}
-    tail_number = data.get("tail_number") or Config.DEFAULT_TAIL_NUMBER
+    tail_number = data.get("tail_number") or current_user.default_tail_number or Config.DEFAULT_TAIL_NUMBER
     start_date = data.get("start_date") or None
     end_date = data.get("end_date") or None
     months_back = data.get("months_back") or 12
@@ -428,14 +403,11 @@ def search_flightaware():
             months_back=months_back,
         )
 
-        # Ensure flights is a list
         if flights is None:
             flights = []
 
-        # Check which flights are already in logbook (by date + route)
-        existing_keys = storage.get_existing_keys()
+        existing_keys = storage.get_existing_keys(user_id=current_user.id)
 
-        # Mark flights as already imported or new
         for flight in flights:
             route_from = flight.get('route_from') or ''
             route_to = flight.get('route_to') or ''
@@ -455,12 +427,9 @@ def search_flightaware():
 
 
 @app.route("/api/flightaware/search/stream", methods=["GET"])
+@login_required
 def search_flightaware_stream():
-    """Stream FlightAware search results using OPTIMIZED batch import.
-
-    Uses aggressive batching and minimal processing to avoid timeouts.
-    Yields flights in batches for maximum performance.
-    """
+    """Stream FlightAware search results using OPTIMIZED batch import."""
     import json
 
     from flask import Response
@@ -471,11 +440,11 @@ def search_flightaware_stream():
             yield f"data: {json.dumps({'error': 'FlightAware API key not configured'})}\n\n"
         return Response(error_stream(), mimetype='text/event-stream')
 
-    tail_number = request.args.get("tail_number") or Config.DEFAULT_TAIL_NUMBER
+    uid = current_user.id
+    tail_number = request.args.get("tail_number") or current_user.default_tail_number or Config.DEFAULT_TAIL_NUMBER
 
-    # Get most recent flight date and existing keys from SQLite (always fresh)
-    most_recent_date = storage.get_most_recent_flight_date()
-    existing_keys = storage.get_existing_keys()
+    most_recent_date = storage.get_most_recent_flight_date(user_id=uid)
+    existing_keys = storage.get_existing_keys(user_id=uid)
 
     def generate():
         import sys
@@ -494,36 +463,30 @@ def search_flightaware_stream():
                 most_recent_flight_date=most_recent_date,
                 existing_keys=existing_keys,
             ):
-                # Handle metadata
                 if result.get('_meta'):
                     search_meta = result['_meta']
                     yield f"data: {json.dumps({'meta': search_meta})}\n\n"
                     sys.stdout.flush()
                     continue
 
-                # Handle warnings
                 if result.get('_warning'):
                     warnings.append(result['_warning'])
                     yield f"data: {json.dumps({'warning': result['_warning']})}\n\n"
                     sys.stdout.flush()
                     continue
 
-                # Handle summary
                 if result.get('_summary'):
                     search_summary = result['_summary']
                     continue
 
-                # Handle keepalive
                 if result.get('_keepalive'):
                     yield ": keepalive\n\n"
                     sys.stdout.flush()
                     continue
 
-                # Handle batch of flights
                 if result.get('_batch'):
                     batch = result['_batch']
                     for flight in batch:
-                        # Check if already imported
                         route_from = flight.get('route_from') or ''
                         route_to = flight.get('route_to') or ''
                         date = flight.get('date') or ''
@@ -533,7 +496,6 @@ def search_flightaware_stream():
                         flight_count += 1
                         yield f"data: {json.dumps({'flight': flight})}\n\n"
 
-                    # Heartbeat after each batch
                     yield ": heartbeat\n\n"
                     sys.stdout.flush()
 
@@ -562,12 +524,9 @@ def search_flightaware_stream():
 
 
 @app.route("/api/flightaware/enrich", methods=["POST"])
+@login_required
 def enrich_flights():
-    """Enrich flight entries with airport lookups and calculations.
-
-    This is phase 2 of the two-phase import process.
-    Accepts a batch of flights for efficient processing.
-    """
+    """Enrich flight entries with airport lookups and calculations."""
     from services.flightaware_optimized import OptimizedFlightAwareService
 
     data = request.json
@@ -588,6 +547,7 @@ def enrich_flights():
 
 
 @app.route("/api/approaches/<airport_code>", methods=["GET"])
+@login_required
 def get_approaches(airport_code):
     """Get instrument approaches for an airport."""
     from services.airport_approaches import get_approaches_for_airport
@@ -601,6 +561,7 @@ def get_approaches(airport_code):
 
 
 @app.route("/api/flightaware/import", methods=["POST"])
+@login_required
 def import_flightaware():
     """Import selected flights from FlightAware into logbook."""
     from services.flightaware_optimized import OptimizedFlightAwareService
@@ -611,13 +572,12 @@ def import_flightaware():
     if not flights:
         return jsonify({"success": False, "error": "No flights to import"}), 400
 
-    # Enrich flights with airport data and night hours
     service = OptimizedFlightAwareService()
     flights = service.enrich_batch(flights)
 
+    uid = current_user.id
     imported_count = 0
     for flight_data in flights:
-        # Remove metadata fields that shouldn't be saved to database
         flight_data.pop("already_imported", None)
         flight_data.pop("fa_flight_id", None)
         flight_data.pop("duration_estimated", None)
@@ -650,10 +610,9 @@ def import_flightaware():
             reviewed=False,
         )
 
-        storage.add_entry(entry)
+        storage.add_entry(entry, user_id=uid)
         imported_count += 1
 
-    save_to_sheets()
     return jsonify({
         "success": True,
         "message": f"Imported {imported_count} flight(s)",
@@ -662,19 +621,16 @@ def import_flightaware():
 
 
 @app.route("/scan")
+@login_required
 def scan_page():
     """Render logbook scanning interface."""
     return render_template("scan.html")
 
 
 @app.route("/api/logbook/scan/upload", methods=["POST"])
+@login_required
 def upload_scan():
-    """
-    Accept image upload, extract flight entries using Gemini AI.
-
-    Accepts multipart/form-data with 'image' file.
-    Returns extracted flight entries as JSON.
-    """
+    """Accept image upload, extract flight entries using Gemini AI."""
     import uuid
     from services.ocr_service import LogbookOCRService
 
@@ -686,18 +642,15 @@ def upload_scan():
         return jsonify({"success": False, "error": "No file selected"}), 400
 
     try:
-        # Save temp file
         temp_path = f"/tmp/logbook_{uuid.uuid4()}.jpg"
         file.save(temp_path)
 
         t0 = time.time()
 
-        # Gather known aircraft idents, models, and airports for OCR correction
-        known_idents, known_models, known_airports = storage.get_known_values()
+        known_idents, known_models, known_airports = storage.get_known_values(user_id=current_user.id)
 
         t1 = time.time()
 
-        # Extract flight data using Gemini AI (multimodal LLM)
         print(f"Starting Gemini extraction for: {temp_path}")
         ocr_service = LogbookOCRService()
         entries, expected_rows, actual_rows = ocr_service.extract_flights_with_gemini(
@@ -708,7 +661,6 @@ def upload_scan():
         t2 = time.time()
         print(f"Scan timing: db_queries={t1-t0:.2f}s, gemini+postprocess={t2-t1:.2f}s, total={t2-t0:.2f}s")
 
-        # Cleanup
         os.remove(temp_path)
 
         if not entries:
@@ -725,32 +677,26 @@ def upload_scan():
         })
 
     except Exception as e:
-        # Cleanup on error
         if os.path.exists(temp_path):
             os.remove(temp_path)
         return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route("/api/logbook/scan/import", methods=["POST"])
+@login_required
 def import_scanned():
-    """
-    Import scanned logbook entries into database.
-
-    Accepts JSON with 'entries' array.
-    Returns imported count and entry IDs for undo.
-    """
+    """Import scanned logbook entries into database."""
     data = request.json
     entries = data.get("entries", [])
 
     if not entries:
         return jsonify({"success": False, "error": "No entries to import"}), 400
 
+    uid = current_user.id
     entry_ids = []
     for entry_data in entries:
-        # Remove metadata
         entry_data.pop("_raw", None)
 
-        # Create entry
         entry = LogbookEntry(
             date=entry_data.get("date", ""),
             aircraft_model=entry_data.get("aircraft_model", ""),
@@ -779,10 +725,8 @@ def import_scanned():
             reviewed=False,
         )
 
-        entry_id = storage.add_entry(entry)
+        entry_id = storage.add_entry(entry, user_id=uid)
         entry_ids.append(entry_id)
-
-    save_to_sheets()
 
     return jsonify({
         "success": True,

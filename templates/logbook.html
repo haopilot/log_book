@@ -601,9 +601,6 @@
           <i class="fas fa-ellipsis-v"></i>
         </button>
         <div class="dropdown-menu">
-          <button class="dropdown-item" onclick="exportToSheets()">
-            <i class="fab fa-google-drive"></i> Export to Sheets
-          </button>
           <a href="/api/export/csv" class="dropdown-item">
             <i class="fas fa-file-csv"></i> Download CSV
           </a>
@@ -614,6 +611,13 @@
             <i class="fas fa-upload"></i> Import JSON
           </button>
           <input type="file" id="importInput" accept=".json" style="display:none" onchange="importJSON(this)">
+          <div style="border-top: 1px solid var(--border); margin: 4px 0;"></div>
+          <div style="padding: 8px 14px; font-size: 0.8rem; color: var(--text-muted);">
+            <i class="fas fa-user"></i> {{ current_user.name or current_user.email }}
+          </div>
+          <a href="/logout" class="dropdown-item" style="color: var(--danger);">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+          </a>
         </div>
       </div>
     </div>
@@ -942,21 +946,6 @@
       input.value = '';
     }
 
-    async function exportToSheets() {
-      showToast('Exporting...');
-      try {
-        const res = await fetch('/api/export/sheets', { method: 'POST' });
-        const data = await res.json();
-        if (data.success) {
-          showToast('Exported to Sheets!');
-          if (data.spreadsheet_url) window.open(data.spreadsheet_url, '_blank');
-        } else {
-          showToast(data.error || 'Export failed', true);
-        }
-      } catch (e) {
-        showToast('Error exporting', true);
-      }
-    }
   </script>
 </body>
 </html>
