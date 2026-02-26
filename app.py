@@ -17,6 +17,7 @@ from services.sqlite_storage import SQLiteStorage
 
 app = Flask(__name__)
 app.secret_key = Config.SECRET_KEY
+app.config.from_object(Config)
 
 storage = SQLiteStorage(db_path=Config.SQLITE_DB_PATH)
 
