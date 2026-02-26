@@ -14,10 +14,13 @@ from flask import Flask, jsonify, redirect, render_template, request, send_file,
 from flask_login import LoginManager, current_user, login_required
 from models.logbook_entry import Logbook, LogbookEntry
 from services.sqlite_storage import SQLiteStorage
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
 app.secret_key = Config.SECRET_KEY
 app.config.from_object(Config)
+app.config["PREFERRED_URL_SCHEME"] = "https"
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 storage = SQLiteStorage(db_path=Config.SQLITE_DB_PATH)
 
