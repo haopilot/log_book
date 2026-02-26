@@ -37,5 +37,8 @@ class Config:
     # Local storage path for logbook data
     DATA_FILE = os.environ.get("DATA_FILE", "logbook_data.json")
 
-    # SQLite database path (primary local storage)
+    # Database: use DATABASE_URL (PostgreSQL) if set, else fall back to SQLite
+    DATABASE_URL = os.environ.get("DATABASE_URL", "")
+
+    # SQLite database path (fallback when DATABASE_URL is not set)
     SQLITE_DB_PATH = os.environ.get("SQLITE_DB_PATH", "logbook.db")

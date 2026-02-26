@@ -1,3 +1,8 @@
+databases:
+  - name: pilot-logbook-db
+    plan: free
+    region: oregon
+
 services:
   - type: web
     name: pilot-logbook
@@ -10,6 +15,10 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pilot-logbook-db
+          property: connectionString
       - key: FLIGHTAWARE_API_KEY
         sync: false
       - key: GOOGLE_OAUTH_CLIENT_ID
@@ -32,7 +41,3 @@ services:
         value: 5051
       - key: HOST
         value: 0.0.0.0
-      - key: DATA_FILE
-        value: logbook_data.json
-      - key: SQLITE_DB_PATH
-        value: logbook.db

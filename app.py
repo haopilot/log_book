@@ -13,7 +13,6 @@ from config import Config
 from flask import Flask, jsonify, redirect, render_template, request, send_file, url_for
 from flask_login import LoginManager, current_user, login_required
 from models.logbook_entry import Logbook, LogbookEntry
-from services.sqlite_storage import SQLiteStorage
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
@@ -22,7 +21,15 @@ app.config.from_object(Config)
 app.config["PREFERRED_URL_SCHEME"] = "https"
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-storage = SQLiteStorage(db_path=Config.SQLITE_DB_PATH)
+# Use PostgreSQL if DATABASE_URL is set, otherwise fall back to SQLite
+if Config.DATABASE_URL:
+    from services.postgres_storage import PostgresStorage
+    storage = PostgresStorage(database_url=Config.DATABASE_URL)
+    print(f"Using PostgreSQL database")
+else:
+    from services.sqlite_storage import SQLiteStorage
+    storage = SQLiteStorage(db_path=Config.SQLITE_DB_PATH)
+    print(f"Using SQLite database: {Config.SQLITE_DB_PATH}")
 
 # ── Auth setup ─────────────────────────────────────────────────
 login_manager = LoginManager()
