@@ -108,9 +108,18 @@ Example:
                 return
 
             # Option 2: Service account → REST API (Generative Language API)
+            # Create service-account.json from env var if it doesn't exist yet
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             sa_path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
             if not sa_path:
-                sa_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'service-account.json')
+                sa_path = os.path.join(project_root, 'service-account.json')
+
+            if not os.path.exists(sa_path):
+                sa_json = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON', '')
+                if sa_json:
+                    with open(sa_path, 'w') as f:
+                        f.write(sa_json)
+                    print(f"Created service-account.json from env var at {sa_path}")
 
             if sa_path and os.path.exists(sa_path):
                 from google.oauth2.service_account import Credentials
