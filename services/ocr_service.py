@@ -17,12 +17,13 @@ from pathlib import Path
 from typing import Optional
 
 try:
-    import google.generativeai as genai
-    from google.auth import default as google_auth_default
-    GEMINI_AVAILABLE = True
+    from google import genai
+    from google.genai import types as genai_types
+    GENAI_SDK_AVAILABLE = True
 except ImportError:
-    GEMINI_AVAILABLE = False
-    print("Warning: google-generativeai not installed. Install with: pip install google-generativeai")
+    GENAI_SDK_AVAILABLE = False
+
+import requests as _requests
 
 
 
@@ -73,35 +74,114 @@ The length of "entries" MUST equal "total_rows_visible". If they don't match, yo
 Example:
 {"total_rows_visible": 1, "entries": [{"date": "05/09/2004", "aircraft_model": "DA20", "aircraft_ident": "N636DC", "route_from": "BFI", "route_to": "BFI", "remarks": "Stalls, slow flight", "total_duration": 1.4, "pic": 0, "sic": 0, "dual_recd": 1.4, "dual_given": 0, "solo": 0, "cross_country": 0, "night": 0, "actual_inst": 0, "simulated_inst": 0, "num_inst_app": 0, "landings_day": 3, "landings_night": 0}]}"""
 
+    # Gemini REST API base URL (Generative Language API)
+    _GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"
+
     def __init__(self):
         """Initialize OCR service."""
-        self._gemini_initialized = False
+        self._client = None          # google-genai Client (API key path)
+        self._sa_credentials = None  # service account credentials (REST path)
+        self._initialized = False
+        self._use_sdk = False        # True = google-genai SDK, False = REST API
 
     def _init_gemini(self):
-        """Initialize Google Generative AI (Gemini)."""
-        if self._gemini_initialized:
-            return
-
-        if not GEMINI_AVAILABLE:
+        """Initialize Gemini: prefer API key + SDK, fall back to service account + REST."""
+        if self._initialized:
             return
 
         try:
-            # Point ADC to service-account.json if it exists and env var not set
-            if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
-                sa_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "service-account.json")
-                if os.path.exists(sa_path):
-                    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = sa_path
+            # Option 1: API key via google-genai SDK (simplest)
+            api_key = os.environ.get('GEMINI_API_KEY') or os.environ.get('GOOGLE_API_KEY')
+            if api_key and GENAI_SDK_AVAILABLE:
+                self._client = genai.Client(api_key=api_key)
+                self._use_sdk = True
+                self._initialized = True
+                print("Gemini initialized with API key (SDK)")
+                return
 
-            # Use Application Default Credentials (service account)
-            credentials, project_id = google_auth_default(
-                scopes=['https://www.googleapis.com/auth/generative-language']
-            )
-            genai.configure(credentials=credentials)
-            self._gemini_initialized = True
-            print(f"Gemini initialized with project: {project_id}")
+            if api_key:
+                # API key but no SDK — use REST with key param
+                self._api_key = api_key
+                self._use_sdk = False
+                self._initialized = True
+                print("Gemini initialized with API key (REST)")
+                return
+
+            # Option 2: Service account → REST API (Generative Language API)
+            sa_path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+            if not sa_path:
+                sa_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'service-account.json')
+
+            if sa_path and os.path.exists(sa_path):
+                from google.oauth2.service_account import Credentials
+                from google.auth.transport.requests import Request
+                self._sa_credentials = Credentials.from_service_account_file(
+                    sa_path,
+                    scopes=['https://www.googleapis.com/auth/generative-language'],
+                )
+                self._sa_credentials.refresh(Request())
+                self._use_sdk = False
+                self._api_key = None
+                self._initialized = True
+                print(f"Gemini initialized with service account (REST)")
+                return
+
+            print("Error: No GEMINI_API_KEY and no service-account.json found. "
+                  "Set GEMINI_API_KEY (get one at https://aistudio.google.com/app/apikey).")
 
         except Exception as e:
             print(f"Error initializing Gemini: {e}")
+
+    def _gemini_generate(self, prompt: str, image_bytes: bytes) -> str:
+        """Call Gemini generate_content via SDK or REST API. Returns response text."""
+        import base64
+
+        if self._use_sdk and self._client:
+            image_part = genai_types.Part.from_bytes(
+                data=image_bytes,
+                mime_type="image/jpeg",
+            )
+            response = self._client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=[prompt, image_part],
+                config=genai_types.GenerateContentConfig(
+                    temperature=0.1,
+                    max_output_tokens=8192,
+                ),
+            )
+            return response.text
+
+        # REST API path (service account or API key without SDK)
+        url = f"{self._GEMINI_API_URL}/gemini-2.0-flash:generateContent"
+        headers = {"Content-Type": "application/json"}
+        params = {}
+
+        if self._sa_credentials:
+            from google.auth.transport.requests import Request
+            if not self._sa_credentials.valid:
+                self._sa_credentials.refresh(Request())
+            headers["Authorization"] = f"Bearer {self._sa_credentials.token}"
+        elif getattr(self, '_api_key', None):
+            params["key"] = self._api_key
+
+        image_b64 = base64.b64encode(image_bytes).decode('utf-8')
+        body = {
+            "contents": [{"parts": [
+                {"text": prompt},
+                {"inlineData": {"mimeType": "image/jpeg", "data": image_b64}},
+            ]}],
+            "generationConfig": {
+                "temperature": 0.1,
+                "maxOutputTokens": 8192,
+            },
+        }
+
+        resp = _requests.post(url, headers=headers, params=params, json=body, timeout=120)
+        if resp.status_code != 200:
+            raise RuntimeError(f"Gemini API error {resp.status_code}: {resp.text[:500]}")
+
+        data = resp.json()
+        return data["candidates"][0]["content"]["parts"][0]["text"]
 
     def extract_flights_with_gemini(self, image_path: str,
                                      known_idents: set[str] | None = None,
@@ -120,14 +200,10 @@ Example:
         Returns:
             Tuple of (entries, expected_rows, actual_rows)
         """
-        if not GEMINI_AVAILABLE:
-            print("ERROR: google-generativeai not available")
-            return [], 0, 0
-
         self._init_gemini()
 
-        if not self._gemini_initialized:
-            print("ERROR: Gemini not initialized")
+        if not self._initialized:
+            print("ERROR: Gemini not initialized — set GEMINI_API_KEY or provide service-account.json")
             return [], 0, 0
 
         try:
@@ -137,29 +213,10 @@ Example:
 
             print(f"Sending {len(image_bytes)} byte image to Gemini...")
 
-            # Use inline image data (no File API needed)
-            import base64
-            image_b64 = base64.b64encode(image_bytes).decode('utf-8')
-
-            image_part = {
-                "inline_data": {
-                    "mime_type": "image/jpeg",
-                    "data": image_b64
-                }
-            }
-
-            # Use Gemini model
-            model = genai.GenerativeModel("gemini-2.0-flash")
-            response = model.generate_content(
-                [self.EXTRACTION_PROMPT, image_part],
-                generation_config=genai.GenerationConfig(
-                    temperature=0.1,
-                    max_output_tokens=8192,
-                )
-            )
+            raw_text = self._gemini_generate(self.EXTRACTION_PROMPT, image_bytes)
 
             # Parse response
-            response_text = response.text.strip()
+            response_text = raw_text.strip()
             print(f"Gemini response length: {len(response_text)} chars")
 
             # Clean up response - remove markdown code blocks if present
