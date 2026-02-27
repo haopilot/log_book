@@ -24,11 +24,7 @@ class PostgresStorage:
         self.database_url = database_url
         self._local = threading.local()
         self._db_initialized = False
-        try:
-            self._init_db()
-            self._db_initialized = True
-        except Exception as e:
-            print(f"Warning: DB init deferred (will retry on first request): {e}")
+        print("PostgresStorage created (lazy init — DB schema created on first request)")
 
     @contextmanager
     def _get_connection(self):
