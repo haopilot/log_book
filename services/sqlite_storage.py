@@ -111,6 +111,17 @@ class SQLiteStorage:
                 except sqlite3.OperationalError:
                     pass  # Column already exists
 
+            # Migrate users table: add new columns
+            for col, col_def in [
+                ("google_refresh_token", "TEXT DEFAULT ''"),
+                ("backup_sheet_id", "TEXT DEFAULT ''"),
+            ]:
+                try:
+                    conn.execute(f"ALTER TABLE users ADD COLUMN {col} {col_def}")
+                    conn.commit()
+                except sqlite3.OperationalError:
+                    pass  # Column already exists
+
     def add_entry(self, entry: LogbookEntry, user_id: str = "") -> str:
         """Add a new entry to the database."""
         with self._get_connection() as conn:
@@ -457,12 +468,14 @@ class SQLiteStorage:
             conn.execute(
                 """INSERT INTO users (
                     id, email, password_hash, name, google_id, avatar_url,
+                    google_refresh_token, backup_sheet_id,
                     default_tail_number, default_aircraft_type, default_departure,
                     created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     user.id, user.email, user.password_hash, user.name,
                     user.google_id or None, user.avatar_url,
+                    user.google_refresh_token, user.backup_sheet_id,
                     user.default_tail_number, user.default_aircraft_type,
                     user.default_departure, user.created_at, user.updated_at,
                 ),
@@ -499,12 +512,14 @@ class SQLiteStorage:
             cursor = conn.execute(
                 """UPDATE users SET
                     email=?, password_hash=?, name=?, google_id=?, avatar_url=?,
+                    google_refresh_token=?, backup_sheet_id=?,
                     default_tail_number=?, default_aircraft_type=?, default_departure=?,
                     updated_at=?
                 WHERE id=?""",
                 (
                     user.email, user.password_hash, user.name,
                     user.google_id or None, user.avatar_url,
+                    user.google_refresh_token, user.backup_sheet_id,
                     user.default_tail_number, user.default_aircraft_type,
                     user.default_departure, user.updated_at, user.id,
                 ),
@@ -514,6 +529,7 @@ class SQLiteStorage:
 
     def _row_to_user(self, row: sqlite3.Row) -> User:
         """Convert a database row to User."""
+        keys = row.keys()
         return User(
             id=row["id"],
             email=row["email"],
@@ -521,6 +537,8 @@ class SQLiteStorage:
             name=row["name"] or "",
             google_id=row["google_id"] or "",
             avatar_url=row["avatar_url"] or "",
+            google_refresh_token=row["google_refresh_token"] or "" if "google_refresh_token" in keys else "",
+            backup_sheet_id=row["backup_sheet_id"] or "" if "backup_sheet_id" in keys else "",
             default_tail_number=row["default_tail_number"] or "",
             default_aircraft_type=row["default_aircraft_type"] or "",
             default_departure=row["default_departure"] or "",

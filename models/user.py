@@ -17,6 +17,8 @@ class User(UserMixin):
     name: str = ""
     google_id: str = ""
     avatar_url: str = ""
+    google_refresh_token: str = ""
+    backup_sheet_id: str = ""
     default_tail_number: str = ""
     default_aircraft_type: str = ""
     default_departure: str = ""

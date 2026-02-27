@@ -612,6 +612,13 @@
           </button>
           <input type="file" id="importInput" accept=".json" style="display:none" onchange="importJSON(this)">
           <div style="border-top: 1px solid var(--border); margin: 4px 0;"></div>
+          <button class="dropdown-item" onclick="backupToSheets(this)" id="sheetsBackupBtn">
+            <i class="fab fa-google-drive"></i> Backup to Google Sheets
+          </button>
+          <button class="dropdown-item" onclick="showRestoreDialog()">
+            <i class="fab fa-google-drive"></i> Restore from Google Sheets
+          </button>
+          <div style="border-top: 1px solid var(--border); margin: 4px 0;"></div>
           <div style="padding: 8px 14px; font-size: 0.8rem; color: var(--text-muted);">
             <i class="fas fa-user"></i> {{ current_user.name or current_user.email }}
           </div>
@@ -750,6 +757,27 @@
     </div>
     {% endif %}
   </main>
+
+  <!-- Google Sheets Restore Dialog -->
+  <div id="restoreDialog" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:var(--surface); border-radius:var(--radius-lg); padding:24px;
+        width:90%; max-width:440px; box-shadow:0 4px 24px rgba(0,0,0,0.2);">
+      <h3 style="margin-bottom:16px; font-size:1.1rem;">Restore from Google Sheets</h3>
+      <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:16px;">
+        Paste a Google Sheets URL below. Duplicate entries (matching date, from, and to) will be skipped.
+      </p>
+      <input type="text" id="sheetUrlInput" placeholder="https://docs.google.com/spreadsheets/d/..."
+          style="width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius);
+          font-family:inherit; font-size:0.9rem; outline:none; margin-bottom:16px;">
+      <div style="display:flex; gap:8px; justify-content:flex-end;">
+        <button onclick="closeRestoreDialog()" class="btn btn-ghost"
+            style="padding:8px 16px; font-size:0.9rem;">Cancel</button>
+        <button onclick="restoreFromSheets()" class="btn btn-primary" id="restoreConfirmBtn"
+            style="padding:8px 16px; font-size:0.9rem;">Restore</button>
+      </div>
+    </div>
+  </div>
 
   <div class="toast" id="toast"></div>
 
@@ -945,6 +973,100 @@
       }
       input.value = '';
     }
+
+    // ── Google Sheets Backup/Restore ──────────────────────
+
+    async function backupToSheets(btn) {
+      const origText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Backing up...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/sheets/backup', { method: 'POST' });
+        const data = await res.json();
+
+        if (data.needs_google_auth) {
+          if (confirm('You need to connect your Google account to use Sheets backup. Sign in with Google now?')) {
+            window.location.href = '/auth/google';
+          }
+          return;
+        }
+
+        if (data.success) {
+          showToast(data.message);
+          if (data.sheet_url && confirm('Backup complete! Open Google Sheet?')) {
+            window.open(data.sheet_url, '_blank');
+          }
+        } else {
+          showToast(data.error || 'Backup failed', true);
+        }
+      } catch (e) {
+        showToast('Error connecting to server', true);
+      } finally {
+        btn.innerHTML = origText;
+        btn.disabled = false;
+      }
+    }
+
+    function showRestoreDialog() {
+      const dialog = document.getElementById('restoreDialog');
+      dialog.style.display = 'flex';
+      document.getElementById('sheetUrlInput').value = '';
+      document.getElementById('sheetUrlInput').focus();
+    }
+
+    function closeRestoreDialog() {
+      document.getElementById('restoreDialog').style.display = 'none';
+    }
+
+    async function restoreFromSheets() {
+      const url = document.getElementById('sheetUrlInput').value.trim();
+      if (!url) {
+        showToast('Please enter a Google Sheets URL', true);
+        return;
+      }
+
+      const btn = document.getElementById('restoreConfirmBtn');
+      const origText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Restoring...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/sheets/restore', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sheet_url: url }),
+        });
+        const data = await res.json();
+
+        if (data.needs_google_auth) {
+          closeRestoreDialog();
+          if (confirm('You need to connect your Google account first. Sign in with Google now?')) {
+            window.location.href = '/auth/google';
+          }
+          return;
+        }
+
+        if (data.success) {
+          closeRestoreDialog();
+          showToast(data.message);
+          if (data.imported > 0) {
+            setTimeout(() => location.reload(), 1000);
+          }
+        } else {
+          showToast(data.error || 'Restore failed', true);
+        }
+      } catch (e) {
+        showToast('Error connecting to server', true);
+      } finally {
+        btn.innerHTML = origText;
+        btn.disabled = false;
+      }
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeRestoreDialog();
+    });
 
   </script>
 </body>

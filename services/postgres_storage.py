@@ -103,6 +103,18 @@ class PostgresStorage:
 
             conn.commit()
 
+            # Migrate: add new user columns if they don't exist
+            for col, col_def in [
+                ("google_refresh_token", "TEXT DEFAULT ''"),
+                ("backup_sheet_id", "TEXT DEFAULT ''"),
+            ]:
+                try:
+                    with conn.cursor() as cur:
+                        cur.execute(f"ALTER TABLE users ADD COLUMN {col} {col_def}")
+                    conn.commit()
+                except psycopg2.errors.DuplicateColumn:
+                    conn.rollback()
+
     def add_entry(self, entry: LogbookEntry, user_id: str = "") -> str:
         """Add a new entry to the database."""
         with self._get_connection() as conn:
@@ -464,12 +476,14 @@ class PostgresStorage:
                 cur.execute(
                     """INSERT INTO users (
                         id, email, password_hash, name, google_id, avatar_url,
+                        google_refresh_token, backup_sheet_id,
                         default_tail_number, default_aircraft_type, default_departure,
                         created_at, updated_at
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                     (
                         user.id, user.email, user.password_hash, user.name,
                         user.google_id or None, user.avatar_url,
+                        user.google_refresh_token, user.backup_sheet_id,
                         user.default_tail_number, user.default_aircraft_type,
                         user.default_departure, user.created_at, user.updated_at,
                     ),
@@ -513,12 +527,14 @@ class PostgresStorage:
                 cur.execute(
                     """UPDATE users SET
                         email=%s, password_hash=%s, name=%s, google_id=%s, avatar_url=%s,
+                        google_refresh_token=%s, backup_sheet_id=%s,
                         default_tail_number=%s, default_aircraft_type=%s, default_departure=%s,
                         updated_at=%s
                     WHERE id=%s""",
                     (
                         user.email, user.password_hash, user.name,
                         user.google_id or None, user.avatar_url,
+                        user.google_refresh_token, user.backup_sheet_id,
                         user.default_tail_number, user.default_aircraft_type,
                         user.default_departure, user.updated_at, user.id,
                     ),
@@ -535,6 +551,8 @@ class PostgresStorage:
             name=row["name"] or "",
             google_id=row["google_id"] or "",
             avatar_url=row["avatar_url"] or "",
+            google_refresh_token=row.get("google_refresh_token") or "",
+            backup_sheet_id=row.get("backup_sheet_id") or "",
             default_tail_number=row["default_tail_number"] or "",
             default_aircraft_type=row["default_aircraft_type"] or "",
             default_departure=row["default_departure"] or "",

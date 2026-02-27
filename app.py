@@ -50,7 +50,11 @@ if Config.GOOGLE_OAUTH_CLIENT_ID:
         client_id=Config.GOOGLE_OAUTH_CLIENT_ID,
         client_secret=Config.GOOGLE_OAUTH_CLIENT_SECRET,
         server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-        client_kwargs={"scope": "openid email profile"},
+        client_kwargs={
+            "scope": "openid email profile https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file",
+            "access_type": "offline",
+            "prompt": "consent",
+        },
     )
 
 # Register auth blueprint
@@ -372,6 +376,100 @@ def import_json():
         )
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+# ============== Google Sheets Backup/Restore ==============
+
+
+@app.route("/api/sheets/backup", methods=["POST"])
+@login_required
+def sheets_backup():
+    """Backup all logbook entries to Google Sheets."""
+    from services.google_sheets import GoogleSheetsService, GoogleSheetsError
+
+    if not current_user.google_refresh_token:
+        return jsonify({
+            "success": False,
+            "error": "Google Sheets access not connected. Please sign in with Google to enable backups.",
+            "needs_google_auth": True,
+        }), 403
+
+    try:
+        service = GoogleSheetsService(current_user.google_refresh_token)
+        entries = storage.get_all_entries(user_id=current_user.id, sort_by_date=True)
+
+        sheet_id = service.backup(
+            entries=entries,
+            sheet_id=current_user.backup_sheet_id or None,
+            user_name=current_user.name,
+        )
+
+        # Store sheet ID if newly created
+        if sheet_id != current_user.backup_sheet_id:
+            current_user.backup_sheet_id = sheet_id
+            storage.update_user(current_user)
+
+        sheet_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}"
+        return jsonify({
+            "success": True,
+            "message": f"Backed up {len(entries)} entries to Google Sheets",
+            "sheet_url": sheet_url,
+            "entry_count": len(entries),
+        })
+
+    except GoogleSheetsError as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Backup failed: {str(e)}"}), 500
+
+
+@app.route("/api/sheets/restore", methods=["POST"])
+@login_required
+def sheets_restore():
+    """Restore logbook entries from a Google Sheet."""
+    from services.google_sheets import GoogleSheetsService, GoogleSheetsError
+
+    if not current_user.google_refresh_token:
+        return jsonify({
+            "success": False,
+            "error": "Google Sheets access not connected. Please sign in with Google.",
+            "needs_google_auth": True,
+        }), 403
+
+    data = request.json or {}
+    sheet_url = data.get("sheet_url", "").strip()
+
+    if not sheet_url:
+        return jsonify({"success": False, "error": "No Google Sheet URL provided"}), 400
+
+    try:
+        sheet_id = GoogleSheetsService.extract_sheet_id(sheet_url)
+        service = GoogleSheetsService(current_user.google_refresh_token)
+        existing_keys = storage.get_existing_keys(user_id=current_user.id)
+
+        new_entries = service.restore(sheet_id, existing_keys)
+
+        if not new_entries:
+            return jsonify({
+                "success": True,
+                "message": "No new entries found (all entries already exist or sheet is empty)",
+                "imported": 0,
+            })
+
+        uid = current_user.id
+        for entry in new_entries:
+            storage.add_entry(entry, user_id=uid)
+
+        return jsonify({
+            "success": True,
+            "message": f"Restored {len(new_entries)} new entries from Google Sheets",
+            "imported": len(new_entries),
+        })
+
+    except GoogleSheetsError as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Restore failed: {str(e)}"}), 500
 
 
 # ============== FlightAware Integration ==============

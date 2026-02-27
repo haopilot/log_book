@@ -114,6 +114,7 @@ def google_callback():
     email = userinfo.get("email", "").lower()
     name = userinfo.get("name", "")
     avatar = userinfo.get("picture", "")
+    refresh_token = token.get("refresh_token", "")
 
     storage = _get_storage()
 
@@ -121,6 +122,8 @@ def google_callback():
     user = storage.get_user_by_google_id(google_id)
     if user:
         user.avatar_url = avatar
+        if refresh_token:
+            user.google_refresh_token = refresh_token
         storage.update_user(user)
         login_user(user, remember=True)
         _claim_orphans(user)
@@ -133,6 +136,8 @@ def google_callback():
         user.avatar_url = avatar
         if not user.name:
             user.name = name
+        if refresh_token:
+            user.google_refresh_token = refresh_token
         storage.update_user(user)
         login_user(user, remember=True)
         _claim_orphans(user)
@@ -144,6 +149,7 @@ def google_callback():
         name=name or email.split("@")[0],
         google_id=google_id,
         avatar_url=avatar,
+        google_refresh_token=refresh_token,
     )
     storage.create_user(user)
     login_user(user, remember=True)
