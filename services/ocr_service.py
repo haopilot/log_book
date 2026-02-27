@@ -108,20 +108,33 @@ Example:
                 return
 
             # Option 2: Service account → REST API (Generative Language API)
-            # Create service-account.json from env var if it doesn't exist yet
-            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            sa_json = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON', '')
             sa_path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
-            if not sa_path:
-                sa_path = os.path.join(project_root, 'service-account.json')
 
-            if not os.path.exists(sa_path):
-                sa_json = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON', '')
+            # Check project root and /tmp for existing service-account.json
+            if not sa_path:
+                project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                for candidate in [
+                    os.path.join(project_root, 'service-account.json'),
+                    '/tmp/service-account.json',
+                ]:
+                    if os.path.exists(candidate):
+                        sa_path = candidate
+                        break
+
+            # Create from env var if no file found yet
+            if not sa_path or not os.path.exists(sa_path):
                 if sa_json:
+                    sa_path = '/tmp/service-account.json'
                     with open(sa_path, 'w') as f:
                         f.write(sa_json)
-                    print(f"Created service-account.json from env var at {sa_path}")
+                    print(f"Created {sa_path} from GOOGLE_SERVICE_ACCOUNT_JSON env var ({len(sa_json)} chars)")
+                else:
+                    print("Error: No GEMINI_API_KEY, no service-account.json, and "
+                          "GOOGLE_SERVICE_ACCOUNT_JSON env var is empty.")
+                    return
 
-            if sa_path and os.path.exists(sa_path):
+            if os.path.exists(sa_path):
                 from google.oauth2.service_account import Credentials
                 from google.auth.transport.requests import Request
                 self._sa_credentials = Credentials.from_service_account_file(
@@ -132,11 +145,10 @@ Example:
                 self._use_sdk = False
                 self._api_key = None
                 self._initialized = True
-                print(f"Gemini initialized with service account (REST)")
+                print(f"Gemini initialized with service account (REST) from {sa_path}")
                 return
 
-            print("Error: No GEMINI_API_KEY and no service-account.json found. "
-                  "Set GEMINI_API_KEY (get one at https://aistudio.google.com/app/apikey).")
+            print("Error: No GEMINI_API_KEY and no service-account.json found.")
 
         except Exception as e:
             print(f"Error initializing Gemini: {e}")
