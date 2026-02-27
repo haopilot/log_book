@@ -23,15 +23,29 @@ class PostgresStorage:
     def __init__(self, database_url: str):
         self.database_url = database_url
         self._local = threading.local()
-        self._init_db()
+        self._db_initialized = False
+        try:
+            self._init_db()
+            self._db_initialized = True
+        except Exception as e:
+            print(f"Warning: DB init deferred (will retry on first request): {e}")
 
     @contextmanager
     def _get_connection(self):
         """Get thread-local database connection."""
+        if not self._db_initialized:
+            self._db_initialized = True  # prevent recursion
+            try:
+                self._init_db()
+            except Exception as e:
+                self._db_initialized = False
+                print(f"DB init retry failed: {e}")
+                raise
         if not hasattr(self._local, "conn") or self._local.conn is None or self._local.conn.closed:
             self._local.conn = psycopg2.connect(
                 self.database_url,
                 cursor_factory=psycopg2.extras.RealDictCursor,
+                connect_timeout=10,
             )
             self._local.conn.autocommit = False
         try:
