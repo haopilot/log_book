@@ -25,6 +25,8 @@ services:
         sync: false
       - key: GOOGLE_OAUTH_CLIENT_SECRET
         sync: false
+      - key: GOOGLE_SERVICE_ACCOUNT_JSON
+        sync: false
       - key: AIRCRAFT_TAIL_NUMBER
         value: N790TB
       - key: AIRCRAFT_MAKE

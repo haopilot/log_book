@@ -25,4 +25,11 @@ else
     echo "Airport database already exists"
 fi
 
+# Create service account file from environment variable (for Gemini OCR)
+if [ -n "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
+    echo "Creating service account credentials from environment variable..."
+    echo "$GOOGLE_SERVICE_ACCOUNT_JSON" > service-account.json
+    echo "Service account credentials created successfully"
+fi
+
 echo "Build completed successfully"

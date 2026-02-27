@@ -86,6 +86,12 @@ Example:
             return
 
         try:
+            # Point ADC to service-account.json if it exists and env var not set
+            if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
+                sa_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "service-account.json")
+                if os.path.exists(sa_path):
+                    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = sa_path
+
             # Use Application Default Credentials (service account)
             credentials, project_id = google_auth_default(
                 scopes=['https://www.googleapis.com/auth/generative-language']
