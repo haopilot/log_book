@@ -334,6 +334,37 @@
       margin-left: 2px;
     }
 
+    /* Source icon */
+    .source-icon {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-left: 2px;
+    }
+    .source-icon.scan { color: #8b5cf6; }
+    .source-icon.flightaware { color: #0ea5e9; }
+    .source-icon.sheets { color: #22c55e; }
+
+    /* Mobile selection bar */
+    .mobile-select-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 8px 16px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .mobile-select-bar button {
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--primary);
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
     .lock-toggle {
       background: none;
       border: none;
@@ -493,6 +524,8 @@
       .header { padding: 16px 24px; }
       .stats-bar { padding: 16px 24px; gap: 40px; }
       .batch-bar { padding: 12px 24px; }
+
+      .mobile-select-bar { display: none; }
 
       .list-header {
         display: grid;
@@ -694,6 +727,10 @@
 
   <main class="main">
     {% if entries %}
+    <div class="mobile-select-bar">
+      <button onclick="selectAllMobile()">Select All</button>
+      <button onclick="clearSelection()">Clear All</button>
+    </div>
     <div class="list-header">
       <input type="checkbox" class="list-header-checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)">
       <span>Route</span>
@@ -723,6 +760,9 @@
                 <span>{{ entry.route_to or '—' }}</span>
                 {% endif %}
                 {% if entry.locked %}<i class="fas fa-lock lock-icon" title="Locked"></i>{% endif %}
+                {% if entry.source == 'scan' %}<i class="fas fa-camera source-icon scan" title="Scanned"></i>
+                {% elif entry.source == 'flightaware' %}<i class="fas fa-satellite-dish source-icon flightaware" title="FlightAware"></i>
+                {% elif entry.source == 'sheets' %}<i class="fas fa-table source-icon sheets" title="Google Sheets"></i>{% endif %}
               </div>
               <div class="flight-meta">
                 <span class="flight-date">{{ entry.date }}</span>
@@ -847,6 +887,13 @@
 
     function toggleSelectAll(cb) {
       document.querySelectorAll('.flight-checkbox').forEach(c => c.checked = cb.checked);
+      updateBatchBar();
+    }
+
+    function selectAllMobile() {
+      document.querySelectorAll('.flight-checkbox').forEach(c => c.checked = true);
+      const selectAll = document.getElementById('selectAllCheckbox');
+      if (selectAll) selectAll.checked = true;
       updateBatchBar();
     }
 
