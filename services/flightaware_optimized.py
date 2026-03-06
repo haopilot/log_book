@@ -51,7 +51,7 @@ class OptimizedFlightAwareService:
         self,
         tail_number: str,
         most_recent_flight_date: Optional[datetime] = None,
-        existing_keys: Optional[set] = None,
+        existing_keys=None,
     ):
         """
         Stream flights with ULTRA FAST processing.
@@ -86,7 +86,7 @@ class OptimizedFlightAwareService:
             return
 
         api_errors = 0
-        existing_keys = existing_keys or set()
+        existing_keys = existing_keys or {}
 
         # Try recent flights first (fast, no windowing needed)
         try:

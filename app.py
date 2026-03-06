@@ -458,6 +458,7 @@ def sheets_restore():
 
         uid = current_user.id
         for entry in new_entries:
+            entry.source = "sheets"
             storage.add_entry(entry, user_id=uid)
 
         return jsonify({
@@ -685,7 +686,9 @@ def import_flightaware():
     flights = service.enrich_batch(flights)
 
     uid = current_user.id
+    existing_keys = storage.get_existing_keys(user_id=uid)
     imported_count = 0
+    skipped_count = 0
     for flight_data in flights:
         flight_data.pop("already_imported", None)
         flight_data.pop("fa_flight_id", None)
@@ -717,15 +720,24 @@ def import_flightaware():
             total_duration=parse_float(flight_data.get("total_duration")),
             remarks=flight_data.get("remarks", ""),
             reviewed=False,
+            source="flightaware",
         )
 
+        key = f"{entry.date}|{entry.route_from}|{entry.route_to}"
+        existing = existing_keys.get(key)
+        if existing:
+            skipped_count += 1
+            continue
+
         storage.add_entry(entry, user_id=uid)
+        existing_keys[key] = {"id": entry.id, "source": "flightaware"}
         imported_count += 1
 
     return jsonify({
         "success": True,
-        "message": f"Imported {imported_count} flight(s)",
+        "message": f"Imported {imported_count} flight(s)" + (f", skipped {skipped_count} duplicate(s)" if skipped_count else ""),
         "imported": imported_count,
+        "skipped": skipped_count,
     })
 
 
@@ -802,7 +814,9 @@ def import_scanned():
         return jsonify({"success": False, "error": "No entries to import"}), 400
 
     uid = current_user.id
+    existing_keys = storage.get_existing_keys(user_id=uid)
     entry_ids = []
+    updated_count = 0
     for entry_data in entries:
         entry_data.pop("_raw", None)
 
@@ -832,16 +846,36 @@ def import_scanned():
             total_duration=parse_float(entry_data.get("total_duration")),
             remarks=entry_data.get("remarks", ""),
             reviewed=False,
+            source="scan",
         )
 
-        entry_id = storage.add_entry(entry, user_id=uid)
-        entry_ids.append(entry_id)
+        key = f"{entry.date}|{entry.route_from}|{entry.route_to}"
+        existing = existing_keys.get(key)
+        if existing:
+            entry.id = existing["id"]
+            storage.update_entry(entry, user_id=uid)
+            entry_ids.append(entry.id)
+            updated_count += 1
+        else:
+            entry_id = storage.add_entry(entry, user_id=uid)
+            entry_ids.append(entry_id)
+            existing_keys[key] = {"id": entry_id, "source": "scan"}
+
+    new_count = len(entry_ids) - updated_count
+    parts = []
+    if new_count:
+        parts.append(f"{new_count} new")
+    if updated_count:
+        parts.append(f"{updated_count} updated")
+    msg = f"Imported {' and '.join(parts)} flight(s) from scanned logbook"
 
     return jsonify({
         "success": True,
         "imported": len(entry_ids),
+        "new": new_count,
+        "updated": updated_count,
         "entry_ids": entry_ids,
-        "message": f"Imported {len(entry_ids)} flight(s) from scanned logbook"
+        "message": msg,
     })
 
 

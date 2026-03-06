@@ -61,6 +61,7 @@ class LogbookEntry:
     # Entry state
     locked: bool = False
     reviewed: bool = True  # Manually created entries don't need review
+    source: str = "manual"  # "manual", "scan", "flightaware", "sheets"
 
     # Owner
     user_id: str = ""

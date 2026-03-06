@@ -113,6 +113,17 @@ class PostgresStorage:
 
             conn.commit()
 
+            # Migrate: add new entry columns if they don't exist
+            for col, col_def in [
+                ("source", "TEXT DEFAULT 'manual'"),
+            ]:
+                try:
+                    with conn.cursor() as cur:
+                        cur.execute(f"ALTER TABLE entries ADD COLUMN {col} {col_def}")
+                    conn.commit()
+                except psycopg2.errors.DuplicateColumn:
+                    conn.rollback()
+
             # Migrate: add new user columns if they don't exist
             for col, col_def in [
                 ("google_refresh_token", "TEXT DEFAULT ''"),
@@ -138,8 +149,8 @@ class PostgresStorage:
                         num_inst_app, landings_day, landings_night,
                         pic, sic, dual_recd, dual_given, solo, sim,
                         total_duration, duration_estimated, remarks,
-                        created_at, updated_at, locked, reviewed, user_id
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        created_at, updated_at, locked, reviewed, source, user_id
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """,
                     (
                         entry.id,
@@ -172,6 +183,7 @@ class PostgresStorage:
                         entry.updated_at,
                         1 if entry.locked else 0,
                         1 if entry.reviewed else 0,
+                        entry.source,
                         user_id,
                     ),
                 )
@@ -225,7 +237,7 @@ class PostgresStorage:
                         num_inst_app=%s, landings_day=%s, landings_night=%s,
                         pic=%s, sic=%s, dual_recd=%s, dual_given=%s, solo=%s, sim=%s,
                         total_duration=%s, duration_estimated=%s, remarks=%s,
-                        updated_at=%s, locked=%s, reviewed=%s
+                        updated_at=%s, locked=%s, reviewed=%s, source=%s
                     WHERE id=%s AND user_id=%s
                 """,
                     (
@@ -257,6 +269,7 @@ class PostgresStorage:
                         entry.updated_at,
                         1 if entry.locked else 0,
                         1 if entry.reviewed else 0,
+                        entry.source,
                         entry.id,
                         user_id,
                     ),
@@ -383,18 +396,18 @@ class PostgresStorage:
 
                 return idents, models, airports
 
-    def get_existing_keys(self, user_id: str = "") -> set[str]:
-        """Get set of date|from|to keys for duplicate detection, scoped to user."""
-        keys = set()
+    def get_existing_keys(self, user_id: str = "") -> dict[str, dict]:
+        """Get dict of date|from|to keys → {id, source} for duplicate detection."""
+        keys = {}
         with self._get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "SELECT date, route_from, route_to FROM entries WHERE user_id = %s",
+                    "SELECT id, date, route_from, route_to, source FROM entries WHERE user_id = %s",
                     (user_id,),
                 )
                 for row in cur.fetchall():
                     key = f"{row['date']}|{row['route_from']}|{row['route_to']}"
-                    keys.add(key)
+                    keys[key] = {"id": row["id"], "source": row.get("source") or "manual"}
         return keys
 
     def claim_orphaned_entries(self, user_id: str) -> int:
@@ -610,4 +623,5 @@ class PostgresStorage:
             updated_at=row["updated_at"] or "",
             locked=bool(row["locked"]) if row["locked"] is not None else False,
             reviewed=bool(row["reviewed"]) if row["reviewed"] is not None else True,
+            source=row.get("source") or "manual",
         )

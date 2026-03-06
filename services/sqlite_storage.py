@@ -104,6 +104,7 @@ class SQLiteStorage:
                 ("sim", "REAL DEFAULT 0"),
                 ("route_via", "TEXT DEFAULT ''"),
                 ("user_id", "TEXT DEFAULT ''"),
+                ("source", "TEXT DEFAULT 'manual'"),
             ]:
                 try:
                     conn.execute(f"ALTER TABLE entries ADD COLUMN {col} {col_def}")
@@ -134,8 +135,8 @@ class SQLiteStorage:
                     num_inst_app, landings_day, landings_night,
                     pic, sic, dual_recd, dual_given, solo, sim,
                     total_duration, duration_estimated, remarks,
-                    created_at, updated_at, locked, reviewed, user_id
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    created_at, updated_at, locked, reviewed, source, user_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
                 (
                     entry.id,
@@ -168,6 +169,7 @@ class SQLiteStorage:
                     entry.updated_at,
                     1 if entry.locked else 0,
                     1 if entry.reviewed else 0,
+                    entry.source,
                     user_id,
                 ),
             )
@@ -219,7 +221,7 @@ class SQLiteStorage:
                     num_inst_app=?, landings_day=?, landings_night=?,
                     pic=?, sic=?, dual_recd=?, dual_given=?, solo=?, sim=?,
                     total_duration=?, duration_estimated=?, remarks=?,
-                    updated_at=?, locked=?, reviewed=?
+                    updated_at=?, locked=?, reviewed=?, source=?
                 WHERE id=? AND user_id=?
             """,
                 (
@@ -251,6 +253,7 @@ class SQLiteStorage:
                     entry.updated_at,
                     1 if entry.locked else 0,
                     1 if entry.reviewed else 0,
+                    entry.source,
                     entry.id,
                     user_id,
                 ),
@@ -374,17 +377,17 @@ class SQLiteStorage:
 
             return idents, models, airports
 
-    def get_existing_keys(self, user_id: str = "") -> set[str]:
-        """Get set of date|from|to keys for duplicate detection, scoped to user."""
-        keys = set()
+    def get_existing_keys(self, user_id: str = "") -> dict[str, dict]:
+        """Get dict of date|from|to keys → {id, source} for duplicate detection."""
+        keys = {}
         with self._get_connection() as conn:
             cursor = conn.execute(
-                "SELECT date, route_from, route_to FROM entries WHERE user_id = ?",
+                "SELECT id, date, route_from, route_to, source FROM entries WHERE user_id = ?",
                 (user_id,),
             )
             for row in cursor.fetchall():
                 key = f"{row['date']}|{row['route_from']}|{row['route_to']}"
-                keys.add(key)
+                keys[key] = {"id": row["id"], "source": row["source"] or "manual"}
         return keys
 
     def claim_orphaned_entries(self, user_id: str) -> int:
@@ -585,4 +588,5 @@ class SQLiteStorage:
             updated_at=row["updated_at"] or "",
             locked=bool(row["locked"]) if row["locked"] is not None else False,
             reviewed=bool(row["reviewed"]) if row["reviewed"] is not None else True,
+            source=row["source"] or "manual" if "source" in row.keys() else "manual",
         )

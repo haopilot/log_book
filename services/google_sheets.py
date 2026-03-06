@@ -155,7 +155,7 @@ class GoogleSheetsService:
             return url_or_id
         raise GoogleSheetsError(f"Could not extract Sheet ID from: {url_or_id}")
 
-    def restore(self, sheet_id: str, existing_keys: set[str]) -> list[LogbookEntry]:
+    def restore(self, sheet_id: str, existing_keys: dict[str, dict]) -> list[LogbookEntry]:
         """
         Read entries from a Google Sheet and return new LogbookEntry objects.
         Skips rows whose date|from|to key already exists in existing_keys.
@@ -183,7 +183,7 @@ class GoogleSheetsService:
             if key in existing_keys:
                 continue
 
-            existing_keys.add(key)
+            existing_keys[key] = {"id": entry.id, "source": "sheets"}
             new_entries.append(entry)
 
         return new_entries
