@@ -25,6 +25,15 @@ else
     echo "Airport database already exists"
 fi
 
+# Download runway database if it doesn't exist
+if [ ! -f data/runways.csv ]; then
+    echo "Downloading runway database..."
+    curl -o data/runways.csv https://davidmegginson.github.io/ourairports-data/runways.csv
+    echo "Runway database downloaded successfully"
+else
+    echo "Runway database already exists"
+fi
+
 # Create service account file from environment variable (for Gemini OCR)
 if [ -n "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
     echo "Creating service account credentials from environment variable..."

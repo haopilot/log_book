@@ -2,8 +2,15 @@
 Airport instrument approaches database.
 
 Provides approach information for US airports.
-Uses a static database with actual FAA approach names.
+Uses a static database with actual FAA approach names,
+with dynamic fallback using OurAirports runway data.
 """
+
+import csv
+import os
+from pathlib import Path
+
+_runway_cache: dict[str, list[str]] | None = None
 
 # Static database for airports with actual FAA approach names
 AIRPORT_APPROACHES = {
@@ -181,15 +188,70 @@ def get_approaches_for_airport(icao_code: str) -> list[dict]:
     if icao_code in AIRPORT_APPROACHES:
         return AIRPORT_APPROACHES[icao_code]
 
-    # For unknown airports, return generic fallbacks with placeholder for runway
-    # Users will need to manually specify the full approach name
+    # Generate approaches from runway data
+    runways = _get_runways(icao_code)
+    if runways:
+        approaches = []
+        for rwy in runways:
+            approaches.append({"id": f"RNAV{rwy}", "name": f"RNAV (GPS) RWY {rwy}", "type": "RNAV"})
+            approaches.append({"id": f"ILS{rwy}", "name": f"ILS RWY {rwy}", "type": "ILS"})
+            approaches.append({"id": f"VOR{rwy}", "name": f"VOR RWY {rwy}", "type": "VOR"})
+            approaches.append({"id": f"LOC{rwy}", "name": f"LOC RWY {rwy}", "type": "LOC"})
+            approaches.append({"id": f"VISUAL{rwy}", "name": f"Visual RWY {rwy}", "type": "VISUAL"})
+        return approaches
+
+    # Last resort: no runway data available
     return [
-        {"id": "RNAV", "name": "RNAV (GPS) RWY __", "type": "RNAV"},
-        {"id": "ILS", "name": "ILS RWY __", "type": "ILS"},
-        {"id": "VOR", "name": "VOR RWY __", "type": "VOR"},
-        {"id": "LOC", "name": "LOC RWY __", "type": "LOC"},
-        {"id": "VISUAL", "name": "Visual RWY __", "type": "VISUAL"},
+        {"id": "RNAV", "name": "RNAV (GPS)", "type": "RNAV"},
+        {"id": "ILS", "name": "ILS", "type": "ILS"},
+        {"id": "VOR", "name": "VOR", "type": "VOR"},
+        {"id": "LOC", "name": "LOC", "type": "LOC"},
+        {"id": "VISUAL", "name": "Visual", "type": "VISUAL"},
     ]
+
+
+def _get_runways(icao_code: str) -> list[str]:
+    """Get runway designators for an airport from runways.csv."""
+    global _runway_cache
+
+    if _runway_cache is None:
+        _runway_cache = _load_runway_data()
+
+    return _runway_cache.get(icao_code, [])
+
+
+def _load_runway_data() -> dict[str, list[str]]:
+    """Load runway designators from OurAirports runways.csv."""
+    cache: dict[str, list[str]] = {}
+
+    # Check multiple possible locations
+    project_root = Path(__file__).parent.parent
+    for candidate in [
+        project_root / "data" / "runways.csv",
+        Path("/tmp/runways.csv"),
+    ]:
+        if candidate.exists():
+            try:
+                with open(candidate, "r", encoding="utf-8") as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        ident = row.get("airport_ident", "").upper()
+                        if not ident or row.get("closed") == "1":
+                            continue
+                        le = row.get("le_ident", "").strip()
+                        he = row.get("he_ident", "").strip()
+                        if ident not in cache:
+                            cache[ident] = []
+                        if le and le not in cache[ident]:
+                            cache[ident].append(le)
+                        if he and he not in cache[ident]:
+                            cache[ident].append(he)
+                print(f"Loaded runway data for {len(cache)} airports")
+            except Exception as e:
+                print(f"Error loading runways.csv: {e}")
+            break
+
+    return cache
 
 
 def search_airports(query: str) -> list[dict]:
