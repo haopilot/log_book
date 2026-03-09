@@ -73,14 +73,21 @@ class GoogleSheetsService:
 
     # ── Backup ─────────────────────────────────────────────
 
-    def _create_spreadsheet(self, title: str) -> str:
-        """Create a new Google Sheet. Returns the spreadsheet ID."""
+    def _create_spreadsheet(self, title: str) -> tuple[str, int]:
+        """Create a new Google Sheet. Returns (spreadsheet ID, sheet ID)."""
         body = {
             "properties": {"title": title},
             "sheets": [{"properties": {"title": "Logbook"}}],
         }
         data = self._api_call("post", SHEETS_API, json=body)
-        return data["spreadsheetId"]
+        grid_id = data["sheets"][0]["properties"]["sheetId"]
+        return data["spreadsheetId"], grid_id
+
+    def _get_sheet_id(self, spreadsheet_id: str) -> int:
+        """Get the sheet ID of the first sheet in a spreadsheet."""
+        url = f"{SHEETS_API}/{spreadsheet_id}?fields=sheets.properties"
+        data = self._api_call("get", url)
+        return data["sheets"][0]["properties"]["sheetId"]
 
     def backup(self, entries: list[LogbookEntry], sheet_id: Optional[str] = None,
                user_name: str = "") -> str:
@@ -90,9 +97,13 @@ class GoogleSheetsService:
         Creates a new spreadsheet if sheet_id is None.
         Returns the spreadsheet ID.
         """
+        grid_id = None
         if not sheet_id:
             title = f"Pilot Logbook - {user_name}".strip(" -") if user_name else "Pilot Logbook Backup"
-            sheet_id = self._create_spreadsheet(title)
+            sheet_id, grid_id = self._create_spreadsheet(title)
+
+        if grid_id is None:
+            grid_id = self._get_sheet_id(sheet_id)
 
         # Build data: headers + rows
         headers = LogbookEntry.get_sheets_headers()
@@ -114,7 +125,7 @@ class GoogleSheetsService:
             "requests": [{
                 "repeatCell": {
                     "range": {
-                        "sheetId": 0,
+                        "sheetId": grid_id,
                         "startRowIndex": 0,
                         "endRowIndex": 1,
                     },
@@ -131,7 +142,7 @@ class GoogleSheetsService:
             }, {
                 "updateSheetProperties": {
                     "properties": {
-                        "sheetId": 0,
+                        "sheetId": grid_id,
                         "gridProperties": {"frozenRowCount": 1},
                     },
                     "fields": "gridProperties.frozenRowCount",
