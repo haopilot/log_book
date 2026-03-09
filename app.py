@@ -420,8 +420,10 @@ def sheets_backup():
         })
 
     except GoogleSheetsError as e:
+        print(f"Sheets backup error: {e}")
         return jsonify({"success": False, "error": str(e)}), 400
     except Exception as e:
+        print(f"Sheets backup unexpected error: {e}")
         return jsonify({"success": False, "error": f"Backup failed: {str(e)}"}), 500
 
 
