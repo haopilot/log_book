@@ -89,10 +89,14 @@ def index():
     uid = current_user.id
     entries = storage.get_all_entries(user_id=uid, sort_by_date=True)
     totals = storage.get_totals(user_id=uid)
+    backup_sheet_url = ""
+    if current_user.backup_sheet_id:
+        backup_sheet_url = f"https://docs.google.com/spreadsheets/d/{current_user.backup_sheet_id}"
     return render_template(
         "logbook.html",
         entries=entries,
         totals=totals,
+        backup_sheet_url=backup_sheet_url,
     )
 
 

@@ -1058,7 +1058,7 @@
     function showRestoreDialog() {
       const dialog = document.getElementById('restoreDialog');
       dialog.style.display = 'flex';
-      document.getElementById('sheetUrlInput').value = '';
+      document.getElementById('sheetUrlInput').value = '{{ backup_sheet_url }}';
       document.getElementById('sheetUrlInput').focus();
     }
 
