@@ -115,6 +115,7 @@ def google_callback():
     name = userinfo.get("name", "")
     avatar = userinfo.get("picture", "")
     refresh_token = token.get("refresh_token", "")
+    print(f"Google OAuth callback: email={email}, has_refresh_token={bool(refresh_token)}")
 
     storage = _get_storage()
 

@@ -52,6 +52,8 @@ if Config.GOOGLE_OAUTH_CLIENT_ID:
         server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
         client_kwargs={
             "scope": "openid email profile https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file",
+        },
+        authorize_params={
             "access_type": "offline",
             "prompt": "consent",
         },
