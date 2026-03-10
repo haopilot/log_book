@@ -13,6 +13,7 @@ from typing import Optional
 import certifi
 import requests
 from config import Config
+from models.logbook_entry import make_entry_key
 
 
 class OptimizedFlightAwareService:
@@ -152,7 +153,7 @@ class OptimizedFlightAwareService:
                 # are all already in the logbook, we've reached known territory
                 if is_incremental and existing_keys and batch:
                     all_known = all(
-                        f"{f['date']}|{f['route_from']}|{f['route_to']}" in existing_keys
+                        make_entry_key(f['date'], f['route_from'], f['route_to']) in existing_keys
                         for f in batch
                     )
                     if all_known:

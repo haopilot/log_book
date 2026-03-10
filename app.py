@@ -531,7 +531,7 @@ def search_flightaware():
             route_from = flight.get('route_from') or ''
             route_to = flight.get('route_to') or ''
             date = flight.get('date') or ''
-            key = f"{date}|{route_from}|{route_to}"
+            key = make_entry_key(date, route_from, route_to)
             flight["already_imported"] = key in existing_keys
 
         return jsonify({
@@ -609,7 +609,7 @@ def search_flightaware_stream():
                         route_from = flight.get('route_from') or ''
                         route_to = flight.get('route_to') or ''
                         date = flight.get('date') or ''
-                        key = f"{date}|{route_from}|{route_to}"
+                        key = make_entry_key(date, route_from, route_to)
                         flight["already_imported"] = key in existing_keys
 
                         flight_count += 1
