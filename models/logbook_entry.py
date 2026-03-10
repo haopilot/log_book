@@ -111,6 +111,7 @@ class LogbookEntry:
             self.sim or "",
             self.total_duration or "",
             self.remarks,
+            self.source or "manual",
         ]
 
     @staticmethod
@@ -140,6 +141,7 @@ class LogbookEntry:
             "Sim/FTD",
             "Total",
             "Remarks",
+            "Source",
         ]
 
 

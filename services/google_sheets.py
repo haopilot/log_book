@@ -249,6 +249,7 @@ class GoogleSheetsService:
             "total time": "total_duration",
             "total duration": "total_duration",
             "remarks": "remarks",
+            "source": "source",
         }
         mapping = {}
         for idx, header in enumerate(headers):
@@ -313,5 +314,6 @@ class GoogleSheetsService:
             sim=get_float("sim"),
             total_duration=get_float("total_duration"),
             remarks=get("remarks"),
+            source=get("source", "manual"),
             reviewed=False,
         )

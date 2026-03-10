@@ -466,7 +466,8 @@ def sheets_restore():
 
         uid = current_user.id
         for entry in new_entries:
-            entry.source = "sheets"
+            if not entry.source:
+                entry.source = "sheets"
             storage.add_entry(entry, user_id=uid)
 
         return jsonify({
