@@ -397,7 +397,8 @@ class PostgresStorage:
                 return idents, models, airports
 
     def get_existing_keys(self, user_id: str = "") -> dict[str, dict]:
-        """Get dict of date|from|to keys → {id, source} for duplicate detection."""
+        """Get dict of normalized date|from|to keys → {id, source} for duplicate detection."""
+        from models.logbook_entry import make_entry_key
         keys = {}
         with self._get_connection() as conn:
             with conn.cursor() as cur:
@@ -406,7 +407,7 @@ class PostgresStorage:
                     (user_id,),
                 )
                 for row in cur.fetchall():
-                    key = f"{row['date']}|{row['route_from']}|{row['route_to']}"
+                    key = make_entry_key(row["date"], row["route_from"], row["route_to"])
                     keys[key] = {"id": row["id"], "source": row.get("source") or "manual"}
         return keys
 

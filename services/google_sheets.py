@@ -190,7 +190,8 @@ class GoogleSheetsService:
             if entry is None:
                 continue
 
-            key = f"{entry.date}|{entry.route_from}|{entry.route_to}"
+            from models.logbook_entry import make_entry_key
+            key = make_entry_key(entry.date, entry.route_from, entry.route_to)
             if key in existing_keys:
                 continue
 

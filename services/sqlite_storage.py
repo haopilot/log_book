@@ -378,7 +378,8 @@ class SQLiteStorage:
             return idents, models, airports
 
     def get_existing_keys(self, user_id: str = "") -> dict[str, dict]:
-        """Get dict of date|from|to keys → {id, source} for duplicate detection."""
+        """Get dict of normalized date|from|to keys → {id, source} for duplicate detection."""
+        from models.logbook_entry import make_entry_key
         keys = {}
         with self._get_connection() as conn:
             cursor = conn.execute(
@@ -386,7 +387,7 @@ class SQLiteStorage:
                 (user_id,),
             )
             for row in cursor.fetchall():
-                key = f"{row['date']}|{row['route_from']}|{row['route_to']}"
+                key = make_entry_key(row["date"], row["route_from"], row["route_to"])
                 keys[key] = {"id": row["id"], "source": row["source"] or "manual"}
         return keys
 

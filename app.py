@@ -12,7 +12,7 @@ from authlib.integrations.flask_client import OAuth
 from config import Config
 from flask import Flask, jsonify, redirect, render_template, request, send_file, url_for
 from flask_login import LoginManager, current_user, login_required
-from models.logbook_entry import Logbook, LogbookEntry
+from models.logbook_entry import Logbook, LogbookEntry, make_entry_key
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
@@ -732,7 +732,7 @@ def import_flightaware():
             source="flightaware",
         )
 
-        key = f"{entry.date}|{entry.route_from}|{entry.route_to}"
+        key = make_entry_key(entry.date, entry.route_from, entry.route_to)
         existing = existing_keys.get(key)
         if existing:
             skipped_count += 1
@@ -858,7 +858,7 @@ def import_scanned():
             source="scan",
         )
 
-        key = f"{entry.date}|{entry.route_from}|{entry.route_to}"
+        key = make_entry_key(entry.date, entry.route_from, entry.route_to)
         existing = existing_keys.get(key)
         if existing:
             entry.id = existing["id"]
