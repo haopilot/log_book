@@ -35,12 +35,14 @@ class LogbookOCRService:
 Extract ALL flight entries visible in the image and return them as a JSON array.
 
 Each flight entry should have these fields (use null if not readable):
-- date: MUST always be in "MM/DD/YYYY" format with leading zeros and a 4-digit year. Examples: "05/09/2004", "12/03/2023", "01/15/2010". In handwritten logbooks, the year is often written only once at the top of the page or column, or only on the first entry — you MUST apply that year to every entry on the page. If the year is not visible anywhere on this page, infer it from context: the dates should be sequential and realistic for a pilot logbook (typically 2000-2025). If a date spans multiple days (e.g., "3/26-28"), use the first date. Every date you output MUST have a 4-digit year — never output just "03/10", always "03/10/2004".
+- date: MUST always be in "MM/DD/YYYY" format with leading zeros and a 4-digit year. Examples: "05/09/2004", "12/03/2023", "01/15/2010". In handwritten logbooks, the year is often written only once at the top of the page or in a "YEAR" header — you MUST apply that year to every entry on the page. Handwritten dates typically show only month/day (e.g., "1/27" means January 27). Read the month and day digits carefully — a "1" can look like a "7" and vice versa in handwriting. If the year is not visible anywhere on this page, infer it from context: the dates should be sequential and realistic for a pilot logbook (typically 2000-2026). If a date spans multiple days (e.g., "3/26-28"), use the first date. Every date you output MUST have a 4-digit year — never output just "03/10", always "03/10/2004".
 - aircraft_model: FAA aircraft type designator (e.g., "DA20", "C172", "PA28", "TBM7", "C206", "SR22", "BE36"). Use standard FAA designators WITHOUT hyphens. Convert full names: "Piper Cub" → "J3", "Cessna 172" → "C172", "Diamond DA20" → "DA20". For simulators/FTDs, write the type followed by "-FTD" (e.g., "DA42-FTD"), or "Frasca-FTD" for Frasca devices. Be careful with OCR-ambiguous characters: Y vs 7, T vs 7, O vs 0, I vs 1, S vs 5. For example, "C2067" is not valid — it should be "C206T" or another real designator. If the same aircraft type appears on multiple rows, ensure consistency.
 - aircraft_ident: tail number (e.g., "N636DC", "N95225"). If the same tail number appears on multiple rows, ensure consistency — handwriting OCR often confuses Y/7, T/7, O/0, I/1, S/5, B/8. Pick the most likely real tail number.
 - route_from: departure airport ICAO or FAA code (e.g., "BFI", "SEA", "PAE")
 - route_to: destination airport ICAO or FAA code (e.g., "BFI", "SEA", "PAE")
-- remarks: any remarks or endorsements text. These are aviation shorthand — preserve them as written or use standard aviation abbreviations. Common examples: "ldg" (landing), "appro" or "appr" (approach), "ILS" (instrument landing system), "VOR", "Rwy" (runway), "T&G" or "TnG" (touch and go), "XC" (cross country), "NDB", "GPS", "LOC" (localizer), "RNAV", "steep trns" (steep turns). Do NOT replace aviation terms with non-aviation English words
+- remarks: any remarks or endorsements text. These are aviation shorthand — preserve them as written or use standard aviation abbreviations. Common examples: "ldg" (landing), "appro" or "appr" (approach), "ILS" (instrument landing system), "VOR", "Rwy" (runway), "T&G" or "TnG" (touch and go), "XC" (cross country), "NDB", "GPS", "LOC" (localizer), "RNAV", "steep trns" (steep turns). Instrument approach remarks often look like "ILS 16R PAE" or "RNAV 03 SEZ" (approach type + runway + airport). Do NOT replace aviation terms with non-aviation English words
+- sel: single engine land time in decimal hours (the "AIRPLANE SEL" column)
+- mel: multi engine land time in decimal hours (the "AIRPLANE MEL" column)
 - total_duration: total flight time in decimal hours (e.g., 1.4, 2.2)
 - pic: pilot in command time in decimal hours
 - sic: second in command time in decimal hours
@@ -52,7 +54,7 @@ Each flight entry should have these fields (use null if not readable):
 - actual_inst: actual instrument time in decimal hours
 - simulated_inst: simulated instrument (hood) time in decimal hours
 - num_inst_app: number of instrument approaches (integer)
-- landings_day: number of day landings (integer)
+- landings_day: number of day landings (integer). For a simple A→B flight this is typically 1 unless it is a training flight with touch-and-goes. Read the digit carefully — "1" is far more common than "2" for a single-leg flight.
 - landings_night: number of night landings (integer)
 - sim: simulator/FTD time in decimal hours (0 for real flights; only non-zero for FTD/simulator entries)
 
@@ -305,6 +307,9 @@ Example:
             # Clean up garbled remarks
             filtered = self._clean_remarks(filtered)
 
+            # Fix landings for single-leg flights (common OCR misread: 1→2)
+            filtered = self._fix_landings(filtered)
+
             return filtered, expected_rows, len(filtered)
 
         except json.JSONDecodeError as e:
@@ -481,6 +486,10 @@ Example:
         has_date = bool(date_str) and bool(re.search(r'\d+[/\-]\d+', date_str))
         has_aircraft = bool(entry.get('aircraft_model', '').strip()) or bool(entry.get('aircraft_ident', '').strip())
         has_route = bool(entry.get('route_from', '').strip()) or bool(entry.get('route_to', '').strip())
+        has_duration = float(entry.get('total_duration', 0) or 0) > 0
+        # Must have a route or duration to be a real flight (not just carried-forward aircraft info)
+        if not has_route and not has_duration:
+            return False
         # Require at least 2 of 3 indicators to be a real flight
         score = sum([has_date, has_aircraft, has_route])
         return score >= 2
@@ -1290,6 +1299,75 @@ Example:
             if len(remarks) <= 3 and not re.search(r'[a-zA-Z]{2,}', remarks):
                 entry['remarks'] = ''
                 continue
+
+            # Normalize approach notation: "ILS16R2 PAE" or "ILS16RZ PAE" → "ILS 16R PAE"
+            # Pattern: approach type (ILS/RNAV/VOR/LOC/NDB/GPS) followed directly by runway
+            def fix_approach(m):
+                appr_type = m.group(1).upper()
+                runway = m.group(2)
+                # Strip trailing garbage chars (Z, 2, etc.) that are OCR misreads
+                # Valid runway suffixes are L, C, R only
+                runway_clean = re.sub(r'[^0-9LCR]$', '', runway, flags=re.IGNORECASE)
+                airport = m.group(3) if m.group(3) else ''
+                result = f"{appr_type} {runway_clean}"
+                if airport:
+                    result += f" {airport.upper()}"
+                return result
+
+            remarks = re.sub(
+                r'\b(ILS|RNAV|VOR|LOC|NDB|GPS|LDA|SDF|VISUAL)\s*'
+                r'(\d{1,2}[LCRZ0-9]*)'
+                r'(?:\s+([A-Z]{3,4}))?',
+                fix_approach, remarks, flags=re.IGNORECASE
+            )
+            entry['remarks'] = remarks.strip()
+
+        return entries
+
+    def _fix_landings(self, entries: list[dict]) -> list[dict]:
+        """Fix landing counts for single-leg flights.
+
+        Common OCR misread: handwritten "1" read as "2".
+        For a simple A→B flight (no multi-leg route, no touch-and-go indicators),
+        landings should be exactly 1 (day or night, not both > 0 typically).
+        """
+        TOUCH_AND_GO_PATTERNS = re.compile(
+            r'T\s*&?\s*G|touch\s*and\s*go|TnG|pattern|traffic\s*pattern',
+            re.IGNORECASE
+        )
+
+        for entry in entries:
+            route_via = entry.get('route_via', '').strip()
+            remarks = entry.get('remarks', '').strip()
+            landings_day = int(entry.get('landings_day', 0) or 0)
+            landings_night = int(entry.get('landings_night', 0) or 0)
+            total_landings = landings_day + landings_night
+
+            # Only fix single-leg flights (no route_via = no intermediate stops)
+            if route_via:
+                continue
+
+            # Skip if landings look reasonable (0 or 1)
+            if total_landings <= 1:
+                continue
+
+            # Skip if remarks suggest training / touch-and-goes
+            if TOUCH_AND_GO_PATTERNS.search(remarks):
+                continue
+
+            # Skip if route_from == route_to (local pattern work, multiple landings expected)
+            route_from = entry.get('route_from', '').strip()
+            route_to = entry.get('route_to', '').strip()
+            if route_from and route_to and route_from == route_to:
+                continue
+
+            # Single-leg A→B flight with >1 landings and no T&G — likely OCR error
+            if landings_day > 1 and landings_night == 0:
+                print(f"Landing fix: {route_from}→{route_to} landings_day {landings_day}→1 (single-leg)")
+                entry['landings_day'] = 1
+            elif landings_night > 1 and landings_day == 0:
+                print(f"Landing fix: {route_from}→{route_to} landings_night {landings_night}→1 (single-leg)")
+                entry['landings_night'] = 1
 
         return entries
 
