@@ -1278,6 +1278,69 @@ Example:
 
         return entries
 
+    # Regex to match approach notation in remarks (OCR output)
+    _APPROACH_RE = re.compile(
+        r'\b(ILS|RNAV|VOR|LOC|NDB|GPS|LDA|SDF|VISUAL)\s*'
+        r'(\d{1,2}[LCRZ0-9]*)'
+        r'(?:\s+([A-Z]{3,4}))?',
+        re.IGNORECASE
+    )
+
+    def _normalize_approach_in_remarks(self, remarks: str) -> str:
+        """Replace OCR approach notation with official FAA approach names.
+
+        E.g. "ILS16RZ PAE" → "ILS RWY 16R KPAE"
+             "RNAV 03 SEZ" → "RNAV (GPS) RWY 03 KSEZ"
+        """
+        from services.airport_approaches import get_approaches_for_airport
+        from services.airport_lookup import to_icao
+
+        def replace_approach(m):
+            appr_type = m.group(1).upper()
+            runway_raw = m.group(2)
+            airport_raw = (m.group(3) or '').upper()
+
+            # Clean runway: strip trailing garbage (Z, 2 etc.), keep only digits + L/C/R
+            runway = re.sub(r'[^0-9LCR]$', '', runway_raw, flags=re.IGNORECASE).upper()
+
+            # Convert airport to ICAO
+            icao = to_icao(airport_raw) if airport_raw else ''
+
+            if icao:
+                # Look up official approaches for this airport
+                approaches = get_approaches_for_airport(icao)
+                # Build approach ID to match against (e.g., "ILS16R")
+                approach_id = f"{appr_type}{runway}"
+
+                # Find matching official approach
+                for appr in approaches:
+                    if appr['id'].upper() == approach_id.upper():
+                        print(f"Approach match: '{m.group(0)}' → '{appr['name']} {icao}'")
+                        return f"{appr['name']} {icao}"
+
+                # No exact match — try matching just by type + runway number (ignore L/C/R suffix issues)
+                runway_num = re.match(r'(\d+)', runway)
+                if runway_num:
+                    for appr in approaches:
+                        if (appr['type'].upper() == appr_type and
+                                appr['id'].upper().startswith(appr_type) and
+                                runway_num.group(1) in appr['id']):
+                            # Check runway number matches (not just substring)
+                            appr_rwy = re.search(r'(\d+[LCR]?)', appr['id'][len(appr_type):])
+                            if appr_rwy and appr_rwy.group(1).startswith(runway_num.group(1)):
+                                print(f"Approach fuzzy match: '{m.group(0)}' → '{appr['name']} {icao}'")
+                                return f"{appr['name']} {icao}"
+
+            # Fallback: format cleanly without official name lookup
+            result = f"{appr_type} {runway}"
+            if icao:
+                result += f" {icao}"
+            elif airport_raw:
+                result += f" {airport_raw}"
+            return result
+
+        return self._APPROACH_RE.sub(replace_approach, remarks)
+
     def _clean_remarks(self, entries: list[dict]) -> list[dict]:
         """Clean up garbled/unreadable remarks text.
 
@@ -1300,26 +1363,9 @@ Example:
                 entry['remarks'] = ''
                 continue
 
-            # Normalize approach notation: "ILS16R2 PAE" or "ILS16RZ PAE" → "ILS 16R PAE"
-            # Pattern: approach type (ILS/RNAV/VOR/LOC/NDB/GPS) followed directly by runway
-            def fix_approach(m):
-                appr_type = m.group(1).upper()
-                runway = m.group(2)
-                # Strip trailing garbage chars (Z, 2, etc.) that are OCR misreads
-                # Valid runway suffixes are L, C, R only
-                runway_clean = re.sub(r'[^0-9LCR]$', '', runway, flags=re.IGNORECASE)
-                airport = m.group(3) if m.group(3) else ''
-                result = f"{appr_type} {runway_clean}"
-                if airport:
-                    result += f" {airport.upper()}"
-                return result
-
-            remarks = re.sub(
-                r'\b(ILS|RNAV|VOR|LOC|NDB|GPS|LDA|SDF|VISUAL)\s*'
-                r'(\d{1,2}[LCRZ0-9]*)'
-                r'(?:\s+([A-Z]{3,4}))?',
-                fix_approach, remarks, flags=re.IGNORECASE
-            )
+            # Normalize approach notation: match against official approach names
+            # "ILS16RZ PAE" → "ILS RWY 16R KPAE", "RNAV 03 SEZ" → "RNAV (GPS) RWY 03 KSEZ"
+            remarks = self._normalize_approach_in_remarks(remarks)
             entry['remarks'] = remarks.strip()
 
         return entries
