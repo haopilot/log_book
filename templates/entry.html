@@ -677,6 +677,9 @@
       }
     }
 
+    // Map approach ID → display name for consistent naming
+    let approachNames = {};
+
     function renderApproachSelector(approaches, airport) {
       const container = document.getElementById('approach-checkboxes');
       const label = document.getElementById('approach-airport-label');
@@ -691,7 +694,10 @@
         item.className = 'approach-item';
         item.dataset.approachId = approach.id;
 
-        const approachKey = `${approach.id} ${currentApproachAirport}`;
+        // Store name mapping for consistent remarks
+        approachNames[approach.id] = approach.name;
+
+        const approachKey = `${approach.name} ${currentApproachAirport}`;
         const count = approachCounts[approachKey] || 0;
         if (count > 0) item.classList.add('has-count');
 
@@ -708,7 +714,8 @@
     }
 
     function adjustApproachCount(approachId, delta) {
-      const approachKey = `${approachId} ${currentApproachAirport}`;
+      const name = approachNames[approachId] || approachId;
+      const approachKey = `${name} ${currentApproachAirport}`;
       const current = approachCounts[approachKey] || 0;
       const newCount = Math.max(0, current + delta);
 
@@ -770,9 +777,11 @@
       if (!remarks) return;
       const entries = remarks.split(',');
       for (const entry of entries) {
-        const match = entry.trim().match(/^([A-Z0-9-]+)\s+([A-Z]{4})\s*(?:x(\d+))?$/i);
+        // Match: "approach_name AIRPORT" or "approach_name AIRPORT x2"
+        // approach_name can contain spaces/parens like "RNAV (GPS) RWY 03" or old format "ILS07L"
+        const match = entry.trim().match(/^(.+?)\s+([A-Z]{4})\s*(?:x(\d+))?$/i);
         if (match) {
-          const approachKey = `${match[1]} ${match[2].toUpperCase()}`;
+          const approachKey = `${match[1].trim()} ${match[2].toUpperCase()}`;
           approachCounts[approachKey] = match[3] ? parseInt(match[3]) : 1;
         }
       }
