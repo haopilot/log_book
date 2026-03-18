@@ -11,7 +11,15 @@ from typing import Optional
 import requests
 
 from config import Config
-from models.logbook_entry import LogbookEntry
+from models.logbook_entry import LogbookEntry, normalize_airport
+
+
+def _normalize_route_via(route_via: str) -> str:
+    """Normalize a multi-leg route string to ICAO codes."""
+    if not route_via:
+        return ""
+    legs = [normalize_airport(leg.strip()) for leg in route_via.split("-") if leg.strip()]
+    return "-".join(legs)
 
 
 SHEETS_API = "https://sheets.googleapis.com/v4/spreadsheets"
@@ -294,9 +302,9 @@ class GoogleSheetsService:
             date=date,
             aircraft_model=get("aircraft_model"),
             aircraft_ident=get("aircraft_ident").upper(),
-            route_from=get("route_from").upper(),
-            route_to=get("route_to").upper(),
-            route_via=get("route_via").upper(),
+            route_from=normalize_airport(get("route_from")),
+            route_to=normalize_airport(get("route_to")),
+            route_via=_normalize_route_via(get("route_via")),
             sel=get_float("sel"),
             mel=get_float("mel"),
             day=get_float("day"),

@@ -123,6 +123,54 @@ class SQLiteStorage:
                 except sqlite3.OperationalError:
                     pass  # Column already exists
 
+        # Normalize existing airport codes to ICAO
+        try:
+            self._normalize_airport_codes()
+        except Exception as e:
+            print(f"ICAO normalization skipped: {e}")
+
+    def _normalize_airport_codes(self):
+        """One-time migration: convert all airport codes to ICAO format."""
+        from services.airport_lookup import to_icao
+
+        with self._get_connection() as conn:
+            # Quick check: any 3-letter codes left?
+            cnt = conn.execute(
+                "SELECT COUNT(*) as cnt FROM entries WHERE "
+                "(LENGTH(route_from) = 3 AND route_from GLOB '[A-Z][A-Z][A-Z]') OR "
+                "(LENGTH(route_to) = 3 AND route_to GLOB '[A-Z][A-Z][A-Z]')"
+            ).fetchone()["cnt"]
+            if cnt == 0:
+                return
+
+            rows = conn.execute(
+                "SELECT id, route_from, route_to, route_via FROM entries"
+            ).fetchall()
+
+            updated = 0
+            for row in rows:
+                rf = row["route_from"] or ""
+                rt = row["route_to"] or ""
+                rv = row["route_via"] or "" if "route_via" in row.keys() else ""
+                new_rf = to_icao(rf) if rf else rf
+                new_rt = to_icao(rt) if rt else rt
+                if rv:
+                    legs = [to_icao(leg.strip()) for leg in rv.split("-") if leg.strip()]
+                    new_rv = "-".join(legs)
+                else:
+                    new_rv = rv
+
+                if new_rf != rf or new_rt != rt or new_rv != rv:
+                    conn.execute(
+                        "UPDATE entries SET route_from=?, route_to=?, route_via=? WHERE id=?",
+                        (new_rf, new_rt, new_rv, row["id"]),
+                    )
+                    updated += 1
+
+            if updated:
+                conn.commit()
+                print(f"ICAO normalization: updated {updated} entries")
+
     def add_entry(self, entry: LogbookEntry, user_id: str = "") -> str:
         """Add a new entry to the database."""
         with self._get_connection() as conn:

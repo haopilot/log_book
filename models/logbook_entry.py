@@ -8,19 +8,19 @@ from typing import Optional
 
 
 def normalize_airport(code: str) -> str:
-    """Normalize airport code for comparison: strip K-prefix and trailing *.
+    """Normalize airport code to ICAO format for comparison and storage.
 
-    KBFI → BFI, KSQL* → SQL, SQL → SQL, PAE → PAE.
-    Only strips K from 4-char codes starting with K (US ICAO convention).
+    SQL → KSQL, DUT → PADU, KSQL → KSQL, KBFI* → KBFI.
+    Uses the airports.csv database for accurate mapping.
     """
-    code = code.upper().strip().rstrip("*")
-    if len(code) == 4 and code.startswith("K") and code[1:].isalpha():
-        return code[1:]
-    return code
+    if not code:
+        return code
+    from services.airport_lookup import to_icao
+    return to_icao(code)
 
 
 def make_entry_key(date: str, route_from: str, route_to: str) -> str:
-    """Build a normalized duplicate-detection key."""
+    """Build a normalized duplicate-detection key using ICAO codes."""
     return f"{date}|{normalize_airport(route_from)}|{normalize_airport(route_to)}"
 
 

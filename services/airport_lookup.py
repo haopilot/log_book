@@ -21,6 +21,7 @@ AIRPORTS_CSV_PATHS = [
 
 # Cache for airports data
 _airports_cache: list[dict] = []
+_icao_map: dict[str, str] | None = None  # local_code → ICAO mapping
 
 
 def _load_airports() -> list[dict]:
@@ -75,6 +76,77 @@ def _load_airports() -> list[dict]:
         print(f"Warning: Failed to load airports: {e}")
 
     return airports
+
+
+def _load_icao_map() -> dict[str, str]:
+    """Build local_code → ICAO mapping from airports.csv."""
+    global _icao_map
+    if _icao_map is not None:
+        return _icao_map
+
+    _icao_map = {}
+    airports_file = None
+    for path in AIRPORTS_CSV_PATHS:
+        if os.path.exists(path):
+            airports_file = path
+            break
+
+    if not airports_file:
+        return _icao_map
+
+    try:
+        with open(airports_file, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                icao = (row.get("icao_code") or "").strip()
+                local = (row.get("local_code") or "").strip().upper()
+                ident = (row.get("ident") or "").strip().upper()
+                if not icao:
+                    continue
+                # Map local_code (FAA 3-letter) → ICAO
+                if local and local != icao and len(local) == 3 and local.isalpha():
+                    # Only map if no conflict (prefer US airports)
+                    country = row.get("iso_country", "")
+                    if local not in _icao_map or country == "US":
+                        _icao_map[local] = icao
+                # Also map ident → icao if different
+                if ident and ident != icao:
+                    _icao_map[ident] = icao
+    except Exception as e:
+        print(f"Warning: Failed to load ICAO map: {e}")
+
+    return _icao_map
+
+
+def to_icao(code: str) -> str:
+    """Convert an airport code to ICAO format.
+
+    SQL → KSQL, DUT → PADU, KSQL → KSQL, PADU → PADU.
+    Returns the code unchanged if no mapping is found.
+    Strips trailing * markers.
+    """
+    if not code:
+        return code
+    code = code.upper().strip().rstrip("*")
+    if not code or not code.isalpha():
+        return code
+
+    # Already a valid 4-letter ICAO code? Verify it exists.
+    if len(code) == 4:
+        icao_map = _load_icao_map()
+        # If code maps to something else, use the mapping (handles edge cases)
+        if code in icao_map:
+            return icao_map[code]
+        # Otherwise assume it's already ICAO
+        return code
+
+    # 3-letter code: look up ICAO
+    if len(code) == 3:
+        icao_map = _load_icao_map()
+        if code in icao_map:
+            return icao_map[code]
+
+    return code
 
 
 def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:

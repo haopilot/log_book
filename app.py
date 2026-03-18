@@ -12,7 +12,7 @@ from authlib.integrations.flask_client import OAuth
 from config import Config
 from flask import Flask, jsonify, redirect, render_template, request, send_file, url_for
 from flask_login import LoginManager, current_user, login_required
-from models.logbook_entry import Logbook, LogbookEntry, make_entry_key
+from models.logbook_entry import Logbook, LogbookEntry, make_entry_key, normalize_airport
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
@@ -80,6 +80,14 @@ def parse_int(value, default=0):
         return int(value) if value else default
     except (ValueError, TypeError):
         return default
+
+
+def normalize_route_via(route_via: str) -> str:
+    """Normalize a multi-leg route string: SQL-PAE-BFI → KSQL-KPAE-KBFI."""
+    if not route_via:
+        return ""
+    legs = [normalize_airport(leg.strip()) for leg in route_via.split("-") if leg.strip()]
+    return "-".join(legs)
 
 
 @app.route("/")
@@ -170,9 +178,9 @@ def create_entry():
         date=data.get("date", ""),
         aircraft_model=data.get("aircraft_model", ""),
         aircraft_ident=data.get("aircraft_ident", "").upper(),
-        route_from=data.get("route_from", "").upper(),
-        route_to=data.get("route_to", "").upper(),
-        route_via=data.get("route_via", "").upper(),
+        route_from=normalize_airport(data.get("route_from", "")),
+        route_to=normalize_airport(data.get("route_to", "")),
+        route_via=normalize_route_via(data.get("route_via", "")),
         sel=parse_float(data.get("sel")),
         mel=parse_float(data.get("mel")),
         day=parse_float(data.get("day")),
@@ -211,9 +219,9 @@ def update_entry(entry_id):
     entry.date = data.get("date", entry.date)
     entry.aircraft_model = data.get("aircraft_model", entry.aircraft_model)
     entry.aircraft_ident = data.get("aircraft_ident", entry.aircraft_ident).upper()
-    entry.route_from = data.get("route_from", entry.route_from).upper()
-    entry.route_to = data.get("route_to", entry.route_to).upper()
-    entry.route_via = data.get("route_via", entry.route_via).upper()
+    entry.route_from = normalize_airport(data.get("route_from", entry.route_from))
+    entry.route_to = normalize_airport(data.get("route_to", entry.route_to))
+    entry.route_via = normalize_route_via(data.get("route_via", entry.route_via))
     entry.sel = parse_float(data.get("sel"), entry.sel)
     entry.mel = parse_float(data.get("mel"), entry.mel)
     entry.day = parse_float(data.get("day"), entry.day)
@@ -708,8 +716,8 @@ def import_flightaware():
             date=flight_data.get("date", ""),
             aircraft_model=flight_data.get("aircraft_model", ""),
             aircraft_ident=flight_data.get("aircraft_ident", "").upper(),
-            route_from=flight_data.get("route_from", "").upper(),
-            route_to=flight_data.get("route_to", "").upper(),
+            route_from=normalize_airport(flight_data.get("route_from", "")),
+            route_to=normalize_airport(flight_data.get("route_to", "")),
             sel=parse_float(flight_data.get("sel")),
             mel=parse_float(flight_data.get("mel")),
             day=parse_float(flight_data.get("day")),
@@ -833,9 +841,9 @@ def import_scanned():
             date=entry_data.get("date", ""),
             aircraft_model=entry_data.get("aircraft_model", ""),
             aircraft_ident=entry_data.get("aircraft_ident", "").upper(),
-            route_from=entry_data.get("route_from", "").upper(),
-            route_to=entry_data.get("route_to", "").upper(),
-            route_via=entry_data.get("route_via", "").upper(),
+            route_from=normalize_airport(entry_data.get("route_from", "")),
+            route_to=normalize_airport(entry_data.get("route_to", "")),
+            route_via=normalize_route_via(entry_data.get("route_via", "")),
             sel=parse_float(entry_data.get("sel")),
             mel=parse_float(entry_data.get("mel")),
             day=parse_float(entry_data.get("day")),
