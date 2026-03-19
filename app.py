@@ -579,7 +579,7 @@ def search_flightaware_stream():
     uid = current_user.id
     tail_number = request.args.get("tail_number") or current_user.default_tail_number or Config.DEFAULT_TAIL_NUMBER
 
-    most_recent_date = storage.get_most_recent_flight_date(user_id=uid)
+    most_recent_date = storage.get_most_recent_flight_date(user_id=uid, source="flightaware")
     existing_keys = storage.get_existing_keys(user_id=uid)
 
     def generate():

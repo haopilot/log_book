@@ -378,22 +378,38 @@ class SQLiteStorage:
             row = cursor.fetchone()
             return dict(row)
 
-    def get_most_recent_flight_date(self, user_id: str = "") -> Optional[datetime]:
-        """Get the most recent flight date for a user."""
+    def get_most_recent_flight_date(self, user_id: str = "", source: str = "") -> Optional[datetime]:
+        """Get the most recent flight date for a user, optionally filtered by source."""
         with self._get_connection() as conn:
-            cursor = conn.execute("""
-                SELECT date FROM entries
-                WHERE user_id = ? AND date != '' AND date IS NOT NULL
-                ORDER BY
-                    CASE
-                        WHEN date LIKE '%/%/%'
-                        THEN substr(date, instr(date, '/') + instr(substr(date, instr(date, '/') + 1), '/') + 1) || '-' ||
-                             printf('%02d', CAST(substr(date, 1, instr(date, '/') - 1) AS INTEGER)) || '-' ||
-                             printf('%02d', CAST(substr(date, instr(date, '/') + 1, instr(substr(date, instr(date, '/') + 1), '/') - 1) AS INTEGER))
-                        ELSE date
-                    END DESC
-                LIMIT 1
-            """, (user_id,))
+            if source:
+                cursor = conn.execute("""
+                    SELECT date FROM entries
+                    WHERE user_id = ? AND date != '' AND date IS NOT NULL
+                        AND source = ?
+                    ORDER BY
+                        CASE
+                            WHEN date LIKE '%/%/%'
+                            THEN substr(date, instr(date, '/') + instr(substr(date, instr(date, '/') + 1), '/') + 1) || '-' ||
+                                 printf('%02d', CAST(substr(date, 1, instr(date, '/') - 1) AS INTEGER)) || '-' ||
+                                 printf('%02d', CAST(substr(date, instr(date, '/') + 1, instr(substr(date, instr(date, '/') + 1), '/') - 1) AS INTEGER))
+                            ELSE date
+                        END DESC
+                    LIMIT 1
+                """, (user_id, source))
+            else:
+                cursor = conn.execute("""
+                    SELECT date FROM entries
+                    WHERE user_id = ? AND date != '' AND date IS NOT NULL
+                    ORDER BY
+                        CASE
+                            WHEN date LIKE '%/%/%'
+                            THEN substr(date, instr(date, '/') + instr(substr(date, instr(date, '/') + 1), '/') + 1) || '-' ||
+                                 printf('%02d', CAST(substr(date, 1, instr(date, '/') - 1) AS INTEGER)) || '-' ||
+                                 printf('%02d', CAST(substr(date, instr(date, '/') + 1, instr(substr(date, instr(date, '/') + 1), '/') - 1) AS INTEGER))
+                            ELSE date
+                        END DESC
+                    LIMIT 1
+                """, (user_id,))
             row = cursor.fetchone()
             if row and row["date"]:
                 try:

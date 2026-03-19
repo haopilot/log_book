@@ -403,17 +403,27 @@ class PostgresStorage:
                 # Convert Decimal types to float for JSON serialization
                 return {k: float(v) if v is not None else 0 for k, v in row.items()}
 
-    def get_most_recent_flight_date(self, user_id: str = "") -> Optional[datetime]:
-        """Get the most recent flight date for a user."""
+    def get_most_recent_flight_date(self, user_id: str = "", source: str = "") -> Optional[datetime]:
+        """Get the most recent flight date for a user, optionally filtered by source."""
         with self._get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("""
-                    SELECT date FROM entries
-                    WHERE user_id = %s AND date != '' AND date IS NOT NULL
-                        AND date ~ '^[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}$'
-                    ORDER BY TO_DATE(date, 'MM/DD/YYYY') DESC
-                    LIMIT 1
-                """, (user_id,))
+                if source:
+                    cur.execute("""
+                        SELECT date FROM entries
+                        WHERE user_id = %s AND date != '' AND date IS NOT NULL
+                            AND date ~ '^[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}$'
+                            AND source = %s
+                        ORDER BY TO_DATE(date, 'MM/DD/YYYY') DESC
+                        LIMIT 1
+                    """, (user_id, source))
+                else:
+                    cur.execute("""
+                        SELECT date FROM entries
+                        WHERE user_id = %s AND date != '' AND date IS NOT NULL
+                            AND date ~ '^[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}$'
+                        ORDER BY TO_DATE(date, 'MM/DD/YYYY') DESC
+                        LIMIT 1
+                    """, (user_id,))
                 row = cur.fetchone()
                 if row and row["date"]:
                     try:
