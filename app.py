@@ -21,6 +21,15 @@ app.config.from_object(Config)
 app.config["PREFERRED_URL_SCHEME"] = "https"
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
+# Pre-load airport/runway CSV caches at startup so first scan isn't slow
+try:
+    from services.airport_lookup import _load_icao_map
+    _load_icao_map()
+    from services.airport_approaches import _get_runways
+    _get_runways("")  # triggers _load_runway_data()
+except Exception as e:
+    print(f"Warning: failed to pre-load airport data: {e}")
+
 # Use PostgreSQL if DATABASE_URL is set, otherwise fall back to SQLite
 if Config.DATABASE_URL:
     from services.postgres_storage import PostgresStorage
