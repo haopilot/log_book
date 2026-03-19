@@ -528,6 +528,12 @@
       }
     }
 
+    // Escape HTML special characters for safe insertion into attribute values
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
     // Render editable entries table
     function renderEntries(entries) {
       const tbody = document.getElementById('entriesTableBody');
@@ -543,10 +549,10 @@
         const routeDisplay = entry.route_via || ((entry.route_from || '') + (entry.route_to ? '-' + entry.route_to : ''));
         row.innerHTML = `
           <td><button class="delete-row" onclick="deleteRow(${idx})" title="Remove"><i class="fas fa-times"></i></button></td>
-          <td><input type="text" value="${entry.date || ''}" data-field="date" class="medium"></td>
-          <td><input type="text" value="${entry.aircraft_model || ''}" data-field="aircraft_model" class="medium"></td>
-          <td><input type="text" value="${entry.aircraft_ident || ''}" data-field="aircraft_ident" class="medium"></td>
-          <td><input type="text" value="${routeDisplay}" data-field="route_via" class="medium"></td>
+          <td><input type="text" value="${escapeHtml(entry.date)}" data-field="date" class="medium"></td>
+          <td><input type="text" value="${escapeHtml(entry.aircraft_model)}" data-field="aircraft_model" class="medium"></td>
+          <td><input type="text" value="${escapeHtml(entry.aircraft_ident)}" data-field="aircraft_ident" class="medium"></td>
+          <td><input type="text" value="${escapeHtml(routeDisplay)}" data-field="route_via" class="medium"></td>
           <td><input type="number" value="${entry.total_duration || 0}" data-field="total_duration" class="narrow" step="0.1"></td>
           <td><input type="number" value="${entry.pic || 0}" data-field="pic" class="narrow" step="0.1"></td>
           <td><input type="number" value="${entry.dual_recd || 0}" data-field="dual_recd" class="narrow" step="0.1"></td>
@@ -555,7 +561,7 @@
           <td><input type="number" value="${entry.night || 0}" data-field="night" class="narrow" step="0.1"></td>
           <td><input type="number" value="${entry.sim || 0}" data-field="sim" class="narrow" step="0.1"></td>
           <td><input type="number" value="${entry.landings_day || 0}" data-field="landings_day" class="narrow" step="1"></td>
-          <td><input type="text" value="${entry.remarks || ''}" data-field="remarks"></td>
+          <td><input type="text" value="${escapeHtml(entry.remarks)}" data-field="remarks"></td>
         `;
         tbody.appendChild(row);
       });
