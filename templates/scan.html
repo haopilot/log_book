@@ -605,12 +605,16 @@
             entry[field] = input.value;
           }
         });
-        // Parse route_via back into route_from/route_to
+        // Parse route back into route_from/route_to
         if (entry.route_via) {
           const legs = entry.route_via.split('-').map(s => s.trim()).filter(Boolean);
           if (legs.length >= 2) {
             entry.route_from = legs[0];
             entry.route_to = legs[legs.length - 1];
+          }
+          // Clear route_via for simple A→B flights (only keep for 3+ legs)
+          if (legs.length <= 2) {
+            entry.route_via = '';
           }
         }
         entries.push(entry);

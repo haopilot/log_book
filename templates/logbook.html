@@ -752,7 +752,7 @@
           <div class="flight-content">
             <div class="flight-main">
               <div class="flight-route">
-                {% if entry.route_via %}
+                {% if entry.route_via and entry.route_via.split('-')|length > 2 %}
                 <span>{{ entry.route_via }}</span>
                 {% else %}
                 <span>{{ entry.route_from or '—' }}</span>
