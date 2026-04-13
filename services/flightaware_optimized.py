@@ -8,7 +8,8 @@ Key optimizations:
 4. No expensive operations during streaming
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 from typing import Optional
 import certifi
 import requests
@@ -261,7 +262,7 @@ class OptimizedFlightAwareService:
                 dep_dt = datetime.fromisoformat(dep.replace("Z", "+00:00"))
                 arr_dt = datetime.fromisoformat(arr.replace("Z", "+00:00"))
                 duration = round((arr_dt - dep_dt).total_seconds() / 3600, 1)
-                date = dep_dt.strftime("%m/%d/%Y")
+                date = dep_dt.astimezone(ZoneInfo("America/Los_Angeles")).strftime("%m/%d/%Y")
                 estimated = not (flight.get("actual_off") and flight.get("actual_on"))
             except Exception:
                 pass
@@ -286,7 +287,7 @@ class OptimizedFlightAwareService:
             if not date and dep:
                 try:
                     dep_dt = datetime.fromisoformat(dep.replace("Z", "+00:00"))
-                    date = dep_dt.strftime("%m/%d/%Y")
+                    date = dep_dt.astimezone(ZoneInfo("America/Los_Angeles")).strftime("%m/%d/%Y")
                 except Exception:
                     pass
 
