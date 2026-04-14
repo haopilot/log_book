@@ -878,7 +878,39 @@ def import_scanned():
         key = make_entry_key(entry.date, entry.route_from, entry.route_to)
         existing = existing_keys.get(key)
         if existing:
-            entry.id = existing["id"]
+            # Merge: scan values win on conflicts, otherwise combine
+            old = storage.get_entry(existing["id"], user_id=uid)
+            if old:
+                entry.id = old.id
+                # Numeric fields: prefer scan value if non-zero, else keep existing
+                for fld in ('sel', 'mel', 'day', 'night', 'cross_country',
+                            'actual_inst', 'simulated_inst', 'pic', 'sic',
+                            'dual_recd', 'dual_given', 'solo', 'sim',
+                            'total_duration'):
+                    scan_val = getattr(entry, fld)
+                    old_val = getattr(old, fld)
+                    setattr(entry, fld, scan_val if scan_val else old_val)
+                for fld in ('num_inst_app', 'landings_day', 'landings_night'):
+                    scan_val = getattr(entry, fld)
+                    old_val = getattr(old, fld)
+                    setattr(entry, fld, scan_val if scan_val else old_val)
+                # String fields: prefer scan if non-empty, else keep existing
+                for fld in ('aircraft_model', 'aircraft_ident', 'route_via', 'remarks'):
+                    scan_val = getattr(entry, fld)
+                    old_val = getattr(old, fld)
+                    setattr(entry, fld, scan_val if scan_val else old_val)
+                # Keep reviewed/locked status from existing entry
+                entry.reviewed = old.reviewed
+                entry.locked = old.locked
+                entry.created_at = old.created_at
+                # Source: mark as both if different
+                if old.source and old.source != "scan":
+                    entry.source = f"{old.source}+scan"
+                # Keep FlightAware's estimated flag only if scan didn't provide duration
+                if not entry_data.get("total_duration"):
+                    entry.duration_estimated = old.duration_estimated
+                else:
+                    entry.duration_estimated = False
             storage.update_entry(entry, user_id=uid)
             entry_ids.append(entry.id)
             updated_count += 1
