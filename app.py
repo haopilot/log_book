@@ -100,8 +100,24 @@ def normalize_route_via(route_via: str) -> str:
 
 
 @app.route("/")
-@login_required
 def index():
+    """Landing page with cards for Logbook and Journey."""
+    if current_user.is_authenticated:
+        logbook_url = url_for("logbook_view")
+        journey_url = "https://rtw-flight-map.onrender.com"
+    else:
+        logbook_url = url_for("auth.login", next=url_for("logbook_view"))
+        journey_url = url_for("auth.login")
+    return render_template(
+        "landing.html",
+        logbook_url=logbook_url,
+        journey_url=journey_url,
+    )
+
+
+@app.route("/logbook")
+@login_required
+def logbook_view():
     """Main logbook view - summary list."""
     uid = current_user.id
     entries = storage.get_all_entries(user_id=uid, sort_by_date=True)
@@ -156,7 +172,7 @@ def view_entry(entry_id):
     """View/edit a specific flight entry."""
     entry = storage.get_entry(entry_id, user_id=current_user.id)
     if not entry:
-        return redirect(url_for("index"))
+        return redirect(url_for("logbook_view"))
     return render_template("entry.html", entry=entry.to_dict(), is_new=False)
 
 
