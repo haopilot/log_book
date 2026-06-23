@@ -263,7 +263,13 @@
       justify-content: space-between;
       align-items: center;
       gap: 12px;
+      position: sticky;
+      bottom: 0;
+      z-index: 100;
     }
+
+    /* Reserve space at end of main so footer doesn't cover last field */
+    .form-container { padding-bottom: 96px; }
 
     .footer-actions {
       display: flex;
@@ -823,7 +829,7 @@
 
         if (res.ok) {
           showToast(isEdit ? 'Flight updated!' : 'Flight saved!');
-          setTimeout(() => window.location = '/', 800);
+          setTimeout(() => window.location = '/logbook', 800);
         } else {
           const err = await res.json();
           showToast(err.error || 'Error saving', true);
@@ -840,7 +846,7 @@
         const res = await fetch(`/api/entries/${entryId}`, { method: 'DELETE' });
         if (res.ok) {
           showToast('Flight deleted');
-          setTimeout(() => window.location = '/', 800);
+          setTimeout(() => window.location = '/logbook', 800);
         } else {
           const err = await res.json();
           showToast(err.error || 'Error deleting', true);
