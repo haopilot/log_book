@@ -657,6 +657,15 @@ class PostgresStorage:
             conn.commit()
             return cur.rowcount > 0
 
+    def delete_user(self, user_id: str) -> bool:
+        """Delete a user and all their entries."""
+        with self._get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM entries WHERE user_id = %s", (user_id,))
+                cur.execute("DELETE FROM users WHERE id = %s", (user_id,))
+                conn.commit()
+                return cur.rowcount > 0
+
     def _row_to_user(self, row: dict) -> User:
         """Convert a database row to User."""
         return User(

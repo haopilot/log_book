@@ -621,6 +621,14 @@ class SQLiteStorage:
             conn.commit()
             return cursor.rowcount > 0
 
+    def delete_user(self, user_id: str) -> bool:
+        """Delete a user and all their entries."""
+        with self._get_connection() as conn:
+            conn.execute("DELETE FROM entries WHERE user_id = ?", (user_id,))
+            cursor = conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+            conn.commit()
+            return cursor.rowcount > 0
+
     def _row_to_user(self, row: sqlite3.Row) -> User:
         """Convert a database row to User."""
         keys = row.keys()

@@ -206,10 +206,11 @@
         </thead>
         <tbody>
           {% for u in users %}
+          {% set u_is_admin = is_admin(u) %}
           <tr>
             <td>
               {{ u.email }}
-              {% if u.email.lower() == admin_email %}<span class="badge-admin">admin</span>{% endif %}
+              {% if u_is_admin %}<span class="badge-admin">admin</span>{% endif %}
             </td>
             <td class="token-cell {% if not u.access_token %}empty{% endif %}">
               {% if u.access_token %}
@@ -225,7 +226,7 @@
                 <form method="POST" action="{{ url_for('auth.admin_regenerate_token', user_id=u.id) }}">
                   <button type="submit" class="btn-secondary">Regenerate</button>
                 </form>
-                {% if u.email.lower() != admin_email %}
+                {% if not u_is_admin %}
                 <form method="POST" action="{{ url_for('auth.admin_delete_user', user_id=u.id) }}"
                       onsubmit="return confirm('Delete {{ u.email }}?');">
                   <button type="submit" class="btn-danger">Delete</button>
