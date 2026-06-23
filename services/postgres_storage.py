@@ -128,6 +128,7 @@ class PostgresStorage:
             for col, col_def in [
                 ("google_refresh_token", "TEXT DEFAULT ''"),
                 ("backup_sheet_id", "TEXT DEFAULT ''"),
+                ("access_token", "TEXT DEFAULT ''"),
             ]:
                 try:
                     with conn.cursor() as cur:
@@ -135,6 +136,13 @@ class PostgresStorage:
                     conn.commit()
                 except psycopg2.errors.DuplicateColumn:
                     conn.rollback()
+
+            try:
+                with conn.cursor() as cur:
+                    cur.execute("CREATE INDEX IF NOT EXISTS idx_access_token ON users(access_token)")
+                conn.commit()
+            except Exception:
+                conn.rollback()
 
         # Normalize existing airport codes to ICAO
         try:
@@ -563,14 +571,15 @@ class PostgresStorage:
                         id, email, password_hash, name, google_id, avatar_url,
                         google_refresh_token, backup_sheet_id,
                         default_tail_number, default_aircraft_type, default_departure,
-                        created_at, updated_at
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                        access_token, created_at, updated_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                     (
                         user.id, user.email, user.password_hash, user.name,
                         user.google_id or None, user.avatar_url,
                         user.google_refresh_token, user.backup_sheet_id,
                         user.default_tail_number, user.default_aircraft_type,
-                        user.default_departure, user.created_at, user.updated_at,
+                        user.default_departure, user.access_token,
+                        user.created_at, user.updated_at,
                     ),
                 )
             conn.commit()
@@ -604,6 +613,26 @@ class PostgresStorage:
                 row = cur.fetchone()
                 return self._row_to_user(row) if row else None
 
+    def get_user_by_access_token(self, token: str) -> Optional[User]:
+        """Get a user by their access token."""
+        if not token:
+            return None
+        with self._get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT * FROM users WHERE access_token = %s", (token,)
+                )
+                row = cur.fetchone()
+                return self._row_to_user(row) if row else None
+
+    def list_users(self) -> list[User]:
+        """List all users (admin use)."""
+        with self._get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT * FROM users ORDER BY created_at")
+                rows = cur.fetchall()
+                return [self._row_to_user(row) for row in rows]
+
     def update_user(self, user: User) -> bool:
         """Update a user's profile."""
         user.updated_at = datetime.utcnow().isoformat()
@@ -614,14 +643,15 @@ class PostgresStorage:
                         email=%s, password_hash=%s, name=%s, google_id=%s, avatar_url=%s,
                         google_refresh_token=%s, backup_sheet_id=%s,
                         default_tail_number=%s, default_aircraft_type=%s, default_departure=%s,
-                        updated_at=%s
+                        access_token=%s, updated_at=%s
                     WHERE id=%s""",
                     (
                         user.email, user.password_hash, user.name,
                         user.google_id or None, user.avatar_url,
                         user.google_refresh_token, user.backup_sheet_id,
                         user.default_tail_number, user.default_aircraft_type,
-                        user.default_departure, user.updated_at, user.id,
+                        user.default_departure, user.access_token,
+                        user.updated_at, user.id,
                     ),
                 )
             conn.commit()
@@ -641,6 +671,7 @@ class PostgresStorage:
             default_tail_number=row["default_tail_number"] or "",
             default_aircraft_type=row["default_aircraft_type"] or "",
             default_departure=row["default_departure"] or "",
+            access_token=row.get("access_token") or "",
             created_at=row["created_at"] or "",
             updated_at=row["updated_at"] or "",
         )

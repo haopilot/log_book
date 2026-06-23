@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — MyAgenticLife</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #0d5d56;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --radius: 8px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand { font-weight: 700; color: var(--primary); }
+    .topbar a {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      margin-left: 16px;
+    }
+    .topbar a:hover { color: var(--text); }
+
+    main { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+    h1 { font-size: 1.4rem; margin-bottom: 6px; }
+    .subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px; }
+
+    .flash {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      margin-bottom: 16px;
+    }
+    .flash.success { background: #f0fdf4; color: var(--success); border: 1px solid #bbf7d0; word-break: break-all; }
+    .flash.error { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    .panel h2 { font-size: 1rem; margin-bottom: 16px; }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+    .form-group { flex: 1; }
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    input[type="email"], input[type="text"] {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    input:focus { border-color: var(--primary); }
+    button {
+      padding: 9px 18px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--primary);
+      color: white;
+      transition: background 0.15s;
+    }
+    button:hover { background: var(--primary-dark); }
+    button.btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    button.btn-secondary:hover { background: #f1f5f9; }
+    button.btn-danger {
+      background: white;
+      color: var(--danger);
+      border: 1px solid #fecaca;
+    }
+    button.btn-danger:hover { background: #fef2f2; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .token-cell {
+      font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+      color: var(--text-secondary);
+    }
+    .token-cell.empty { font-style: italic; color: var(--warning); }
+    .badge-admin {
+      display: inline-block;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+    .actions { display: flex; gap: 6px; }
+    .actions form { display: inline; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">MyAgenticLife · Admin</div>
+    <div>
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="{{ url_for('logbook_view') }}">Logbook</a>
+      <a href="{{ url_for('auth.logout') }}">Sign out</a>
+    </div>
+  </div>
+
+  <main>
+    <h1>Users &amp; access tokens</h1>
+    <p class="subtitle">Create users by email and share their access token.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="flash {{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="panel">
+      <h2>Add user</h2>
+      <form method="POST" action="{{ url_for('auth.admin_create_user') }}">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label for="name">Name (optional)</label>
+            <input type="text" id="name" name="name">
+          </div>
+          <button type="submit">Create &amp; generate token</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>Users ({{ users|length }})</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Access token</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td>
+              {{ u.email }}
+              {% if u.email.lower() == admin_email %}<span class="badge-admin">admin</span>{% endif %}
+            </td>
+            <td class="token-cell {% if not u.access_token %}empty{% endif %}">
+              {% if u.access_token %}
+                <span title="Click to copy" onclick="navigator.clipboard.writeText('{{ u.access_token }}'); this.textContent='Copied!'; setTimeout(()=>this.textContent='{{ u.access_token }}',1000);" style="cursor:pointer;">
+                  {{ u.access_token }}
+                </span>
+              {% else %}
+                (no token)
+              {% endif %}
+            </td>
+            <td>
+              <div class="actions">
+                <form method="POST" action="{{ url_for('auth.admin_regenerate_token', user_id=u.id) }}">
+                  <button type="submit" class="btn-secondary">Regenerate</button>
+                </form>
+                {% if u.email.lower() != admin_email %}
+                <form method="POST" action="{{ url_for('auth.admin_delete_user', user_id=u.id) }}"
+                      onsubmit="return confirm('Delete {{ u.email }}?');">
+                  <button type="submit" class="btn-danger">Delete</button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>

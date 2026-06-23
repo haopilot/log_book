@@ -116,12 +116,20 @@ class SQLiteStorage:
             for col, col_def in [
                 ("google_refresh_token", "TEXT DEFAULT ''"),
                 ("backup_sheet_id", "TEXT DEFAULT ''"),
+                ("access_token", "TEXT DEFAULT ''"),
             ]:
                 try:
                     conn.execute(f"ALTER TABLE users ADD COLUMN {col} {col_def}")
                     conn.commit()
                 except sqlite3.OperationalError:
                     pass  # Column already exists
+
+            # Index on access_token for fast lookup
+            try:
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_access_token ON users(access_token)")
+                conn.commit()
+            except sqlite3.OperationalError:
+                pass
 
         # Normalize existing airport codes to ICAO
         try:
@@ -538,14 +546,15 @@ class SQLiteStorage:
                     id, email, password_hash, name, google_id, avatar_url,
                     google_refresh_token, backup_sheet_id,
                     default_tail_number, default_aircraft_type, default_departure,
-                    created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    access_token, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     user.id, user.email, user.password_hash, user.name,
                     user.google_id or None, user.avatar_url,
                     user.google_refresh_token, user.backup_sheet_id,
                     user.default_tail_number, user.default_aircraft_type,
-                    user.default_departure, user.created_at, user.updated_at,
+                    user.default_departure, user.access_token,
+                    user.created_at, user.updated_at,
                 ),
             )
             conn.commit()
@@ -573,6 +582,22 @@ class SQLiteStorage:
             ).fetchone()
             return self._row_to_user(row) if row else None
 
+    def get_user_by_access_token(self, token: str) -> Optional[User]:
+        """Get a user by their access token."""
+        if not token:
+            return None
+        with self._get_connection() as conn:
+            row = conn.execute(
+                "SELECT * FROM users WHERE access_token = ?", (token,)
+            ).fetchone()
+            return self._row_to_user(row) if row else None
+
+    def list_users(self) -> list[User]:
+        """List all users (admin use)."""
+        with self._get_connection() as conn:
+            rows = conn.execute("SELECT * FROM users ORDER BY created_at").fetchall()
+            return [self._row_to_user(row) for row in rows]
+
     def update_user(self, user: User) -> bool:
         """Update a user's profile."""
         user.updated_at = datetime.utcnow().isoformat()
@@ -582,14 +607,15 @@ class SQLiteStorage:
                     email=?, password_hash=?, name=?, google_id=?, avatar_url=?,
                     google_refresh_token=?, backup_sheet_id=?,
                     default_tail_number=?, default_aircraft_type=?, default_departure=?,
-                    updated_at=?
+                    access_token=?, updated_at=?
                 WHERE id=?""",
                 (
                     user.email, user.password_hash, user.name,
                     user.google_id or None, user.avatar_url,
                     user.google_refresh_token, user.backup_sheet_id,
                     user.default_tail_number, user.default_aircraft_type,
-                    user.default_departure, user.updated_at, user.id,
+                    user.default_departure, user.access_token,
+                    user.updated_at, user.id,
                 ),
             )
             conn.commit()
@@ -610,6 +636,7 @@ class SQLiteStorage:
             default_tail_number=row["default_tail_number"] or "",
             default_aircraft_type=row["default_aircraft_type"] or "",
             default_departure=row["default_departure"] or "",
+            access_token=row["access_token"] or "" if "access_token" in keys else "",
             created_at=row["created_at"] or "",
             updated_at=row["updated_at"] or "",
         )

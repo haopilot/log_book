@@ -154,9 +154,12 @@
     <div class="brand">MyAgenticLife</div>
     <div class="topbar-actions">
       {% if current_user.is_authenticated %}
+        {% if is_admin(current_user) %}
+          <a href="{{ url_for('auth.admin') }}">Admin</a>
+        {% endif %}
         <a href="{{ url_for('auth.logout') }}">Sign out</a>
       {% else %}
-        <a href="{{ url_for('auth.login') }}">Sign in</a>
+        <a href="{{ url_for('auth.access') }}">Sign in</a>
       {% endif %}
     </div>
   </div>

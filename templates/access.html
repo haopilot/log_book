@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Access — MyAgenticLife</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #0d5d56;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --danger: #dc2626;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 420px;
+    }
+    .brand {
+      text-align: center;
+      color: var(--primary);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 28px;
+    }
+    h1 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .subtitle {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .flash {
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      background: #fef2f2;
+      color: var(--danger);
+      border: 1px solid #fecaca;
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input[type="text"]:focus { border-color: var(--primary); }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 16px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button:hover { background: var(--primary-dark); }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+    }
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">MyAgenticLife</div>
+    <h1>Enter access token</h1>
+    <p class="subtitle">Paste the access token you received.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="flash">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('auth.access') }}">
+      <label for="token">Access token</label>
+      <input type="text" id="token" name="token" placeholder="xxxx-xxxx-xxxx-xxxx"
+             autocomplete="off" autocapitalize="off" spellcheck="false" autofocus required>
+      <button type="submit">Continue</button>
+    </form>
+
+    <div class="footer">
+      <a href="{{ url_for('index') }}">← Back to home</a>
+    </div>
+  </div>
+</body>
+</html>

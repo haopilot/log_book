@@ -41,9 +41,14 @@ else:
     print(f"Using SQLite database: {Config.SQLITE_DB_PATH}")
 
 # ── Auth setup ─────────────────────────────────────────────────
+from datetime import timedelta
+
+app.permanent_session_lifetime = timedelta(days=90)
+app.config["REMEMBER_COOKIE_DURATION"] = timedelta(days=90)
+
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = "auth.login"
+login_manager.login_view = "auth.access"
 
 
 @login_manager.user_loader
@@ -51,7 +56,7 @@ def load_user(user_id):
     return storage.get_user(user_id)
 
 
-# Google OAuth (only if credentials are configured)
+# Google OAuth client kept registered for future use; UI is hidden.
 oauth = OAuth(app)
 if Config.GOOGLE_OAUTH_CLIENT_ID:
     oauth.register(
@@ -69,10 +74,13 @@ if Config.GOOGLE_OAUTH_CLIENT_ID:
     )
 
 # Register auth blueprint
-from auth import auth_bp, bcrypt  # noqa: E402
+from auth import auth_bp, ensure_admin_bootstrap, is_admin  # noqa: E402
 
-bcrypt.init_app(app)
 app.register_blueprint(auth_bp)
+app.jinja_env.globals["is_admin"] = is_admin
+
+# Ensure admin user exists with a valid token; print token to logs if generated
+ensure_admin_bootstrap(storage)
 
 
 def parse_float(value, default=0.0):
@@ -106,8 +114,8 @@ def index():
         logbook_url = url_for("logbook_view")
         journey_url = "https://rtw-flight-map.onrender.com"
     else:
-        logbook_url = url_for("auth.login", next=url_for("logbook_view"))
-        journey_url = url_for("auth.login")
+        logbook_url = url_for("auth.access", next=url_for("logbook_view"))
+        journey_url = url_for("auth.access")
     return render_template(
         "landing.html",
         logbook_url=logbook_url,
