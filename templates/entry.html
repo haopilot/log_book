@@ -31,14 +31,18 @@
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    html, body {
+      height: 100%;
+    }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
-      min-height: 100vh;
-      min-height: 100dvh;
+      height: 100vh;
+      height: 100dvh;
       color: var(--text);
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
 
     /* Header */
@@ -263,13 +267,8 @@
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      position: sticky;
-      bottom: 0;
-      z-index: 100;
+      flex-shrink: 0;
     }
-
-    /* Reserve space at end of main so footer doesn't cover last field */
-    .form-container { padding-bottom: 96px; }
 
     .footer-actions {
       display: flex;
